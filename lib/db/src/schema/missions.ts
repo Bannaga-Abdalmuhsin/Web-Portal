@@ -1,4 +1,4 @@
-import { pgTable, serial, text, real, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, real, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -23,6 +23,7 @@ export const missionsTable = pgTable("missions", {
   technicianStatus: text("technician_status").default("Pending"),
   reviewedBy: text("reviewed_by").default(""),
   reviewedAt: timestamp("reviewed_at"),
+  assignedTechnicianId: integer("assigned_technician_id"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

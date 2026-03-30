@@ -1,8 +1,11 @@
-# ACES Managed Services Web Portal
+# ACES Managed Services — Platform Overview
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. The primary artifact is the ACES Managed Services web portal — an admin operations management system for fuel/generator maintenance missions, plus a driver mobile web app.
+pnpm workspace monorepo using TypeScript. Consists of three apps:
+1. **Admin Web Portal** — operations management (missions, drivers, sites, technicians)
+2. **Driver Mobile Web App** — driver daily tasks (part of web-portal artifact)
+3. **Technician Native App** — Expo React Native app for field technicians (iOS & Android)
 
 ## Stack
 
@@ -27,22 +30,29 @@ artifacts/
 │   └── src/routes/       # missions, drivers, sites, generators, 
 │                         # notifications, settings, admins, technicians,
 │                         # dashboard, health, drivers (driver routes)
-└── web-portal/           # React + Vite frontend
-    └── src/
-        ├── pages/admin/  # Dashboard, Login, Missions, Sites, Drivers,
-        │                 # Generators, Reports, Notifications, Settings,
-        │                 # Admins, Technicians
-        ├── pages/driver/ # DriverLogin, DriverDashboard, DriverMissionDetail,
-        │                 # DriverNotifications, DriverSettings
-        └── pages/technician/ # TechnicianLogin, TechnicianDashboard,
-                          # TechnicianMissionDetail, TechnicianNotifications,
-                          # TechnicianProfile
+├── web-portal/           # React + Vite frontend
+│   └── src/
+│       ├── pages/admin/  # Dashboard, Login, Missions, Sites, Drivers,
+│       │                 # Generators, Reports, Notifications, Settings,
+│       │                 # Admins, Technicians
+│       └── pages/driver/ # DriverLogin, DriverDashboard, DriverMissionDetail,
+│                         # DriverNotifications, DriverSettings
+└── technician-app/       # Expo React Native app (iOS & Android)
+    ├── app/              # Expo Router screens
+    │   ├── index.tsx     # Auth redirect
+    │   ├── login.tsx     # Login screen
+    │   ├── (tabs)/       # Tab navigation (Tasks, Alerts, Profile)
+    │   └── mission/      # Mission detail + follow-up form
+    ├── contexts/auth.tsx # Auth state (AsyncStorage)
+    ├── lib/api.ts        # API fetch helper
+    └── constants/colors.ts # ACES brand colors
+```
+
 lib/
 ├── api-spec/             # OpenAPI spec + Orval codegen config
 ├── api-client-react/     # Generated React Query hooks
 ├── api-zod/              # Generated Zod schemas from OpenAPI
 └── db/                   # Drizzle ORM schema + DB connection
-```
 
 ## Authentication
 
@@ -50,6 +60,9 @@ lib/
 - Auth stored in localStorage (`aces_auth` key) as JSON
 - Admin type: `{ type: "admin", username, role }`
 - Driver type: `{ type: "driver", driverId, username }`
+- **Technician app**: auth stored in AsyncStorage (`aces_tech_auth` key)
+- Technician type: `{ technicianId, name, email, zone, token }`
+- Demo technician: `ahmed@aces-sa.com / Tech@1234`
 - Login redirects explicitly via `setLocation("/")` after success
 
 ## ACES Branding
@@ -107,12 +120,16 @@ All routes under `/api` prefix:
 - `GET/PUT/DELETE /api/admins/:id`
 - `GET/POST /api/technicians`
 - `GET/PUT/DELETE /api/technicians/:id`
+- `PUT /api/technicians/:id/expo-push-token` — register Expo push token
 - `GET /api/dashboard/kpis`
 - `POST /api/auth/login` — admin login (SHA-256 password)
 - `POST /api/driver/login` — driver login
 - `GET /api/driver/tasks?driverId=`
 - `GET/PUT /api/driver/tasks/:id`
 - `GET /api/driver/notifications?driverId=`
+- `POST /api/technician/login` — technician app login
+- `GET /api/technician/missions?technicianId=` — filter by assigned technician
+- `PUT /api/technician/missions/:id/followup` — submit follow-up review
 
 ## Password Hashing
 

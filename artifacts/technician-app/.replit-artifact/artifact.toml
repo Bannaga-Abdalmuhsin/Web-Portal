@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/technician-app/"
+title = "ACES Technician App"
+version = "1.0.0"
+id = "artifacts/technician-app"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/technician-app/" ]
+localPort = 22134
+
+[services.development]
+run = "pnpm --filter @workspace/technician-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/technician-app", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/technician-app", "run", "serve" ]
+
+[services.env]
+PORT = "22134"
+BASE_PATH = "/technician-app/"

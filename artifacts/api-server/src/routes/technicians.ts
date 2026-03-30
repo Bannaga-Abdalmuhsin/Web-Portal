@@ -111,15 +111,38 @@ router.post("/technician/login", async (req, res) => {
   }
 });
 
+// Register Expo push token for technician
+router.put("/technicians/:id/expo-push-token", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { expoPushToken } = req.body;
+    if (!expoPushToken) return res.status(400).json({ error: "expoPushToken required" });
+    const [tech] = await db.update(techniciansTable)
+      .set({ expoPushToken })
+      .where(eq(techniciansTable.id, id))
+      .returning();
+    if (!tech) return res.status(404).json({ error: "Not found" });
+    res.json({ success: true });
+  } catch (err) {
+    req.log.error({ err }, "Failed to register push token");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Technician missions list (for follow-up)
 router.get("/technician/missions", async (req, res) => {
   try {
     const statusFilter = req.query.status as string | undefined;
+    const technicianId = req.query.technicianId ? parseInt(req.query.technicianId as string) : undefined;
 
     let missions = await db.select().from(missionsTable).orderBy(desc(missionsTable.createdAt));
 
     if (statusFilter) {
       missions = missions.filter((m) => m.missionStatus === statusFilter);
+    }
+
+    if (technicianId) {
+      missions = missions.filter((m) => m.assignedTechnicianId === technicianId);
     }
 
     res.json(missions.map((m) => ({
