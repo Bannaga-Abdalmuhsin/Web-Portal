@@ -11,7 +11,9 @@ function hashPassword(password: string): string {
 }
 
 function getSecret(): string {
-  return process.env.SESSION_SECRET ?? "aces-dev-secret-change-in-production";
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error("SESSION_SECRET is not configured");
+  return secret;
 }
 
 /**
@@ -50,10 +52,18 @@ function verifyTechToken(authHeader: string | undefined): number | null {
   if (isNaN(id) || !timestamp || !providedHmac) return null;
 
   const payload = `tech-${id}-${timestamp}`;
-  const expectedHmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
+  let expectedHmac: string;
+  try {
+    expectedHmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
+  } catch {
+    return null;
+  }
+
+  // Guard length mismatch before timingSafeEqual (throws if buffers differ in length)
+  if (providedHmac.length !== expectedHmac.length) return null;
 
   // Constant-time comparison to prevent timing attacks
-  if (!crypto.timingSafeEqual(Buffer.from(providedHmac), Buffer.from(expectedHmac))) return null;
+  if (!crypto.timingSafeEqual(Buffer.from(providedHmac, "utf8"), Buffer.from(expectedHmac, "utf8"))) return null;
 
   return id;
 }
@@ -212,7 +222,7 @@ router.put("/technicians/:id/fcm-token", async (req, res) => {
     }
 
     const [tech] = await db.update(techniciansTable)
-      .set({ expoPushToken: token })
+      .set({ fcmToken: token, expoPushToken: token })
       .where(eq(techniciansTable.id, technicianId))
       .returning();
     if (!tech) return res.status(404).json({ error: "Not found" });

@@ -128,9 +128,10 @@ router.put("/missions/:id", async (req, res) => {
     const oldTechId = before?.assignedTechnicianId;
     if (newTechId && newTechId !== oldTechId) {
       const [tech] = await db.select().from(techniciansTable).where(eq(techniciansTable.id, newTechId));
-      if (tech?.expoPushToken) {
+      const pushToken = tech?.fcmToken ?? tech?.expoPushToken ?? null;
+      if (pushToken) {
         sendExpoPushNotification(
-          tech.expoPushToken,
+          pushToken,
           "New Mission Assigned",
           `Site: ${updated.siteName} — ${updated.missionId}`,
           { missionId: updated.id },

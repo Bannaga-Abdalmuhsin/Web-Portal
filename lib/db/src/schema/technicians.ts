@@ -11,6 +11,7 @@ export const techniciansTable = pgTable("technicians", {
   active: boolean("active").notNull().default(true),
   passwordHash: text("password_hash").notNull().default(""),
   expoPushToken: text("expo_push_token"),
+  fcmToken: text("fcm_token"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
