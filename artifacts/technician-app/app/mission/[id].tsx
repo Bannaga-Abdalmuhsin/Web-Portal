@@ -76,12 +76,9 @@ export default function MissionDetailScreen() {
   const { data: mission, isLoading, error } = useQuery<Mission>({
     queryKey: ["mission", id],
     queryFn: async () => {
-      const res = await apiFetch("/api/technician/missions");
-      if (!res.ok) throw new Error("Failed to fetch missions");
-      const all: Mission[] = await res.json();
-      const found = all.find((m) => m.id === parseInt(id ?? "0"));
-      if (!found) throw new Error("Mission not found");
-      return found;
+      const res = await apiFetch(`/api/technician/missions/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch mission");
+      return res.json() as Promise<Mission>;
     },
   });
 

@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { missionsTable, techniciansTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -9,7 +10,7 @@ async function sendExpoPushNotification(token: string, title: string, body: stri
   // Accept both "ExponentPushToken[...]" (Expo Go) and "ExpoPushToken[...]" (EAS builds)
   if (!token || !(token.startsWith("ExponentPushToken") || token.startsWith("ExpoPushToken"))) return;
   try {
-    await fetch("https://exp.host/--/api/v2/push/send", {
+    const response = await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -17,8 +18,13 @@ async function sendExpoPushNotification(token: string, title: string, body: stri
       },
       body: JSON.stringify({ to: token, title, body, data: data ?? {} }),
     });
-  } catch {
-    // Non-critical: push failures should not break the request
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      logger.warn({ status: response.status, body: text }, "Expo push send returned non-OK status");
+    }
+  } catch (err) {
+    // Non-critical: push failures should not break the mission update request
+    logger.warn({ err }, "Expo push notification failed (network/timeout)");
   }
 }
 

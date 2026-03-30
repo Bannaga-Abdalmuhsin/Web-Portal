@@ -220,6 +220,49 @@ router.get("/technician/missions", async (req, res) => {
   }
 });
 
+// Technician mission detail — authenticated, filtered to assigned mission
+router.get("/technician/missions/:id", async (req, res) => {
+  try {
+    const technicianId = await requireTechnicianAuth(req, res);
+    if (technicianId === null) return;
+
+    const missionId = parseInt(req.params.id);
+    const [mission] = await db.select().from(missionsTable)
+      .where(eq(missionsTable.id, missionId));
+
+    if (!mission) return res.status(404).json({ error: "Mission not found" });
+    if (mission.assignedTechnicianId !== technicianId) {
+      return res.status(403).json({ error: "Not assigned to this mission" });
+    }
+
+    res.json({
+      id: mission.id,
+      missionId: mission.missionId,
+      siteName: mission.siteName,
+      generator: mission.generator,
+      project: mission.project,
+      driverName: mission.driverName,
+      assignedDriver: mission.assignedDriver,
+      createdDate: mission.createdDate?.toISOString() ?? null,
+      filledLiters: mission.filledLiters,
+      virtualCalculated: mission.virtualCalculated,
+      actualInTank: mission.actualInTank,
+      quantityAddedLastTask: mission.quantityAddedLastTask,
+      city: mission.city,
+      notes: mission.notes,
+      missionStatus: mission.missionStatus,
+      createdBy: mission.createdBy,
+      technicianRemark: mission.technicianRemark,
+      technicianStatus: mission.technicianStatus,
+      reviewedBy: mission.reviewedBy,
+      reviewedAt: mission.reviewedAt?.toISOString() ?? null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Failed to get technician mission detail");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Technician follow-up submission — authenticated + assignment verified
 router.put("/technician/missions/:id/followup", async (req, res) => {
   try {
