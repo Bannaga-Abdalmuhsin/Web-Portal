@@ -49,7 +49,13 @@ function verifyTechToken(authHeader: string | undefined): number | null {
   const timestamp = token.slice(secondDash + 1, thirdDash);
   const providedHmac = token.slice(thirdDash + 1);
 
-  if (isNaN(id) || !timestamp || !providedHmac) return null;
+  const ts = parseInt(timestamp, 10);
+  if (isNaN(id) || isNaN(ts) || !providedHmac) return null;
+
+  // Reject tokens older than 30 days or from the future
+  const TOKEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+  const age = Date.now() - ts;
+  if (age < 0 || age > TOKEN_MAX_AGE_MS) return null;
 
   const payload = `tech-${id}-${timestamp}`;
   let expectedHmac: string;

@@ -10,6 +10,10 @@ export const techniciansTable = pgTable("technicians", {
   zone: text("zone").notNull().default(""),
   active: boolean("active").notNull().default(true),
   passwordHash: text("password_hash").notNull().default(""),
+  // Push token registered via PUT /api/technicians/:id/fcm-token.
+  // Both columns are written simultaneously by the API route.
+  // expoPushToken (legacy) and fcmToken are identical in value —
+  // fcmToken is the canonical field; expoPushToken is kept for backward compat.
   expoPushToken: text("expo_push_token"),
   fcmToken: text("fcm_token"),
   createdAt: timestamp("created_at").defaultNow(),
