@@ -1,22 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ACES Managed Services API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: missions
+    description: Mission operations
+  - name: drivers
+    description: Driver operations
+  - name: sites
+    description: Site operations
+  - name: generators
+    description: Generator operations
+  - name: notifications
+    description: Notification operations
+  - name: settings
+    description: Settings operations
+  - name: admins
+    description: Admin user operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,645 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /missions:
+    get:
+      operationId: listMissions
+      tags: [missions]
+      summary: List all missions
+      responses:
+        "200":
+          description: List of missions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mission"
+    post:
+      operationId: createMission
+      tags: [missions]
+      summary: Create a mission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMissionInput"
+      responses:
+        "201":
+          description: Created mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+
+  /missions/{id}:
+    get:
+      operationId: getMission
+      tags: [missions]
+      summary: Get a mission by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+    put:
+      operationId: updateMission
+      tags: [missions]
+      summary: Update a mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMissionInput"
+      responses:
+        "200":
+          description: Updated mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+    delete:
+      operationId: deleteMission
+      tags: [missions]
+      summary: Delete a mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /drivers:
+    get:
+      operationId: listDrivers
+      tags: [drivers]
+      summary: List all drivers
+      responses:
+        "200":
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Driver"
+    post:
+      operationId: createDriver
+      tags: [drivers]
+      summary: Create a driver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDriverInput"
+      responses:
+        "201":
+          description: Created driver
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+
+  /drivers/{id}:
+    put:
+      operationId: updateDriver
+      tags: [drivers]
+      summary: Update a driver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDriverInput"
+      responses:
+        "200":
+          description: Updated driver
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+    delete:
+      operationId: deleteDriver
+      tags: [drivers]
+      summary: Delete a driver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /sites:
+    get:
+      operationId: listSites
+      tags: [sites]
+      summary: List all sites
+      responses:
+        "200":
+          description: List of sites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Site"
+    post:
+      operationId: createSite
+      tags: [sites]
+      summary: Create a site
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSiteInput"
+      responses:
+        "201":
+          description: Created site
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+
+  /sites/{id}:
+    put:
+      operationId: updateSite
+      tags: [sites]
+      summary: Update a site
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSiteInput"
+      responses:
+        "200":
+          description: Updated site
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+    delete:
+      operationId: deleteSite
+      tags: [sites]
+      summary: Delete a site
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /generators:
+    get:
+      operationId: listGenerators
+      tags: [generators]
+      summary: List all generators
+      responses:
+        "200":
+          description: List of generators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Generator"
+    post:
+      operationId: createGenerator
+      tags: [generators]
+      summary: Create a generator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGeneratorInput"
+      responses:
+        "201":
+          description: Created generator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Generator"
+
+  /generators/{id}:
+    put:
+      operationId: updateGenerator
+      tags: [generators]
+      summary: Update a generator
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGeneratorInput"
+      responses:
+        "200":
+          description: Updated generator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Generator"
+    delete:
+      operationId: deleteGenerator
+      tags: [generators]
+      summary: Delete a generator
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List all notifications
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      operationId: createNotification
+      tags: [notifications]
+      summary: Send a notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationInput"
+      responses:
+        "201":
+          description: Created notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get app settings
+      responses:
+        "200":
+          description: App settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update app settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppSettings"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+
+  /admins:
+    get:
+      operationId: listAdmins
+      tags: [admins]
+      summary: List all admin users
+      responses:
+        "200":
+          description: List of admins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Admin"
+    post:
+      operationId: createAdmin
+      tags: [admins]
+      summary: Create an admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdminInput"
+      responses:
+        "201":
+          description: Created admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admin"
+
+  /admins/{id}:
+    put:
+      operationId: updateAdmin
+      tags: [admins]
+      summary: Update an admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdminInput"
+      responses:
+        "200":
+          description: Updated admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admin"
+    delete:
+      operationId: deleteAdmin
+      tags: [admins]
+      summary: Delete an admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [admins]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+
+  /dashboard/kpis:
+    get:
+      operationId: getDashboardKpis
+      tags: [missions]
+      summary: Get dashboard KPIs
+      responses:
+        "200":
+          description: KPIs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardKpis"
+
+  /driver/login:
+    post:
+      operationId: driverLogin
+      tags: [drivers]
+      summary: Driver login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverLoginInput"
+      responses:
+        "200":
+          description: Driver login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverLoginResponse"
+        "401":
+          description: Invalid credentials
+
+  /driver/tasks:
+    get:
+      operationId: listDriverTasks
+      tags: [drivers]
+      summary: List tasks for a driver
+      parameters:
+        - name: driverId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Driver tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DriverTask"
+
+  /driver/tasks/{id}:
+    get:
+      operationId: getDriverTask
+      tags: [drivers]
+      summary: Get driver task by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Driver task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverTask"
+    put:
+      operationId: updateDriverTask
+      tags: [drivers]
+      summary: Update driver task (submit fuel entry)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDriverTaskInput"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverTask"
+
+  /driver/notifications:
+    get:
+      operationId: listDriverNotifications
+      tags: [drivers]
+      summary: Get notifications for a driver
+      parameters:
+        - name: driverId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Driver notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DriverNotification"
+
+  /technicians:
+    get:
+      operationId: listTechnicians
+      tags: [drivers]
+      summary: List all technicians
+      responses:
+        "200":
+          description: List of technicians
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Technician"
+    post:
+      operationId: createTechnician
+      tags: [drivers]
+      summary: Create a technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTechnicianInput"
+      responses:
+        "201":
+          description: Created technician
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Technician"
+
+  /technicians/{id}:
+    put:
+      operationId: updateTechnician
+      tags: [drivers]
+      summary: Update a technician
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTechnicianInput"
+      responses:
+        "200":
+          description: Updated technician
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Technician"
+    delete:
+      operationId: deleteTechnician
+      tags: [drivers]
+      summary: Delete a technician
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +685,616 @@ components:
       required:
         - status
 
+    Mission:
+      type: object
+      properties:
+        id:
+          type: integer
+        missionId:
+          type: string
+        siteName:
+          type: string
+        generator:
+          type: string
+        project:
+          type: string
+        driverName:
+          type: string
+        assignedDriver:
+          type: string
+        createdDate:
+          type: string
+        filledLiters:
+          type: number
+        virtualCalculated:
+          type: number
+        actualInTank:
+          type: number
+        quantityAddedLastTask:
+          type: number
+        city:
+          type: string
+        notes:
+          type: string
+        missionStatus:
+          type: string
+        createdBy:
+          type: string
+      required:
+        - id
+        - missionId
+        - siteName
+        - missionStatus
+
+    CreateMissionInput:
+      type: object
+      properties:
+        siteName:
+          type: string
+        generator:
+          type: string
+        project:
+          type: string
+        assignedDriver:
+          type: string
+        driverName:
+          type: string
+        filledLiters:
+          type: number
+        virtualCalculated:
+          type: number
+        actualInTank:
+          type: number
+        quantityAddedLastTask:
+          type: number
+        city:
+          type: string
+        notes:
+          type: string
+        missionStatus:
+          type: string
+        createdBy:
+          type: string
+      required:
+        - siteName
+        - missionStatus
+
+    UpdateMissionInput:
+      type: object
+      properties:
+        siteName:
+          type: string
+        generator:
+          type: string
+        project:
+          type: string
+        assignedDriver:
+          type: string
+        driverName:
+          type: string
+        filledLiters:
+          type: number
+        virtualCalculated:
+          type: number
+        actualInTank:
+          type: number
+        quantityAddedLastTask:
+          type: number
+        city:
+          type: string
+        notes:
+          type: string
+        missionStatus:
+          type: string
+
+    Driver:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean
+        passwordHash:
+          type: string
+      required:
+        - id
+        - name
+        - active
+
+    CreateDriverInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean
+        password:
+          type: string
+      required:
+        - name
+
+    UpdateDriverInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean
+        password:
+          type: string
+
+    Site:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        generator:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        project:
+          type: string
+        cowStatus:
+          type: string
+        active:
+          type: boolean
+        currentLiters:
+          type: number
+        dailyVirtual:
+          type: number
+      required:
+        - id
+        - name
+
+    CreateSiteInput:
+      type: object
+      properties:
+        name:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        project:
+          type: string
+        cowStatus:
+          type: string
+        active:
+          type: boolean
+      required:
+        - name
+
+    UpdateSiteInput:
+      type: object
+      properties:
+        name:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        project:
+          type: string
+        cowStatus:
+          type: string
+        active:
+          type: boolean
+
+    Generator:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        site:
+          type: string
+        siteId:
+          type: integer
+        dailyVirtual:
+          type: number
+        lastAvg:
+          type: number
+        rateOk:
+          type: boolean
+        active:
+          type: boolean
+      required:
+        - id
+        - name
+
+    CreateGeneratorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        site:
+          type: string
+        siteId:
+          type: integer
+        dailyVirtual:
+          type: number
+        lastAvg:
+          type: number
+        rateOk:
+          type: boolean
+        active:
+          type: boolean
+      required:
+        - name
+
+    UpdateGeneratorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        site:
+          type: string
+        siteId:
+          type: integer
+        dailyVirtual:
+          type: number
+        lastAvg:
+          type: number
+        rateOk:
+          type: boolean
+        active:
+          type: boolean
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        driverName:
+          type: string
+        sentBy:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - message
+
+    CreateNotificationInput:
+      type: object
+      properties:
+        title:
+          type: string
+        message:
+          type: string
+        driverName:
+          type: string
+        sentBy:
+          type: string
+      required:
+        - title
+        - message
+
+    AppSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        fuelUnitPrice:
+          type: number
+        vatRate:
+          type: number
+        supplierName:
+          type: string
+        supplierAddress:
+          type: string
+        invoicePrefix:
+          type: string
+        invoiceSequence:
+          type: integer
+      required: []
+
+    Admin:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        position:
+          type: string
+      required:
+        - id
+        - name
+        - username
+
+    CreateAdminInput:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        position:
+          type: string
+      required:
+        - name
+        - username
+        - password
+
+    UpdateAdminInput:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        position:
+          type: string
+
+    LoginInput:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        role:
+          type: string
+        username:
+          type: string
+      required:
+        - success
+
+    DashboardKpis:
+      type: object
+      properties:
+        litersToday:
+          type: number
+        liters30d:
+          type: number
+        activeMissions:
+          type: integer
+        activeDrivers:
+          type: integer
+        missionsByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+        missionsByZone:
+          type: array
+          items:
+            type: object
+            properties:
+              zone:
+                type: string
+              count:
+                type: integer
+        litersByZone:
+          type: array
+          items:
+            type: object
+            properties:
+              zone:
+                type: string
+              liters:
+                type: number
+        missionsByCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+        approvedForInvoicing:
+          type: array
+          items:
+            type: object
+            properties:
+              siteName:
+                type: string
+              liters:
+                type: number
+              date:
+                type: string
+      required: []
+
+    DriverLoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    DriverLoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        driverId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        zone:
+          type: string
+        token:
+          type: string
+      required:
+        - success
+
+    DriverTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        driverId:
+          type: integer
+        siteId:
+          type: integer
+        siteName:
+          type: string
+        missionId:
+          type: string
+        scheduledAt:
+          type: string
+        status:
+          type: string
+        requiredLiters:
+          type: number
+        actualInTank:
+          type: number
+        quantityAdded:
+          type: number
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - status
+
+    UpdateDriverTaskInput:
+      type: object
+      properties:
+        status:
+          type: string
+        actualInTank:
+          type: number
+        quantityAdded:
+          type: number
+        notes:
+          type: string
+        observations:
+          type: string
+
+    DriverNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+        driverId:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - message
+
+    Technician:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean
+      required:
+        - id
+        - name
+
+    CreateTechnicianInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean
+      required:
+        - name
+
+    UpdateTechnicianInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        active:
+          type: boolean

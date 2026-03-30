@@ -1,0 +1,25 @@
+packages:
+  "recharts": "Dashboard analytics charts and data visualization"
+  "date-fns": "Human-readable date formatting"
+  "lucide-react": "Beautiful consistent icons"
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod validation resolver for forms"
+  "zod": "Schema validation"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+
+images:
+  - path: "artifacts/web-portal/public/images/logo.png"
+    description: "Modern geometric corporate logo for ACES Managed Services, using deep navy blue (#002D62) and sharp red (#E30613) accents, clean typography, transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/web-portal/public/images/auth-bg.png"
+    description: "Abstract premium background with soft gradients in dark navy blue and subtle red light leaks, professional enterprise tech feel"
+    aspect_ratio: "16:9"
+  - path: "artifacts/web-portal/public/images/driver-bg.png"
+    description: "Dynamic fluid gradient background in dark mode with energetic blue and subtle red waves, optimized for mobile app background"
+    aspect_ratio: "9:16"
+
+notes:
+  - Backend uses standard REST patterns via @workspace/api-client-react
+  - Auth is simulated via localStorage tokens since true session cookies aren't strictly defined in the provided endpoints beyond simple 200 OK responses
+  - Wouter is used for routing per project standards
