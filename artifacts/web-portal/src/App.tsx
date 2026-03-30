@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { DriverLayout } from "@/components/layout/DriverLayout";
+import { TechnicianLayout } from "@/components/layout/TechnicianLayout";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -28,6 +29,13 @@ import DriverMissionDetail from "@/pages/driver/DriverMissionDetail";
 import DriverNotifications from "@/pages/driver/DriverNotifications";
 import DriverSettings from "@/pages/driver/DriverSettings";
 
+// Technician Pages
+import TechnicianLogin from "@/pages/technician/TechnicianLogin";
+import TechnicianDashboard from "@/pages/technician/TechnicianDashboard";
+import TechnicianMissionDetail from "@/pages/technician/TechnicianMissionDetail";
+import TechnicianNotifications from "@/pages/technician/TechnicianNotifications";
+import TechnicianProfile from "@/pages/technician/TechnicianProfile";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -37,12 +45,13 @@ const queryClient = new QueryClient({
   },
 });
 
-function AuthGuard({ children, type }: { children: React.ReactNode, type: "admin" | "driver" }) {
+function AuthGuard({ children, type }: { children: React.ReactNode, type: "admin" | "driver" | "technician" }) {
   const { user } = useAuth();
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
 
   if (!user || user.type !== type) {
-    setTimeout(() => setLocation(type === "admin" ? "/login" : "/driver/login"), 0);
+    const loginPath = type === "admin" ? "/login" : type === "driver" ? "/driver/login" : "/technician/login";
+    setTimeout(() => setLocation(loginPath), 0);
     return null;
   }
 
@@ -54,9 +63,12 @@ function Router() {
     <Switch>
       {/* Admin Public */}
       <Route path="/login" component={AdminLogin} />
-      
+
       {/* Driver Public */}
       <Route path="/driver/login" component={DriverLogin} />
+
+      {/* Technician Public */}
+      <Route path="/technician/login" component={TechnicianLogin} />
 
       {/* Driver Protected */}
       <Route path="/driver/*">
@@ -70,6 +82,21 @@ function Router() {
               <Route path="/driver/*" component={DriverDashboard} />
             </Switch>
           </DriverLayout>
+        </AuthGuard>
+      </Route>
+
+      {/* Technician Protected */}
+      <Route path="/technician/*">
+        <AuthGuard type="technician">
+          <TechnicianLayout>
+            <Switch>
+              <Route path="/technician/dashboard" component={TechnicianDashboard} />
+              <Route path="/technician/mission/:id" component={TechnicianMissionDetail} />
+              <Route path="/technician/notifications" component={TechnicianNotifications} />
+              <Route path="/technician/profile" component={TechnicianProfile} />
+              <Route path="/technician/*" component={TechnicianDashboard} />
+            </Switch>
+          </TechnicianLayout>
         </AuthGuard>
       </Route>
 

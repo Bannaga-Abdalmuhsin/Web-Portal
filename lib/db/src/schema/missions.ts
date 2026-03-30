@@ -19,6 +19,10 @@ export const missionsTable = pgTable("missions", {
   notes: text("notes").default(""),
   missionStatus: text("mission_status").notNull().default("Creation"),
   createdBy: text("created_by").notNull().default(""),
+  technicianRemark: text("technician_remark").default(""),
+  technicianStatus: text("technician_status").default("Pending"),
+  reviewedBy: text("reviewed_by").default(""),
+  reviewedAt: timestamp("reviewed_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

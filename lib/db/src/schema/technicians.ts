@@ -9,6 +9,7 @@ export const techniciansTable = pgTable("technicians", {
   email: text("email").notNull().default(""),
   zone: text("zone").notNull().default(""),
   active: boolean("active").notNull().default(true),
+  passwordHash: text("password_hash").notNull().default(""),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

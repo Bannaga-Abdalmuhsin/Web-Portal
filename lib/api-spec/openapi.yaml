@@ -637,6 +637,74 @@ paths:
               schema:
                 $ref: "#/components/schemas/Technician"
 
+  /technician/login:
+    post:
+      operationId: technicianLogin
+      tags: [technician]
+      summary: Technician login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TechnicianLoginInput"
+      responses:
+        "200":
+          description: Login result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TechnicianLoginResponse"
+
+  /technician/missions:
+    get:
+      operationId: listTechnicianMissions
+      tags: [technician]
+      summary: List missions for technician follow-up
+      parameters:
+        - name: zone
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Missions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mission"
+
+  /technician/missions/{id}/followup:
+    put:
+      operationId: technicianFollowUp
+      tags: [technician]
+      summary: Technician follow-up on a mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TechnicianFollowUpInput"
+      responses:
+        "200":
+          description: Updated mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+
   /technicians/{id}:
     put:
       operationId: updateTechnician
@@ -719,6 +787,14 @@ components:
         missionStatus:
           type: string
         createdBy:
+          type: string
+        technicianRemark:
+          type: string
+        technicianStatus:
+          type: string
+        reviewedBy:
+          type: string
+        reviewedAt:
           type: string
       required:
         - id
@@ -1298,3 +1374,44 @@ components:
           type: string
         active:
           type: boolean
+        password:
+          type: string
+
+    TechnicianLoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    TechnicianLoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        technicianId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        zone:
+          type: string
+        token:
+          type: string
+      required:
+        - success
+
+    TechnicianFollowUpInput:
+      type: object
+      properties:
+        technicianRemark:
+          type: string
+        technicianStatus:
+          type: string
+        reviewedBy:
+          type: string

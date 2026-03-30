@@ -32,8 +32,11 @@ artifacts/
         ├── pages/admin/  # Dashboard, Login, Missions, Sites, Drivers,
         │                 # Generators, Reports, Notifications, Settings,
         │                 # Admins, Technicians
-        └── pages/driver/ # DriverLogin, DriverDashboard, DriverMissionDetail,
-                          # DriverNotifications, DriverSettings
+        ├── pages/driver/ # DriverLogin, DriverDashboard, DriverMissionDetail,
+        │                 # DriverNotifications, DriverSettings
+        └── pages/technician/ # TechnicianLogin, TechnicianDashboard,
+                          # TechnicianMissionDetail, TechnicianNotifications,
+                          # TechnicianProfile
 lib/
 ├── api-spec/             # OpenAPI spec + Orval codegen config
 ├── api-client-react/     # Generated React Query hooks

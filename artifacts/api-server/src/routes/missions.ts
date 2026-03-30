@@ -25,6 +25,10 @@ router.get("/missions", async (req, res) => {
       notes: m.notes,
       missionStatus: m.missionStatus,
       createdBy: m.createdBy,
+      technicianRemark: m.technicianRemark,
+      technicianStatus: m.technicianStatus,
+      reviewedBy: m.reviewedBy,
+      reviewedAt: m.reviewedAt?.toISOString() ?? null,
     }));
     res.json(result);
   } catch (err) {
