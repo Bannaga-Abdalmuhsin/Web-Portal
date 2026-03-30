@@ -106,7 +106,7 @@ export default function TasksScreen() {
   const { data = [], isLoading, refetch } = useQuery<Mission[]>({
     queryKey: ["tech-missions"],
     queryFn: async () => {
-      const res = await apiFetch(`/api/technician/missions?technicianId=${user?.technicianId ?? 0}`);
+      const res = await apiFetch("/api/technician/missions");
       if (!res.ok) throw new Error("Failed to load");
       return res.json();
     },

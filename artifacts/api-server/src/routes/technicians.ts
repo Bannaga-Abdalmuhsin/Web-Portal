@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db } from "@workspace/db";
 import { techniciansTable, missionsTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
@@ -9,6 +9,43 @@ const router: IRouter = Router();
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
+
+/**
+ * Extract technicianId from a bearer token issued by this server.
+ * Token format: "tech-{id}-{timestamp}"
+ * Returns null if the token is missing or malformed.
+ */
+function extractTechnicianId(authHeader: string | undefined): number | null {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  const token = authHeader.slice(7); // strip "Bearer "
+  const parts = token.split("-");
+  if (parts.length < 3 || parts[0] !== "tech") return null;
+  const id = parseInt(parts[1], 10);
+  return isNaN(id) ? null : id;
+}
+
+/**
+ * Validate the Authorization header for technician app routes.
+ * Returns the technicianId or sends a 401 response.
+ */
+async function requireTechnicianAuth(req: Request, res: Response): Promise<number | null> {
+  const id = extractTechnicianId(req.headers.authorization);
+  if (!id) {
+    res.status(401).json({ error: "Authentication required" });
+    return null;
+  }
+  // Verify the technician exists and is active
+  const [tech] = await db.select({ id: techniciansTable.id, active: techniciansTable.active })
+    .from(techniciansTable)
+    .where(eq(techniciansTable.id, id));
+  if (!tech || !tech.active) {
+    res.status(401).json({ error: "Invalid or inactive account" });
+    return null;
+  }
+  return id;
+}
+
+// ── Admin CRUD Routes ─────────────────────────────────────────────────────────
 
 // List technicians
 router.get("/technicians", async (req, res) => {
@@ -40,7 +77,14 @@ router.post("/technicians", async (req, res) => {
       active: body.active !== undefined ? body.active : true,
       passwordHash: body.password ? hashPassword(body.password) : hashPassword("Tech@1234"),
     }).returning();
-    res.status(201).json({ id: technician.id, name: technician.name, phone: technician.phone, email: technician.email, zone: technician.zone, active: technician.active });
+    res.status(201).json({
+      id: technician.id,
+      name: technician.name,
+      phone: technician.phone,
+      email: technician.email,
+      zone: technician.zone,
+      active: technician.active,
+    });
   } catch (err) {
     req.log.error({ err }, "Failed to create technician");
     res.status(500).json({ error: "Internal server error" });
@@ -52,7 +96,7 @@ router.put("/technicians/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const body = req.body;
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       name: body.name,
       phone: body.phone,
       email: body.email,
@@ -60,9 +104,19 @@ router.put("/technicians/:id", async (req, res) => {
       active: body.active,
     };
     if (body.password) updateData.passwordHash = hashPassword(body.password);
-    const [technician] = await db.update(techniciansTable).set(updateData).where(eq(techniciansTable.id, id)).returning();
+    const [technician] = await db.update(techniciansTable)
+      .set(updateData)
+      .where(eq(techniciansTable.id, id))
+      .returning();
     if (!technician) return res.status(404).json({ error: "Not found" });
-    res.json({ id: technician.id, name: technician.name, phone: technician.phone, email: technician.email, zone: technician.zone, active: technician.active });
+    res.json({
+      id: technician.id,
+      name: technician.name,
+      phone: technician.phone,
+      email: technician.email,
+      zone: technician.zone,
+      active: technician.active,
+    });
   } catch (err) {
     req.log.error({ err }, "Failed to update technician");
     res.status(500).json({ error: "Internal server error" });
@@ -92,18 +146,18 @@ router.post("/technician/login", async (req, res) => {
     const [tech] = await db.select().from(techniciansTable).where(eq(techniciansTable.email, email));
     if (!tech) return res.status(401).json({ error: "Invalid credentials" });
     if (!tech.active) return res.status(401).json({ error: "Account is inactive" });
-
     if (tech.passwordHash !== hashPassword(password)) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    const token = `tech-${tech.id}-${Date.now()}`;
     res.json({
       success: true,
       technicianId: tech.id,
       name: tech.name,
       email: tech.email,
       zone: tech.zone,
-      token: `tech-${tech.id}-${Date.now()}`,
+      token,
     });
   } catch (err) {
     req.log.error({ err }, "Failed to login technician");
@@ -111,15 +165,23 @@ router.post("/technician/login", async (req, res) => {
   }
 });
 
-// Register Expo push token for technician
+// Register Expo push token — authenticated by bearer token
 router.put("/technicians/:id/expo-push-token", async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const technicianId = await requireTechnicianAuth(req, res);
+    if (technicianId === null) return;
+
+    const requestedId = parseInt(req.params.id);
+    if (requestedId !== technicianId) {
+      return res.status(403).json({ error: "Cannot update another technician's push token" });
+    }
+
     const { expoPushToken } = req.body;
     if (!expoPushToken) return res.status(400).json({ error: "expoPushToken required" });
+
     const [tech] = await db.update(techniciansTable)
       .set({ expoPushToken })
-      .where(eq(techniciansTable.id, id))
+      .where(eq(techniciansTable.id, technicianId))
       .returning();
     if (!tech) return res.status(404).json({ error: "Not found" });
     res.json({ success: true });
@@ -129,20 +191,20 @@ router.put("/technicians/:id/expo-push-token", async (req, res) => {
   }
 });
 
-// Technician missions list (for follow-up)
+// Technician missions list — filtered by authenticated technician's ID
 router.get("/technician/missions", async (req, res) => {
   try {
-    const statusFilter = req.query.status as string | undefined;
-    const technicianId = req.query.technicianId ? parseInt(req.query.technicianId as string) : undefined;
+    const technicianId = await requireTechnicianAuth(req, res);
+    if (technicianId === null) return;
 
-    let missions = await db.select().from(missionsTable).orderBy(desc(missionsTable.createdAt));
+    const statusFilter = req.query.status as string | undefined;
+
+    let missions = await db.select().from(missionsTable)
+      .where(eq(missionsTable.assignedTechnicianId, technicianId))
+      .orderBy(desc(missionsTable.createdAt));
 
     if (statusFilter) {
       missions = missions.filter((m) => m.missionStatus === statusFilter);
-    }
-
-    if (technicianId) {
-      missions = missions.filter((m) => m.assignedTechnicianId === technicianId);
     }
 
     res.json(missions.map((m) => ({
@@ -173,10 +235,24 @@ router.get("/technician/missions", async (req, res) => {
   }
 });
 
-// Technician follow-up on mission
+// Technician follow-up on mission — authenticated
 router.put("/technician/missions/:id/followup", async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const technicianId = await requireTechnicianAuth(req, res);
+    if (technicianId === null) return;
+
+    const missionId = parseInt(req.params.id);
+
+    // Verify the mission belongs to this technician
+    const [existing] = await db.select({ assignedTechnicianId: missionsTable.assignedTechnicianId })
+      .from(missionsTable)
+      .where(eq(missionsTable.id, missionId));
+
+    if (!existing) return res.status(404).json({ error: "Mission not found" });
+    if (existing.assignedTechnicianId !== technicianId) {
+      return res.status(403).json({ error: "Not assigned to this mission" });
+    }
+
     const { technicianRemark, technicianStatus, reviewedBy } = req.body;
 
     const [mission] = await db.update(missionsTable).set({
@@ -184,9 +260,7 @@ router.put("/technician/missions/:id/followup", async (req, res) => {
       technicianStatus: technicianStatus ?? "Reviewed",
       reviewedBy: reviewedBy ?? "",
       reviewedAt: new Date(),
-    }).where(eq(missionsTable.id, id)).returning();
-
-    if (!mission) return res.status(404).json({ error: "Not found" });
+    }).where(eq(missionsTable.id, missionId)).returning();
 
     res.json({
       id: mission.id,

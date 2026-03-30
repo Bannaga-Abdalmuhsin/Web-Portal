@@ -1,9 +1,25 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { missionsTable } from "@workspace/db/schema";
+import { missionsTable, techniciansTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 const router: IRouter = Router();
+
+async function sendExpoPushNotification(token: string, title: string, body: string, data?: Record<string, unknown>) {
+  if (!token || !token.startsWith("ExponentPushToken")) return;
+  try {
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ to: token, title, body, data: data ?? {} }),
+    });
+  } catch {
+    // Non-critical: push failures should not break the request
+  }
+}
 
 router.get("/missions", async (req, res) => {
   try {
@@ -29,6 +45,7 @@ router.get("/missions", async (req, res) => {
       technicianStatus: m.technicianStatus,
       reviewedBy: m.reviewedBy,
       reviewedAt: m.reviewedAt?.toISOString() ?? null,
+      assignedTechnicianId: m.assignedTechnicianId,
     }));
     res.json(result);
   } catch (err) {
@@ -56,6 +73,7 @@ router.post("/missions", async (req, res) => {
       notes: body.notes || "",
       missionStatus: body.missionStatus || "Creation",
       createdBy: body.createdBy || "",
+      assignedTechnicianId: body.assignedTechnicianId ?? null,
     }).returning();
     res.status(201).json(mission);
   } catch (err) {
@@ -80,7 +98,10 @@ router.put("/missions/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const body = req.body;
-    const [updated] = await db.update(missionsTable).set({
+
+    const [before] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+
+    const updateData: Partial<typeof missionsTable.$inferInsert> = {
       siteName: body.siteName,
       generator: body.generator,
       project: body.project,
@@ -93,8 +114,30 @@ router.put("/missions/:id", async (req, res) => {
       city: body.city,
       notes: body.notes,
       missionStatus: body.missionStatus,
-    }).where(eq(missionsTable.id, id)).returning();
+    };
+
+    if (body.assignedTechnicianId !== undefined) {
+      updateData.assignedTechnicianId = body.assignedTechnicianId ?? null;
+    }
+
+    const [updated] = await db.update(missionsTable).set(updateData).where(eq(missionsTable.id, id)).returning();
     if (!updated) return res.status(404).json({ error: "Not found" });
+
+    // Send push notification if a technician was newly assigned
+    const newTechId = body.assignedTechnicianId;
+    const oldTechId = before?.assignedTechnicianId;
+    if (newTechId && newTechId !== oldTechId) {
+      const [tech] = await db.select().from(techniciansTable).where(eq(techniciansTable.id, newTechId));
+      if (tech?.expoPushToken) {
+        sendExpoPushNotification(
+          tech.expoPushToken,
+          "New Mission Assigned",
+          `Site: ${updated.siteName} — ${updated.missionId}`,
+          { missionId: updated.id },
+        );
+      }
+    }
+
     res.json(updated);
   } catch (err) {
     req.log.error({ err }, "Failed to update mission");

@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
-import { Platform } from "react-native";
 import { setAuthToken } from "@/lib/api";
 
 const AUTH_KEY = "aces_tech_auth";
@@ -36,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setAuthToken(parsed.token);
         }
       } catch {
-        // ignore
+        // ignore storage errors
       }
       setIsLoading(false);
     };
@@ -47,9 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(u));
     setUser(u);
     setAuthToken(u.token);
-    if (Platform.OS !== "web") {
-      registerPushToken(u.technicianId, u.token).catch(() => {});
-    }
+    // NOTE: Push token registration (expo-notifications) requires a native EAS build.
+    // In Expo Go or web, push token registration is skipped.
+    // When distributing via EAS (see README.md), add expo-notifications and call
+    // registerPushTokenAsync(u.technicianId) here.
   };
 
   const logout = async () => {
@@ -70,30 +70,4 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
-}
-
-async function registerPushToken(technicianId: number, token: string) {
-  try {
-    const { default: Notifications } = await import("expo-notifications");
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") return;
-
-    const pushToken = await Notifications.getExpoPushTokenAsync({
-      projectId: process.env.EXPO_PUBLIC_REPL_ID,
-    });
-
-    const { apiFetch } = await import("@/lib/api");
-    await apiFetch(`/api/technicians/${technicianId}/expo-push-token`, {
-      method: "PUT",
-      body: JSON.stringify({ expoPushToken: pushToken.data }),
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  } catch {
-    // Non-critical: push registration failures should not block login
-  }
 }
