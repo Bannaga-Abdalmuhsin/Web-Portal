@@ -6,7 +6,8 @@ import { eq, desc } from "drizzle-orm";
 const router: IRouter = Router();
 
 async function sendExpoPushNotification(token: string, title: string, body: string, data?: Record<string, unknown>) {
-  if (!token || !token.startsWith("ExponentPushToken")) return;
+  // Accept both "ExponentPushToken[...]" (Expo Go) and "ExpoPushToken[...]" (EAS builds)
+  if (!token || !(token.startsWith("ExponentPushToken") || token.startsWith("ExpoPushToken"))) return;
   try {
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
