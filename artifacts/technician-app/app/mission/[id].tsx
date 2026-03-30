@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   TextInput, Alert, ActivityIndicator, Platform,
@@ -53,7 +53,7 @@ function FuelBar({ label, value, max, color }: { label: string; value: number; m
         <Text style={[styles.fuelValue, { color }]}>{value} L</Text>
       </View>
       <View style={styles.fuelTrack}>
-        <View style={[styles.fuelFill, { width: `${pct}%` as any, backgroundColor: color }]} />
+        <View style={[styles.fuelFill, { width: `${Math.round(pct)}%` as `${number}%`, backgroundColor: color }]} />
       </View>
     </View>
   );

@@ -5,14 +5,17 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { Feather } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
 import { useAuth } from "@/contexts/auth";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/colors";
 
-function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
+type FeatherIconName = ComponentProps<typeof Feather>["name"];
+
+function InfoRow({ icon, label, value }: { icon: FeatherIconName; label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <Feather name={icon as any} size={16} color={COLORS.gray} />
+      <Feather name={icon} size={16} color={COLORS.gray} />
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.infoValue}>{value}</Text>
     </View>

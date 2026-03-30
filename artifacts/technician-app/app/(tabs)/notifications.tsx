@@ -35,7 +35,9 @@ function NotifCard({ item }: { item: Notification }) {
               <Text style={styles.tagText}>{item.driverName}</Text>
             </View>
           )}
-          <Text style={styles.date}>{date}</Text>
+          <View style={styles.dateWrap}>
+            <Text style={styles.date}>{date}</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -162,11 +164,14 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_500Medium",
     color: COLORS.grayLight,
   },
+  dateWrap: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
   date: {
     fontSize: 11,
     fontFamily: "Inter_400Regular",
     color: COLORS.grayDark,
-    marginLeft: "auto" as any,
   },
   empty: {
     alignItems: "center",
