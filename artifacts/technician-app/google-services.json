@@ -1,0 +1,31 @@
+{
+  "_instructions": "Replace this file with your real google-services.json from the Firebase Console. See README.md for full setup instructions.",
+  "project_info": {
+    "project_number": "TODO_REPLACE_WITH_YOUR_FIREBASE_PROJECT_NUMBER",
+    "firebase_url": "https://TODO_REPLACE.firebaseio.com",
+    "project_id": "TODO_REPLACE_WITH_YOUR_PROJECT_ID",
+    "storage_bucket": "TODO_REPLACE.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "TODO_REPLACE_WITH_YOUR_APP_ID",
+        "android_info": {
+          "package_name": "com.acessa.technician"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "TODO_REPLACE_WITH_YOUR_FIREBASE_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
