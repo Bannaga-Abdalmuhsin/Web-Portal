@@ -10,7 +10,7 @@ export const techniciansTable = pgTable("technicians", {
   zone: text("zone").notNull().default(""),
   active: boolean("active").notNull().default(true),
   passwordHash: text("password_hash").notNull().default(""),
-  expoPushToken: text("expo_push_token").default(""),
+  expoPushToken: text("expo_push_token"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

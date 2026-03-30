@@ -10,31 +10,64 @@ function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
+function getSecret(): string {
+  return process.env.SESSION_SECRET ?? "aces-dev-secret-change-in-production";
+}
+
 /**
- * Extract technicianId from a bearer token issued by this server.
- * Token format: "tech-{id}-{timestamp}"
- * Returns null if the token is missing or malformed.
+ * Generate a signed bearer token.
+ * Format: tech-{id}-{timestamp}-{hmac_hex}
+ * HMAC-SHA256 over "tech-{id}-{timestamp}" using SESSION_SECRET.
  */
-function extractTechnicianId(authHeader: string | undefined): number | null {
+function generateTechToken(technicianId: number): string {
+  const timestamp = Date.now();
+  const payload = `tech-${technicianId}-${timestamp}`;
+  const hmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
+  return `${payload}-${hmac}`;
+}
+
+/**
+ * Verify a bearer token and return the technicianId, or null if invalid.
+ * The token MUST have a valid HMAC — forgery attempts return null.
+ */
+function verifyTechToken(authHeader: string | undefined): number | null {
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-  const token = authHeader.slice(7); // strip "Bearer "
-  const parts = token.split("-");
-  if (parts.length < 3 || parts[0] !== "tech") return null;
-  const id = parseInt(parts[1], 10);
-  return isNaN(id) ? null : id;
+  const token = authHeader.slice(7);
+
+  // Format: tech-{id}-{timestamp}-{hmac64hex}
+  const firstDash = token.indexOf("-");
+  const secondDash = token.indexOf("-", firstDash + 1);
+  const thirdDash = token.indexOf("-", secondDash + 1);
+  if (firstDash < 0 || secondDash < 0 || thirdDash < 0) return null;
+
+  const prefix = token.slice(0, firstDash);
+  if (prefix !== "tech") return null;
+
+  const id = parseInt(token.slice(firstDash + 1, secondDash), 10);
+  const timestamp = token.slice(secondDash + 1, thirdDash);
+  const providedHmac = token.slice(thirdDash + 1);
+
+  if (isNaN(id) || !timestamp || !providedHmac) return null;
+
+  const payload = `tech-${id}-${timestamp}`;
+  const expectedHmac = crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
+
+  // Constant-time comparison to prevent timing attacks
+  if (!crypto.timingSafeEqual(Buffer.from(providedHmac), Buffer.from(expectedHmac))) return null;
+
+  return id;
 }
 
 /**
  * Validate the Authorization header for technician app routes.
- * Returns the technicianId or sends a 401 response.
+ * Returns the verified technicianId or sends a 401/403 response.
  */
 async function requireTechnicianAuth(req: Request, res: Response): Promise<number | null> {
-  const id = extractTechnicianId(req.headers.authorization);
+  const id = verifyTechToken(req.headers.authorization);
   if (!id) {
     res.status(401).json({ error: "Authentication required" });
     return null;
   }
-  // Verify the technician exists and is active
   const [tech] = await db.select({ id: techniciansTable.id, active: techniciansTable.active })
     .from(techniciansTable)
     .where(eq(techniciansTable.id, id));
@@ -47,7 +80,6 @@ async function requireTechnicianAuth(req: Request, res: Response): Promise<numbe
 
 // ── Admin CRUD Routes ─────────────────────────────────────────────────────────
 
-// List technicians
 router.get("/technicians", async (req, res) => {
   try {
     const technicians = await db.select().from(techniciansTable).orderBy(techniciansTable.name);
@@ -65,7 +97,6 @@ router.get("/technicians", async (req, res) => {
   }
 });
 
-// Create technician
 router.post("/technicians", async (req, res) => {
   try {
     const body = req.body;
@@ -91,7 +122,6 @@ router.post("/technicians", async (req, res) => {
   }
 });
 
-// Update technician
 router.put("/technicians/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -123,7 +153,6 @@ router.put("/technicians/:id", async (req, res) => {
   }
 });
 
-// Delete technician
 router.delete("/technicians/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -137,7 +166,7 @@ router.delete("/technicians/:id", async (req, res) => {
 
 // ── Technician App Routes ─────────────────────────────────────────────────────
 
-// Technician login
+// Technician login — returns a HMAC-signed bearer token
 router.post("/technician/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -150,7 +179,7 @@ router.post("/technician/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = `tech-${tech.id}-${Date.now()}`;
+    const token = generateTechToken(tech.id);
     res.json({
       success: true,
       technicianId: tech.id,
@@ -165,8 +194,9 @@ router.post("/technician/login", async (req, res) => {
   }
 });
 
-// Register Expo push token — authenticated by bearer token
-router.put("/technicians/:id/expo-push-token", async (req, res) => {
+// Register device push token — authenticated, ownership-checked
+// Accepts { token: string } — works with both Expo push tokens and FCM tokens.
+router.put("/technicians/:id/fcm-token", async (req, res) => {
   try {
     const technicianId = await requireTechnicianAuth(req, res);
     if (technicianId === null) return;
@@ -176,11 +206,13 @@ router.put("/technicians/:id/expo-push-token", async (req, res) => {
       return res.status(403).json({ error: "Cannot update another technician's push token" });
     }
 
-    const { expoPushToken } = req.body;
-    if (!expoPushToken) return res.status(400).json({ error: "expoPushToken required" });
+    const { token } = req.body;
+    if (!token || typeof token !== "string") {
+      return res.status(400).json({ error: "token (string) is required" });
+    }
 
     const [tech] = await db.update(techniciansTable)
-      .set({ expoPushToken })
+      .set({ expoPushToken: token })
       .where(eq(techniciansTable.id, technicianId))
       .returning();
     if (!tech) return res.status(404).json({ error: "Not found" });
@@ -191,7 +223,7 @@ router.put("/technicians/:id/expo-push-token", async (req, res) => {
   }
 });
 
-// Technician missions list — filtered by authenticated technician's ID
+// Technician missions list — filtered by the authenticated technician's ID only
 router.get("/technician/missions", async (req, res) => {
   try {
     const technicianId = await requireTechnicianAuth(req, res);
@@ -235,7 +267,7 @@ router.get("/technician/missions", async (req, res) => {
   }
 });
 
-// Technician follow-up on mission — authenticated
+// Technician follow-up submission — authenticated + assignment verified
 router.put("/technician/missions/:id/followup", async (req, res) => {
   try {
     const technicianId = await requireTechnicianAuth(req, res);
@@ -243,7 +275,6 @@ router.put("/technician/missions/:id/followup", async (req, res) => {
 
     const missionId = parseInt(req.params.id);
 
-    // Verify the mission belongs to this technician
     const [existing] = await db.select({ assignedTechnicianId: missionsTable.assignedTechnicianId })
       .from(missionsTable)
       .where(eq(missionsTable.id, missionId));

@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { setAuthToken } from "@/lib/api";
+import { registerPushToken } from "@/lib/push";
 
 const AUTH_KEY = "aces_tech_auth";
 
@@ -33,6 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const parsed: TechUser = JSON.parse(stored);
           setUser(parsed);
           setAuthToken(parsed.token);
+          // Re-attempt push token registration on app restart (fire-and-forget)
+          registerPushToken(parsed.technicianId).catch(() => undefined);
         }
       } catch {
         // ignore storage errors
@@ -46,10 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(u));
     setUser(u);
     setAuthToken(u.token);
-    // NOTE: Push token registration (expo-notifications) requires a native EAS build.
-    // In Expo Go or web, push token registration is skipped.
-    // When distributing via EAS (see README.md), add expo-notifications and call
-    // registerPushTokenAsync(u.technicianId) here.
+    // Register device push token (fire-and-forget — gracefully skipped in Expo Go / web)
+    registerPushToken(u.technicianId).catch(() => undefined);
   };
 
   const logout = async () => {
