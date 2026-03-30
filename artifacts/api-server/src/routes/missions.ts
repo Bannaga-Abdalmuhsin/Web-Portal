@@ -76,6 +76,21 @@ router.post("/missions", async (req, res) => {
       createdBy: body.createdBy || "",
       assignedTechnicianId: body.assignedTechnicianId ?? null,
     }).returning();
+    // Send push notification if a technician was assigned at creation time
+    if (mission.assignedTechnicianId) {
+      const [tech] = await db.select().from(techniciansTable)
+        .where(eq(techniciansTable.id, mission.assignedTechnicianId));
+      const pushToken = tech?.fcmToken ?? tech?.expoPushToken ?? null;
+      if (pushToken) {
+        sendExpoPushNotification(
+          pushToken,
+          "New Mission Assigned",
+          `Site: ${mission.siteName} — ${mission.missionId}`,
+          { missionId: mission.id },
+        );
+      }
+    }
+
     res.status(201).json(mission);
   } catch (err) {
     req.log.error({ err }, "Failed to create mission");

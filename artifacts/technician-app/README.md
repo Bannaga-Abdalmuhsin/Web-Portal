@@ -161,13 +161,11 @@ The app uses `EXPO_PUBLIC_DOMAIN` to connect to the API. This is automatically s
 
 ---
 
-## Credentials
+## Technician Accounts
 
-Default technician account for testing:
-- **Email:** ahmed@aces-sa.com
-- **Password:** Tech@1234
+Technician accounts are managed by the administrator via the ACES Admin Portal → Technicians section.
 
-Create additional technician accounts via the ACES Admin Portal → Technicians section.
+Contact your administrator for your login credentials (email + password) before using the app.
 
 ---
 

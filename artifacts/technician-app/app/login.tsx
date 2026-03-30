@@ -16,8 +16,8 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState("ahmed@aces-sa.com");
-  const [password, setPassword] = useState("Tech@1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
