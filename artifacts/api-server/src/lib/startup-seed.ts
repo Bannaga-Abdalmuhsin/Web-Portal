@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
 import { adminsTable, sitesTable, missionsTable, driversTable } from "@workspace/db/schema";
-import { count } from "drizzle-orm";
+import { count, inArray } from "drizzle-orm";
 
 const SEED_SITES = [
   {
@@ -4448,7 +4448,7 @@ export async function runSeedIfEmpty(): Promise<void> {
   }
 
   // Seed drivers
-  await db.insert(driversTable).values([
+  const insertedDrivers = await db.insert(driversTable).values([
     {
       name: "Bannaga Altieb",
       email: "bannaga.altieb@aces-co.com",
@@ -4465,5 +4465,85 @@ export async function runSeedIfEmpty(): Promise<void> {
       active: true,
       passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
     },
-  ]).onConflictDoNothing();
+    {
+      name: "Alshafeea",
+      email: "alshafeea@aces-co.com",
+      phone: "530048763",
+      zone: "Central Region",
+      active: true,
+      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    },
+    {
+      name: "Ayman",
+      email: "ayman@aces-co.com",
+      phone: "549872597",
+      zone: "Central Region",
+      active: true,
+      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    },
+    {
+      name: "Baliqh",
+      email: "baliqh@aces-co.com",
+      phone: "509471245",
+      zone: "Central Region",
+      active: true,
+      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    },
+    {
+      name: "Ameen",
+      email: "ameen@aces-co.com",
+      phone: "500580235",
+      zone: "Central Region",
+      active: true,
+      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    },
+  ]).returning({ id: driversTable.id, name: driversTable.name });
+
+  // Build driver name → id map
+  const driverIdMap: Record<string, number> = {};
+  for (const d of insertedDrivers) {
+    driverIdMap[d.name] = d.id;
+  }
+
+  // Site → driver assignments
+  const SITE_DRIVER_MAP: Record<string, string> = {
+    COW543: "Alshafeea", COW548: "Alshafeea", COW653: "Alshafeea", COW750: "Alshafeea",
+    CWH077: "Alshafeea", CWS834: "Alshafeea", CWH935: "Alshafeea", CWH937: "Alshafeea",
+    COW304: "Alshafeea",
+    COW512: "Ayman", CWH001: "Ayman", CWH008: "Ayman", CWH011: "Ayman",
+    CWH084: "Ayman", CWS816: "Ayman",
+    COW303: "Baliqh", COW305: "Baliqh", COW516: "Baliqh", COW528: "Baliqh",
+    COW618: "Baliqh", CWH004: "Baliqh", CWH028: "Baliqh", CWH041: "Baliqh",
+    CWH093: "Baliqh", CWH316: "Baliqh", CWS605: "Baliqh", CWN058: "Baliqh",
+    CWS814: "Baliqh", CWS821: "Baliqh", CWS831: "Baliqh", CWS833: "Baliqh",
+    COW310: "Ameen", COW527: "Ameen", COW619: "Ameen", COWJN1: "Ameen",
+    CWA004: "Ameen", CWH023: "Ameen", CWH029: "Ameen", CWH033: "Ameen",
+    CWH045: "Ameen", CWH076: "Ameen", CWN988: "Ameen", CWN911: "Ameen",
+    CWS805: "Ameen",
+  };
+
+  // Group sites by driver
+  const sitesByDriver: Record<string, string[]> = {};
+  for (const [siteName, driverName] of Object.entries(SITE_DRIVER_MAP)) {
+    if (!sitesByDriver[driverName]) sitesByDriver[driverName] = [];
+    sitesByDriver[driverName].push(siteName);
+  }
+
+  // Update sites with driver assignments
+  for (const [driverName, siteNames] of Object.entries(sitesByDriver)) {
+    const driverId = driverIdMap[driverName];
+    if (!driverId) continue;
+    await db.update(sitesTable)
+      .set({ assignedTechnicianId: driverId })
+      .where(inArray(sitesTable.name, siteNames));
+  }
+
+  // Update missions with driver names
+  for (const [driverName, siteNames] of Object.entries(sitesByDriver)) {
+    const driverId = driverIdMap[driverName];
+    if (!driverId) continue;
+    await db.update(missionsTable)
+      .set({ driverName, assignedDriver: driverName, assignedTechnicianId: driverId })
+      .where(inArray(missionsTable.siteName, siteNames));
+  }
 }

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable } from "@workspace/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, or, isNull } from "drizzle-orm";
 import crypto from "crypto";
 
 const router: IRouter = Router();
@@ -202,10 +202,14 @@ router.get("/driver/notifications", async (req, res) => {
   }
 });
 
-// Get all missions for driver app
+// Get all missions for driver app (filtered by driverId if provided)
 router.get("/driver/missions", async (req, res) => {
   try {
-    const missions = await db.select().from(missionsTable).orderBy(desc(missionsTable.createdAt));
+    const driverId = req.query.driverId ? parseInt(String(req.query.driverId)) : null;
+    const query = db.select().from(missionsTable);
+    const missions = driverId
+      ? await query.where(eq(missionsTable.assignedTechnicianId, driverId)).orderBy(desc(missionsTable.createdAt))
+      : await query.orderBy(desc(missionsTable.createdAt));
     res.json(missions.map((m) => ({
       id: m.id,
       missionId: m.missionId,

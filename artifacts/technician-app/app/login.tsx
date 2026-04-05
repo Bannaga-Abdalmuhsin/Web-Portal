@@ -187,8 +187,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   logoImg: {
-    width: 290,
-    height: 112,
+    width: 220,
+    height: 85,
   },
   appTitle: {
     fontSize: 22,
