@@ -300,7 +300,7 @@ export default function Login() {
         >
           <CardContent className="p-8">
             <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-slate-400 mb-8">Sign in to the ACES Operations Portal.</p>
+            <p className="text-slate-400 mb-8">Sign in to the ACES-MSD Fueling Web Portal.</p>
 
             <form onSubmit={handleLogin} className="space-y-5">
               {error && (

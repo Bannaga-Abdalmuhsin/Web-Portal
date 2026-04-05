@@ -21,7 +21,7 @@ export function DriverLayout({ children }: { children: React.ReactNode }) {
         {/* Header */}
         <header className="px-6 py-6 flex items-center justify-between z-10">
           <div>
-            <h1 className="text-2xl font-display font-bold text-white">ACES Driver</h1>
+            <h1 className="text-2xl font-display font-bold text-white">ACES-MSD Fueling</h1>
             <p className="text-sm text-slate-400">Welcome, {user.username}</p>
           </div>
           <button 
