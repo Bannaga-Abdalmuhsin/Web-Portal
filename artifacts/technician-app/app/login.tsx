@@ -71,15 +71,12 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.logoSection}>
-            <View style={styles.logoBox}>
-              <Image
-                source={require("../assets/images/icon.png")}
-                style={styles.logoImg}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.title}>ACES Technician</Text>
-            <Text style={styles.subtitle}>Daily Fueling Follow-up System</Text>
+            <Image
+              source={require("../assets/images/aces-logo.png")}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
+            <Text style={styles.subtitle}>Technician · Daily Fueling Follow-up</Text>
           </View>
 
           {/* Form */}
@@ -164,30 +161,13 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 36,
     marginTop: 20,
   },
-  logoBox: {
-    width: 88,
-    height: 88,
-    borderRadius: 24,
-    overflow: "hidden",
-    marginBottom: 20,
-    shadowColor: COLORS.red,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
-  },
   logoImg: {
-    width: 88,
-    height: 88,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: "Inter_700Bold",
-    color: COLORS.white,
-    marginBottom: 6,
+    width: 260,
+    height: 130,
+    marginBottom: 12,
   },
   subtitle: {
     fontSize: 14,
