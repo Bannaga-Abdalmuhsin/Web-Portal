@@ -470,7 +470,7 @@ export default function Missions() {
                   </TableCell>
                   <TableCell>
                     <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium bg-sky-50 text-sky-700 border border-sky-100">
-                      {mission.city || '—'}
+                      {(mission as any).region || mission.city || '—'}
                     </span>
                   </TableCell>
                   <TableCell>{mission.driverName || 'Unassigned'}</TableCell>

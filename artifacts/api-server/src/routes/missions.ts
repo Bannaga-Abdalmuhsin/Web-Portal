@@ -30,8 +30,12 @@ async function sendExpoPushNotification(token: string, title: string, body: stri
 
 router.get("/missions", async (req, res) => {
   try {
-    const missions = await db.select().from(missionsTable).orderBy(desc(missionsTable.createdAt));
-    const result = missions.map((m) => ({
+    const missions = await db
+      .select({ mission: missionsTable, siteRegion: sitesTable.region })
+      .from(missionsTable)
+      .leftJoin(sitesTable, eq(missionsTable.siteName, sitesTable.name))
+      .orderBy(desc(missionsTable.createdAt));
+    const result = missions.map(({ mission: m, siteRegion }) => ({
       id: m.id,
       missionId: m.missionId,
       siteName: m.siteName,
@@ -45,6 +49,7 @@ router.get("/missions", async (req, res) => {
       actualInTank: m.actualInTank,
       quantityAddedLastTask: m.quantityAddedLastTask,
       city: m.city,
+      region: siteRegion || m.city || "",
       notes: m.notes,
       missionStatus: m.missionStatus,
       createdBy: m.createdBy,
@@ -316,7 +321,7 @@ router.post("/missions/:id/approve", async (req, res) => {
     // Get site region
     const [site] = await db.select({ city: sitesTable.city, region: sitesTable.region })
       .from(sitesTable).where(eq(sitesTable.name, mission.siteName));
-    const region = site?.city || site?.region || mission.city || "";
+    const region = site?.region || site?.city || mission.city || "";
     // Create report_line
     const litersAdded = mission.litersAdded ?? mission.quantityAddedLastTask ?? 0;
     await db.insert(reportLinesTable).values({
