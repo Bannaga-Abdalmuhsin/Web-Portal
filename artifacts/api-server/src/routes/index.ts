@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import seedRouter from "./seed";
 import missionsRouter from "./missions";
 import driversRouter from "./drivers";
 import sitesRouter from "./sites";
@@ -13,6 +14,7 @@ import dashboardRouter from "./dashboard";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(seedRouter);
 router.use(missionsRouter);
 router.use(driversRouter);
 router.use(sitesRouter);

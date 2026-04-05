@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { runSeedIfEmpty } from "./lib/startup-seed";
 
 if (!process.env["SESSION_SECRET"]) {
   throw new Error(
@@ -29,4 +30,7 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  // Auto-seed production database if empty
+  runSeedIfEmpty().catch((e) => logger.error({ err: e }, "Startup seed failed"));
 });
