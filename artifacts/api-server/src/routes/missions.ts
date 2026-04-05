@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { missionsTable, techniciansTable, sitesTable } from "@workspace/db/schema";
+import { missionsTable, techniciansTable, sitesTable, driverEntriesTable, reportLinesTable } from "@workspace/db/schema";
 import { eq, desc, ne, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
@@ -250,6 +250,151 @@ router.post("/missions/generate-from-sites", async (req, res) => {
     res.json({ created, skipped, errors, total: sites.length });
   } catch (err) {
     req.log.error({ err }, "Failed to generate missions from sites");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET driver entry submission for a mission
+router.get("/missions/:id/entry", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [entry] = await db.select().from(driverEntriesTable)
+      .where(eq(driverEntriesTable.missionId, id));
+    if (!entry) {
+      // Fallback: read from missions table directly (legacy data)
+      const [m] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+      if (!m) return res.status(404).json({ error: "Not found" });
+      return res.json({
+        missionId: id,
+        missionRef: m.missionId,
+        siteName: m.siteName,
+        driverName: m.driverName,
+        litersBefore: m.litersBefore,
+        litersAdded: m.litersAdded,
+        completionDate: m.completionDate?.toISOString() ?? null,
+        notes: m.notes,
+        odoBeforePhoto: m.odoBeforePhoto,
+        odoAfterPhoto: m.odoAfterPhoto,
+        tankBeforePhoto: m.tankBeforePhoto,
+        tankAfterPhoto: m.tankAfterPhoto,
+        submittedAt: null,
+      });
+    }
+    res.json({
+      id: entry.id,
+      missionId: entry.missionId,
+      missionRef: entry.missionRef,
+      siteName: entry.siteName,
+      driverName: entry.driverName,
+      litersBefore: entry.litersBefore,
+      litersAdded: entry.litersAdded,
+      completionDate: entry.completionDate?.toISOString() ?? null,
+      notes: entry.notes,
+      odoBeforePhoto: entry.odoBeforePhoto,
+      odoAfterPhoto: entry.odoAfterPhoto,
+      tankBeforePhoto: entry.tankBeforePhoto,
+      tankAfterPhoto: entry.tankAfterPhoto,
+      submittedAt: entry.submittedAt?.toISOString() ?? null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Failed to get driver entry");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Approve a mission → set status + create report_line
+router.post("/missions/:id/approve", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { approvedBy = "Admin", unitPrice } = req.body ?? {};
+    const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+    if (!mission) return res.status(404).json({ error: "Mission not found" });
+    // Update mission status
+    await db.update(missionsTable)
+      .set({ missionStatus: "Task approved", reviewedBy: approvedBy, reviewedAt: new Date() })
+      .where(eq(missionsTable.id, id));
+    // Get site region
+    const [site] = await db.select({ city: sitesTable.city, region: sitesTable.region })
+      .from(sitesTable).where(eq(sitesTable.name, mission.siteName));
+    const region = site?.city || site?.region || mission.city || "";
+    // Create report_line
+    const litersAdded = mission.litersAdded ?? mission.quantityAddedLastTask ?? 0;
+    await db.insert(reportLinesTable).values({
+      missionId: id,
+      missionRef: mission.missionId || `MSN-${id}`,
+      siteName: mission.siteName,
+      region,
+      project: mission.project || "stc COW",
+      driverName: mission.driverName,
+      litersAdded,
+      completionDate: mission.completionDate ?? mission.createdDate ?? new Date(),
+      approvedBy,
+      unitPrice: unitPrice ?? 0.63,
+    });
+    res.json({ success: true, missionStatus: "Task approved" });
+  } catch (err) {
+    req.log.error({ err }, "Failed to approve mission");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Reject a mission
+router.post("/missions/:id/reject", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { rejectedBy = "Admin" } = req.body ?? {};
+    const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+    if (!mission) return res.status(404).json({ error: "Mission not found" });
+    await db.update(missionsTable)
+      .set({ missionStatus: "Canceled", reviewedBy: rejectedBy, reviewedAt: new Date() })
+      .where(eq(missionsTable.id, id));
+    res.json({ success: true, missionStatus: "Canceled" });
+  } catch (err) {
+    req.log.error({ err }, "Failed to reject mission");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Send mission back to driver
+router.post("/missions/:id/send-back", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+    if (!mission) return res.status(404).json({ error: "Mission not found" });
+    await db.update(missionsTable)
+      .set({ missionStatus: "Creation", reviewedAt: new Date() })
+      .where(eq(missionsTable.id, id));
+    res.json({ success: true, missionStatus: "Creation" });
+  } catch (err) {
+    req.log.error({ err }, "Failed to send mission back");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET report lines (for invoice preparation)
+router.get("/report-lines", async (req, res) => {
+  try {
+    const lines = await db.select().from(reportLinesTable)
+      .orderBy(desc(reportLinesTable.approvedAt));
+    res.json(lines.map((l) => ({
+      id: l.id,
+      missionId: l.missionId,
+      missionRef: l.missionRef,
+      siteName: l.siteName,
+      region: l.region,
+      project: l.project,
+      driverName: l.driverName,
+      litersAdded: l.litersAdded,
+      completionDate: l.completionDate?.toISOString() ?? null,
+      approvedAt: l.approvedAt?.toISOString() ?? null,
+      approvedBy: l.approvedBy,
+      unitPrice: l.unitPrice,
+      invoicePeriodStart: l.invoicePeriodStart?.toISOString() ?? null,
+      invoicePeriodEnd: l.invoicePeriodEnd?.toISOString() ?? null,
+      invoiceExported: l.invoiceExported,
+    })));
+  } catch (err) {
+    req.log.error({ err }, "Failed to get report lines");
     res.status(500).json({ error: "Internal server error" });
   }
 });

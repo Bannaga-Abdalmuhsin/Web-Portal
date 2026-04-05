@@ -6,3 +6,5 @@ export * from "./notifications";
 export * from "./settings";
 export * from "./admins";
 export * from "./technicians";
+export * from "./driver-entries";
+export * from "./report-lines";

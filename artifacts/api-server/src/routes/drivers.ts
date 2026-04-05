@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable, sitesTable } from "@workspace/db/schema";
+import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable, sitesTable, driverEntriesTable } from "@workspace/db/schema";
 import { eq, desc, or, isNull } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -307,6 +307,42 @@ router.put("/driver/missions/:id", async (req, res) => {
       .where(eq(missionsTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Mission not found" });
+
+    // Auto-create or update driver_entries record when driver marks as finished
+    if (missionStatus === "Finished by Driver") {
+      const [existingEntry] = await db.select({ id: driverEntriesTable.id })
+        .from(driverEntriesTable).where(eq(driverEntriesTable.missionId, id));
+      if (existingEntry) {
+        await db.update(driverEntriesTable).set({
+          driverName: driverName || updated.driverName,
+          litersBefore: litersBefore != null ? parseFloat(litersBefore) : undefined,
+          litersAdded: litersAdded != null ? parseFloat(litersAdded) : undefined,
+          completionDate: completionDate ? new Date(completionDate) : undefined,
+          notes: notes || "",
+          ...(odoBeforePhoto !== undefined && { odoBeforePhoto }),
+          ...(odoAfterPhoto !== undefined && { odoAfterPhoto }),
+          ...(tankBeforePhoto !== undefined && { tankBeforePhoto }),
+          ...(tankAfterPhoto !== undefined && { tankAfterPhoto }),
+        }).where(eq(driverEntriesTable.id, existingEntry.id));
+      } else {
+        await db.insert(driverEntriesTable).values({
+          missionId: id,
+          missionRef: updated.missionId || `MSN-${id}`,
+          siteName: updated.siteName,
+          driverId: updated.assignedTechnicianId ?? undefined,
+          driverName: driverName || updated.driverName,
+          litersBefore: litersBefore != null ? parseFloat(litersBefore) : undefined,
+          litersAdded: litersAdded != null ? parseFloat(litersAdded) : undefined,
+          completionDate: completionDate ? new Date(completionDate) : undefined,
+          notes: notes || "",
+          odoBeforePhoto: odoBeforePhoto ?? undefined,
+          odoAfterPhoto: odoAfterPhoto ?? undefined,
+          tankBeforePhoto: tankBeforePhoto ?? undefined,
+          tankAfterPhoto: tankAfterPhoto ?? undefined,
+        });
+      }
+    }
+
     res.json({ success: true, id: updated.id, missionStatus: updated.missionStatus });
   } catch (err) {
     req.log.error({ err }, "Failed to update driver mission");
