@@ -53,11 +53,11 @@ export default function ReportsPage() {
   const [unitPrice] = useState(0.63);
   const vatRate = 0.15;
 
-  const REGIONS = ["Central", "East"];
+  const REGIONS = ["CENTRAL", "EAST"];
 
   const lines = useMemo(() => {
     return reportLines
-      .filter((l) => regionFilter === "all" || l.region === regionFilter)
+      .filter((l) => regionFilter === "all" || l.region.toUpperCase() === regionFilter)
       .filter((l) => !siteQuery || l.siteName?.toLowerCase().includes(siteQuery.toLowerCase()))
       .filter((l) => {
         if (!fromDate && !toDate) return true;
