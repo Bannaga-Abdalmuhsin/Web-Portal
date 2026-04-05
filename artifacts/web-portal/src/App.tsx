@@ -6,7 +6,6 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { DriverLayout } from "@/components/layout/DriverLayout";
-import { TechnicianLayout } from "@/components/layout/TechnicianLayout";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -20,7 +19,6 @@ import AdminReports from "@/pages/admin/Reports";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminAdmins from "@/pages/admin/Admins";
-import AdminTechnicians from "@/pages/admin/Technicians";
 
 // Driver Pages
 import DriverLogin from "@/pages/driver/DriverLogin";
@@ -28,13 +26,6 @@ import DriverDashboard from "@/pages/driver/DriverDashboard";
 import DriverMissionDetail from "@/pages/driver/DriverMissionDetail";
 import DriverNotifications from "@/pages/driver/DriverNotifications";
 import DriverSettings from "@/pages/driver/DriverSettings";
-
-// Technician Pages
-import TechnicianLogin from "@/pages/technician/TechnicianLogin";
-import TechnicianDashboard from "@/pages/technician/TechnicianDashboard";
-import TechnicianMissionDetail from "@/pages/technician/TechnicianMissionDetail";
-import TechnicianNotifications from "@/pages/technician/TechnicianNotifications";
-import TechnicianProfile from "@/pages/technician/TechnicianProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,12 +36,12 @@ const queryClient = new QueryClient({
   },
 });
 
-function AuthGuard({ children, type }: { children: React.ReactNode, type: "admin" | "driver" | "technician" }) {
+function AuthGuard({ children, type }: { children: React.ReactNode, type: "admin" | "driver" }) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
   if (!user || user.type !== type) {
-    const loginPath = type === "admin" ? "/login" : type === "driver" ? "/driver/login" : "/technician/login";
+    const loginPath = type === "admin" ? "/login" : "/driver/login";
     setTimeout(() => setLocation(loginPath), 0);
     return null;
   }
@@ -67,9 +58,6 @@ function Router() {
       {/* Driver Public */}
       <Route path="/driver/login" component={DriverLogin} />
 
-      {/* Technician Public */}
-      <Route path="/technician/login" component={TechnicianLogin} />
-
       {/* Driver Protected */}
       <Route path="/driver/*">
         <AuthGuard type="driver">
@@ -82,21 +70,6 @@ function Router() {
               <Route path="/driver/*" component={DriverDashboard} />
             </Switch>
           </DriverLayout>
-        </AuthGuard>
-      </Route>
-
-      {/* Technician Protected */}
-      <Route path="/technician/*">
-        <AuthGuard type="technician">
-          <TechnicianLayout>
-            <Switch>
-              <Route path="/technician/dashboard" component={TechnicianDashboard} />
-              <Route path="/technician/mission/:id" component={TechnicianMissionDetail} />
-              <Route path="/technician/notifications" component={TechnicianNotifications} />
-              <Route path="/technician/profile" component={TechnicianProfile} />
-              <Route path="/technician/*" component={TechnicianDashboard} />
-            </Switch>
-          </TechnicianLayout>
         </AuthGuard>
       </Route>
 
@@ -114,7 +87,6 @@ function Router() {
               <Route path="/notifications" component={AdminNotifications} />
               <Route path="/settings" component={AdminSettings} />
               <Route path="/admins" component={AdminAdmins} />
-              <Route path="/technicians" component={AdminTechnicians} />
               <Route component={NotFound} />
             </Switch>
           </AdminLayout>

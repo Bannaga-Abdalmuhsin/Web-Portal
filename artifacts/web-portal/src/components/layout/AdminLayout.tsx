@@ -53,7 +53,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/sites", icon: MapPin, label: "Sites" },
     { href: "/generators", icon: Zap, label: "Generators" },
     { href: "/drivers", icon: Users, label: "Drivers" },
-    { href: "/technicians", icon: Users, label: "Technicians" },
     { href: "/reports", icon: FileText, label: "Reports" },
     { href: "/notifications", icon: Bell, label: "Notifications" },
     { href: "/admins", icon: ShieldCheck, label: "Admins" },
