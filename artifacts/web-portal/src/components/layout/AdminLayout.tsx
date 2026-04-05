@@ -11,9 +11,6 @@ import {
   Bell,
   FileText,
   ShieldCheck,
-  ChevronDown,
-  Wrench,
-  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -86,20 +83,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               isActive={location === item.href} 
             />
           ))}
-        </div>
-
-        {/* Technician Portal Quick Link */}
-        <div className="px-4 pb-3">
-          <Link href="/technician/login">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-[#0B1E3E] to-[#001a4d] text-white border border-[#E30613]/20 hover:border-[#E30613]/50 transition-all cursor-pointer group">
-              <Wrench className="w-4 h-4 text-[#E30613]" />
-              <div className="flex-1">
-                <p className="text-xs font-bold">Technician Portal</p>
-                <p className="text-[10px] text-slate-400">Daily Follow-up App</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#E30613] transition-colors" />
-            </div>
-          </Link>
         </div>
 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
