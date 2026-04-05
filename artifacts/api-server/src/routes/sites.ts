@@ -196,6 +196,9 @@ router.post("/sites/import-csv", async (req, res) => {
 const GOOGLE_SHEETS_URL =
   "https://script.google.com/macros/s/AKfycbxU7WENKAEkhJnBvCPbcGqiwZbUr5ZTT93Gfpw6AmiP7lPYfGUobDpOZh1qvppYgF3RVw/exec";
 
+/** Regions excluded from sync — sites in these regions are never imported */
+const EXCLUDED_REGIONS = new Set(["west", "south"]);
+
 /**
  * POST /sites/sync-sheets
  * Fetches live data from the Google Sheets Apps Script endpoint and upserts
@@ -253,6 +256,10 @@ router.post("/sites/sync-sheets", async (req, res) => {
     for (const row of dashboard.rows) {
       const name = String(row[idxName] ?? "").trim();
       if (!name) { skipped++; continue; }
+
+      // Skip excluded regions (West, South)
+      const rowRegion = idxRegion >= 0 ? String(row[idxRegion] ?? "").trim().toLowerCase() : "";
+      if (EXCLUDED_REGIONS.has(rowRegion)) { skipped++; continue; }
 
       const payload = {
         name,
