@@ -192,6 +192,7 @@ export default function Missions() {
             </Form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card className="glass-panel border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
