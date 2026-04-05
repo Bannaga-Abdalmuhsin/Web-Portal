@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { runSeedIfEmpty } from "./lib/startup-seed";
+import { startSiteSyncScheduler } from "./lib/sync-scheduler";
 
 if (!process.env["SESSION_SECRET"]) {
   throw new Error(
@@ -33,4 +34,7 @@ app.listen(port, (err) => {
 
   // Auto-seed production database if empty
   runSeedIfEmpty().catch((e) => logger.error({ err: e }, "Startup seed failed"));
+
+  // Auto-sync sites from Google Sheets every 24 hours
+  startSiteSyncScheduler();
 });

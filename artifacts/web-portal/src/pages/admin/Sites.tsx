@@ -194,25 +194,6 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          {/* Sync from Google Sheets */}
-          <div className="flex flex-col gap-1">
-            <Button
-              variant="outline"
-              className="h-11 px-4 rounded-xl border-emerald-300 text-emerald-700 hover:bg-emerald-50 gap-2"
-              onClick={handleSyncSheets}
-              disabled={syncing}
-            >
-              <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing…" : "Sync Google Sheets"}
-            </Button>
-            {syncResult && (
-              <div className="text-xs text-slate-500 px-1">
-                ✓ {syncResult.inserted} new · {syncResult.updated} updated · {syncResult.total} total
-                {syncResult.errors.length > 0 && <span className="text-red-500"> · {syncResult.errors.length} errors</span>}
-              </div>
-            )}
-          </div>
-
           {/* Import CSV */}
           <Dialog open={isImportOpen} onOpenChange={(o) => { setIsImportOpen(o); if (!o) { setCsvText(""); setImportResult(null); } }}>
             <DialogTrigger asChild>
