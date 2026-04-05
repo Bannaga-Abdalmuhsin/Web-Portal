@@ -10,6 +10,7 @@ import {
   Bell,
   FileText,
   ShieldCheck,
+  UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -43,19 +44,30 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
 
   if (!user || user.type !== "admin") {
-    return null; // Will be redirected by AuthGuard
+    return null;
   }
 
-  const navItems = [
-    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/missions", icon: FileText, label: "Missions" },
-    { href: "/sites", icon: MapPin, label: "Sites" },
-    { href: "/drivers", icon: Users, label: "Drivers" },
-    { href: "/reports", icon: FileText, label: "Reports" },
-    { href: "/notifications", icon: Bell, label: "Notifications" },
-    { href: "/admins", icon: ShieldCheck, label: "Admins" },
-    { href: "/settings", icon: Settings, label: "Settings" },
+  const isSuperAdmin = user.role === "superadmin";
+  const isSupervisor = user.role === "supervisor";
+
+  const allNavItems = [
+    { href: "/", icon: LayoutDashboard, label: "Dashboard", supervisorAllowed: true },
+    { href: "/missions", icon: FileText, label: "Missions", supervisorAllowed: true },
+    { href: "/sites", icon: MapPin, label: "Sites", supervisorAllowed: true },
+    { href: "/drivers", icon: Users, label: "Drivers", supervisorAllowed: true },
+    { href: "/reports", icon: FileText, label: "Reports", supervisorAllowed: true },
+    { href: "/notifications", icon: Bell, label: "Notifications", supervisorAllowed: true },
+    { href: "/admins", icon: ShieldCheck, label: "Admins", supervisorAllowed: false },
+    { href: "/settings", icon: Settings, label: "Settings", supervisorAllowed: false },
   ];
+
+  const navItems = allNavItems.filter((item) => !isSupervisor || item.supervisorAllowed);
+
+  const roleLabel = isSuperAdmin
+    ? "Super Admin"
+    : isSupervisor
+    ? "Region Supervisor"
+    : "Admin";
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex">
@@ -91,7 +103,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-slate-900 truncate">{user.username}</p>
-              <p className="text-xs text-slate-500 capitalize">{user.role}</p>
+              <p className="text-xs text-slate-500">{roleLabel}</p>
             </div>
             <button 
               onClick={logout}
