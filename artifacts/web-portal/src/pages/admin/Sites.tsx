@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, MapPin, Upload, CheckCircle2, XCircle, Download, AlertCircle } from "lucide-react";
+import { Plus, Search, Trash2, MapPin, Upload, CheckCircle2, XCircle, RefreshCw, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -69,6 +69,8 @@ export default function Sites() {
   const [csvText, setCsvText] = useState("");
   const [importResult, setImportResult] = useState<{ inserted: number; skipped: number; errors: string[]; total: number } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ inserted: number; updated: number; skipped: number; errors: string[]; total: number } | null>(null);
 
   const { data: sites = [], isLoading } = useQuery<Site[]>({
     queryKey: ["sites"],
@@ -114,6 +116,23 @@ export default function Sites() {
       project: "stc COW",
       active: true,
     });
+  };
+
+  const handleSyncSheets = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await apiFetch("/api/sites/sync-sheets", { method: "POST" });
+      const result = await res.json();
+      if (!res.ok) { toast({ title: result.error || "Sync failed", variant: "destructive" }); return; }
+      setSyncResult(result);
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+      toast({ title: `Synced ${result.inserted + result.updated} sites (${result.inserted} new, ${result.updated} updated)` });
+    } catch {
+      toast({ title: "Sync failed — check your connection", variant: "destructive" });
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const handleImport = async () => {
@@ -174,7 +193,26 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
           </select>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {/* Sync from Google Sheets */}
+          <div className="flex flex-col gap-1">
+            <Button
+              variant="outline"
+              className="h-11 px-4 rounded-xl border-emerald-300 text-emerald-700 hover:bg-emerald-50 gap-2"
+              onClick={handleSyncSheets}
+              disabled={syncing}
+            >
+              <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing…" : "Sync Google Sheets"}
+            </Button>
+            {syncResult && (
+              <div className="text-xs text-slate-500 px-1">
+                ✓ {syncResult.inserted} new · {syncResult.updated} updated · {syncResult.total} total
+                {syncResult.errors.length > 0 && <span className="text-red-500"> · {syncResult.errors.length} errors</span>}
+              </div>
+            )}
+          </div>
+
           {/* Import CSV */}
           <Dialog open={isImportOpen} onOpenChange={(o) => { setIsImportOpen(o); if (!o) { setCsvText(""); setImportResult(null); } }}>
             <DialogTrigger asChild>
