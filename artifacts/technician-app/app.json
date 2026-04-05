@@ -17,13 +17,15 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.acessa.technician",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification"],
+        "NSCameraUsageDescription": "Used to photograph ODO meter and tank readings for mission documentation.",
+        "NSPhotoLibraryUsageDescription": "Used to attach photos of fuel tank and ODO meter readings."
       }
     },
     "android": {
       "package": "com.acessa.technician",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"]
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
     },
     "web": {
       "favicon": "./assets/images/icon.png"

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable } from "@workspace/db/schema";
+import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable, sitesTable } from "@workspace/db/schema";
 import { eq, desc, or, isNull } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -234,12 +234,20 @@ router.get("/driver/missions", async (req, res) => {
   }
 });
 
-// Get single mission for driver app
+// Get single mission for driver app (includes site lat/lng)
 router.get("/driver/missions/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
     if (!mission) return res.status(404).json({ error: "Mission not found" });
+    // Fetch site lat/lng for navigation
+    let siteLat: number | null = null;
+    let siteLng: number | null = null;
+    if (mission.siteName) {
+      const [site] = await db.select({ lat: sitesTable.lat, lng: sitesTable.lng })
+        .from(sitesTable).where(eq(sitesTable.name, mission.siteName));
+      if (site) { siteLat = site.lat; siteLng = site.lng; }
+    }
     res.json({
       id: mission.id,
       missionId: mission.missionId,
@@ -257,6 +265,15 @@ router.get("/driver/missions/:id", async (req, res) => {
       missionStatus: mission.missionStatus,
       createdBy: mission.createdBy,
       createdDate: mission.createdDate?.toISOString() ?? null,
+      siteLat,
+      siteLng,
+      litersBefore: mission.litersBefore ?? null,
+      litersAdded: mission.litersAdded ?? null,
+      completionDate: mission.completionDate?.toISOString() ?? null,
+      odoBeforePhoto: mission.odoBeforePhoto ?? null,
+      odoAfterPhoto: mission.odoAfterPhoto ?? null,
+      tankBeforePhoto: mission.tankBeforePhoto ?? null,
+      tankAfterPhoto: mission.tankAfterPhoto ?? null,
     });
   } catch (err) {
     req.log.error({ err }, "Failed to get driver mission");
@@ -264,17 +281,28 @@ router.get("/driver/missions/:id", async (req, res) => {
   }
 });
 
-// Driver updates mission status (e.g. mark as Finished by Driver)
+// Driver updates mission status, entries, and photos
 router.put("/driver/missions/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { missionStatus, notes, driverName } = req.body;
+    const {
+      missionStatus, notes, driverName,
+      litersBefore, litersAdded, completionDate,
+      odoBeforePhoto, odoAfterPhoto, tankBeforePhoto, tankAfterPhoto,
+    } = req.body;
     const [updated] = await db
       .update(missionsTable)
       .set({
         ...(missionStatus && { missionStatus }),
         ...(notes !== undefined && { notes }),
         ...(driverName && { driverName }),
+        ...(litersBefore !== undefined && litersBefore !== null && { litersBefore: parseFloat(litersBefore) }),
+        ...(litersAdded !== undefined && litersAdded !== null && { litersAdded: parseFloat(litersAdded) }),
+        ...(completionDate && { completionDate: new Date(completionDate) }),
+        ...(odoBeforePhoto !== undefined && { odoBeforePhoto }),
+        ...(odoAfterPhoto !== undefined && { odoAfterPhoto }),
+        ...(tankBeforePhoto !== undefined && { tankBeforePhoto }),
+        ...(tankAfterPhoto !== undefined && { tankAfterPhoto }),
       })
       .where(eq(missionsTable.id, id))
       .returning();

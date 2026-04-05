@@ -3,6 +3,7 @@ const COLORS = {
   navy: "#0B1E3E",
   navyDark: "#061428",
   navyLight: "#1A3A6B",
+  navyMuted: "#E8EDF5",
   red: "#E30613",
   redDark: "#b00510",
   redMuted: "rgba(227, 6, 19, 0.10)",

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  TextInput, Alert, ActivityIndicator, Platform,
+  TextInput, Alert, ActivityIndicator, Platform, Linking,
+  Image,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/auth";
 import { apiFetch } from "@/lib/api";
@@ -29,6 +31,15 @@ interface Mission {
   missionStatus: string;
   createdBy: string;
   createdDate: string | null;
+  siteLat: number | null;
+  siteLng: number | null;
+  litersBefore: number | null;
+  litersAdded: number | null;
+  completionDate: string | null;
+  odoBeforePhoto: string | null;
+  odoAfterPhoto: string | null;
+  tankBeforePhoto: string | null;
+  tankAfterPhoto: string | null;
 }
 
 const STATUS_OPTIONS = ["Finished by Driver", "Reported by driver"] as const;
@@ -62,6 +73,45 @@ function FuelBar({ label, value, max, color }: { label: string; value: number; m
   );
 }
 
+function PhotoField({
+  label,
+  icon,
+  value,
+  onCapture,
+  onRetake,
+}: {
+  label: string;
+  icon: string;
+  value: string | null;
+  onCapture: () => void;
+  onRetake: () => void;
+}) {
+  return (
+    <View style={styles.photoField}>
+      <View style={styles.photoLabelRow}>
+        <View style={[styles.photoIcon, { backgroundColor: COLORS.navyMuted ?? COLORS.grayMuted }]}>
+          <Feather name={icon as any} size={13} color={COLORS.navy} />
+        </View>
+        <Text style={styles.photoLabel}>{label}</Text>
+        {value && (
+          <TouchableOpacity onPress={onRetake} style={styles.retakeBtn}>
+            <Feather name="refresh-cw" size={12} color={COLORS.textMuted} />
+            <Text style={styles.retakeBtnText}>Retake</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {value ? (
+        <Image source={{ uri: value }} style={styles.photoPreview} resizeMode="cover" />
+      ) : (
+        <TouchableOpacity style={styles.cameraBtn} onPress={onCapture} activeOpacity={0.8}>
+          <Feather name="camera" size={22} color={COLORS.textMuted} />
+          <Text style={styles.cameraBtnText}>Tap to open camera</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
 export default function MissionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
@@ -71,6 +121,15 @@ export default function MissionDetailScreen() {
 
   const [selectedAction, setSelectedAction] = useState<MissionAction>("Finished by Driver");
   const [notes, setNotes] = useState("");
+  const [litersBefore, setLitersBefore] = useState("");
+  const [litersAdded, setLitersAdded] = useState("");
+  const [completionDate, setCompletionDate] = useState(
+    new Date().toLocaleDateString("en-CA")
+  );
+  const [odoBeforePhoto, setOdoBeforePhoto] = useState<string | null>(null);
+  const [odoAfterPhoto, setOdoAfterPhoto] = useState<string | null>(null);
+  const [tankBeforePhoto, setTankBeforePhoto] = useState<string | null>(null);
+  const [tankAfterPhoto, setTankAfterPhoto] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -86,8 +145,71 @@ export default function MissionDetailScreen() {
   });
 
   useEffect(() => {
-    if (mission?.notes) setNotes(mission.notes);
+    if (!mission) return;
+    if (mission.notes) setNotes(mission.notes);
+    if (mission.litersBefore != null) setLitersBefore(String(mission.litersBefore));
+    if (mission.litersAdded != null) setLitersAdded(String(mission.litersAdded));
+    if (mission.completionDate) {
+      setCompletionDate(new Date(mission.completionDate).toLocaleDateString("en-CA"));
+    }
+    if (mission.odoBeforePhoto) setOdoBeforePhoto(mission.odoBeforePhoto);
+    if (mission.odoAfterPhoto) setOdoAfterPhoto(mission.odoAfterPhoto);
+    if (mission.tankBeforePhoto) setTankBeforePhoto(mission.tankBeforePhoto);
+    if (mission.tankAfterPhoto) setTankAfterPhoto(mission.tankAfterPhoto);
   }, [mission?.id]);
+
+  const takePhoto = async (setter: (v: string | null) => void) => {
+    if (Platform.OS === "web") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.6,
+        base64: true,
+      });
+      if (!result.canceled && result.assets[0]?.base64) {
+        setter(`data:image/jpeg;base64,${result.assets[0].base64}`);
+        Haptics.selectionAsync();
+      }
+      return;
+    }
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission Required", "Camera access is required to take photos.");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 0.6,
+      base64: true,
+      allowsEditing: false,
+    });
+    if (!result.canceled && result.assets[0]?.base64) {
+      setter(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      Haptics.selectionAsync();
+    }
+  };
+
+  const openNavigation = () => {
+    if (!mission?.siteLat || !mission?.siteLng) {
+      Alert.alert("No location data", "This site does not have GPS coordinates recorded.");
+      return;
+    }
+    const { siteLat: lat, siteLng: lng, siteName } = mission;
+    const label = encodeURIComponent(siteName);
+    const url = Platform.select({
+      ios: `maps:0,0?q=${lat},${lng}(${label})`,
+      android: `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
+      default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    });
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
+      }
+    }).catch(() => {
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
+    });
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -97,6 +219,13 @@ export default function MissionDetailScreen() {
           missionStatus: selectedAction,
           notes,
           driverName: user?.name ?? "",
+          litersBefore: litersBefore ? parseFloat(litersBefore) : null,
+          litersAdded: litersAdded ? parseFloat(litersAdded) : null,
+          completionDate: completionDate ? new Date(completionDate).toISOString() : null,
+          odoBeforePhoto,
+          odoAfterPhoto,
+          tankBeforePhoto,
+          tankAfterPhoto,
         }),
       });
       if (!res.ok) throw new Error("Failed");
@@ -144,6 +273,7 @@ export default function MissionDetailScreen() {
   const maxL = Math.max(mission.filledLiters, mission.virtualCalculated, mission.actualInTank, mission.quantityAddedLastTask, 1);
   const missionColors = MISSION_STATUS_COLORS[mission.missionStatus] ?? { bg: COLORS.grayMuted, text: COLORS.gray };
   const canUpdate = mission.missionStatus === "Creation" || mission.missionStatus === "Task approved";
+  const hasLocation = !!mission.siteLat && !!mission.siteLng;
 
   return (
     <View style={[styles.root, { paddingTop: topPad }]}>
@@ -157,7 +287,14 @@ export default function MissionDetailScreen() {
           <Feather name="arrow-left" size={20} color={COLORS.navy} />
         </TouchableOpacity>
         <Text style={styles.pageTitle} numberOfLines={1}>Mission Detail</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity
+          style={[styles.navBtn, !hasLocation && styles.navBtnDisabled]}
+          onPress={openNavigation}
+          activeOpacity={hasLocation ? 0.8 : 1}
+        >
+          <Feather name="navigation" size={14} color={hasLocation ? COLORS.white : COLORS.textMuted} />
+          <Text style={[styles.navBtnText, !hasLocation && styles.navBtnTextDisabled]}>Navigate</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -191,6 +328,12 @@ export default function MissionDetailScreen() {
               <Text style={styles.metaText}>{mission.driverName || mission.assignedDriver || "Unassigned"}</Text>
             </View>
           </View>
+          {hasLocation && (
+            <View style={styles.coordRow}>
+              <Feather name="crosshair" size={11} color={COLORS.textMuted} />
+              <Text style={styles.coordText}>{mission.siteLat?.toFixed(5)}, {mission.siteLng?.toFixed(5)}</Text>
+            </View>
+          )}
         </View>
 
         {/* Fuel readings */}
@@ -239,80 +382,174 @@ export default function MissionDetailScreen() {
 
         {/* Driver action form */}
         {canUpdate ? (
-          <View style={styles.card}>
-            <View style={styles.cardTitleRow}>
-              <View style={[styles.cardTitleIcon, { backgroundColor: COLORS.redMuted }]}>
-                <Feather name="truck" size={14} color={COLORS.red} />
+          <>
+            {/* Photo Documentation */}
+            <View style={styles.card}>
+              <View style={styles.cardTitleRow}>
+                <View style={[styles.cardTitleIcon, { backgroundColor: COLORS.amberMuted }]}>
+                  <Feather name="camera" size={14} color={COLORS.amber} />
+                </View>
+                <Text style={styles.cardTitle}>Photo Documentation</Text>
               </View>
-              <Text style={styles.cardTitle}>Update Mission</Text>
+
+              <PhotoField
+                label="ODO Meter — Before"
+                icon="activity"
+                value={odoBeforePhoto}
+                onCapture={() => takePhoto(setOdoBeforePhoto)}
+                onRetake={() => takePhoto(setOdoBeforePhoto)}
+              />
+              <View style={styles.photoDivider} />
+              <PhotoField
+                label="ODO Meter — After"
+                icon="activity"
+                value={odoAfterPhoto}
+                onCapture={() => takePhoto(setOdoAfterPhoto)}
+                onRetake={() => takePhoto(setOdoAfterPhoto)}
+              />
+              <View style={styles.photoDivider} />
+              <PhotoField
+                label="Tank — Before"
+                icon="droplet"
+                value={tankBeforePhoto}
+                onCapture={() => takePhoto(setTankBeforePhoto)}
+                onRetake={() => takePhoto(setTankBeforePhoto)}
+              />
+              <View style={styles.photoDivider} />
+              <PhotoField
+                label="Tank — After"
+                icon="droplet"
+                value={tankAfterPhoto}
+                onCapture={() => takePhoto(setTankAfterPhoto)}
+                onRetake={() => takePhoto(setTankAfterPhoto)}
+              />
             </View>
 
-            <Text style={styles.fieldLabel}>Select Action</Text>
-            <View style={styles.statusRow}>
-              {STATUS_OPTIONS.map((s) => {
-                const sc = STATUS_COLORS[s];
-                const isSelected = selectedAction === s;
-                return (
-                  <TouchableOpacity
-                    key={s}
-                    style={[
-                      styles.statusOption,
-                      { borderColor: sc.border },
-                      isSelected && { backgroundColor: sc.activeBg, borderColor: sc.activeBg },
-                    ]}
-                    onPress={() => { setSelectedAction(s); Haptics.selectionAsync(); }}
-                    activeOpacity={0.75}
-                  >
-                    <Feather
-                      name={s === "Finished by Driver" ? "check-circle" : "alert-triangle"}
-                      size={16}
-                      color={isSelected ? COLORS.white : sc.text}
-                    />
-                    <Text style={[styles.statusOptionText, { color: isSelected ? COLORS.white : sc.text }]}>
-                      {s === "Finished by Driver" ? "Mark Finished" : "Report Issue"}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            {/* Driver Entries */}
+            <View style={styles.card}>
+              <View style={styles.cardTitleRow}>
+                <View style={[styles.cardTitleIcon, { backgroundColor: COLORS.greenMuted }]}>
+                  <Feather name="edit-3" size={14} color={COLORS.green} />
+                </View>
+                <Text style={styles.cardTitle}>Driver Entries</Text>
+              </View>
+
+              <View style={styles.entryRow}>
+                <View style={styles.entryField}>
+                  <Text style={styles.entryLabel}>Liters Before</Text>
+                  <TextInput
+                    style={styles.entryInput}
+                    value={litersBefore}
+                    onChangeText={setLitersBefore}
+                    placeholder="0"
+                    placeholderTextColor={COLORS.textMuted}
+                    keyboardType="numeric"
+                    testID="liters-before-input"
+                  />
+                </View>
+                <View style={styles.entrySpacer} />
+                <View style={styles.entryField}>
+                  <Text style={styles.entryLabel}>Added Liters</Text>
+                  <TextInput
+                    style={styles.entryInput}
+                    value={litersAdded}
+                    onChangeText={setLitersAdded}
+                    placeholder="0"
+                    placeholderTextColor={COLORS.textMuted}
+                    keyboardType="numeric"
+                    testID="liters-added-input"
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.entryLabel}>Date of Completion</Text>
+              <TextInput
+                style={styles.entryInput}
+                value={completionDate}
+                onChangeText={setCompletionDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType={Platform.OS === "ios" ? "numbers-and-punctuation" : "default"}
+                testID="completion-date-input"
+              />
             </View>
 
-            <Text style={styles.fieldLabel}>Notes / Remarks</Text>
-            <TextInput
-              style={styles.textarea}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Add fueling notes or observations..."
-              placeholderTextColor={COLORS.textMuted}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              testID="remark-input"
-            />
+            {/* Update Mission */}
+            <View style={styles.card}>
+              <View style={styles.cardTitleRow}>
+                <View style={[styles.cardTitleIcon, { backgroundColor: COLORS.redMuted }]}>
+                  <Feather name="truck" size={14} color={COLORS.red} />
+                </View>
+                <Text style={styles.cardTitle}>Update Mission</Text>
+              </View>
 
-            <TouchableOpacity
-              style={[styles.submitBtn, saved && styles.submitBtnSaved, mutation.isPending && styles.submitBtnLoading]}
-              onPress={() => mutation.mutate()}
-              disabled={mutation.isPending || saved}
-              activeOpacity={0.85}
-              testID="submit-button"
-            >
-              {mutation.isPending ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
-              ) : saved ? (
-                <>
-                  <Feather name="check" size={18} color={COLORS.white} />
-                  <Text style={styles.submitBtnText}>Updated!</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.submitBtnText}>Submit Update</Text>
-                  <Feather name="send" size={16} color={COLORS.white} />
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
+              <Text style={styles.fieldLabel}>Select Action</Text>
+              <View style={styles.statusRow}>
+                {STATUS_OPTIONS.map((s) => {
+                  const sc = STATUS_COLORS[s];
+                  const isSelected = selectedAction === s;
+                  return (
+                    <TouchableOpacity
+                      key={s}
+                      style={[
+                        styles.statusOption,
+                        { borderColor: sc.border },
+                        isSelected && { backgroundColor: sc.activeBg, borderColor: sc.activeBg },
+                      ]}
+                      onPress={() => { setSelectedAction(s); Haptics.selectionAsync(); }}
+                      activeOpacity={0.75}
+                    >
+                      <Feather
+                        name={s === "Finished by Driver" ? "check-circle" : "alert-triangle"}
+                        size={16}
+                        color={isSelected ? COLORS.white : sc.text}
+                      />
+                      <Text style={[styles.statusOptionText, { color: isSelected ? COLORS.white : sc.text }]}>
+                        {s === "Finished by Driver" ? "Mark Finished" : "Report Issue"}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <Text style={styles.fieldLabel}>Notes / Remarks</Text>
+              <TextInput
+                style={styles.textarea}
+                value={notes}
+                onChangeText={setNotes}
+                placeholder="Add fueling notes or observations..."
+                placeholderTextColor={COLORS.textMuted}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                testID="remark-input"
+              />
+
+              <TouchableOpacity
+                style={[styles.submitBtn, saved && styles.submitBtnSaved, mutation.isPending && styles.submitBtnLoading]}
+                onPress={() => mutation.mutate()}
+                disabled={mutation.isPending || saved}
+                activeOpacity={0.85}
+                testID="submit-button"
+              >
+                {mutation.isPending ? (
+                  <ActivityIndicator color={COLORS.white} size="small" />
+                ) : saved ? (
+                  <>
+                    <Feather name="check" size={18} color={COLORS.white} />
+                    <Text style={styles.submitBtnText}>Updated!</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.submitBtnText}>Submit Update</Text>
+                    <Feather name="send" size={16} color={COLORS.white} />
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </>
         ) : (
-          <View style={[styles.card, { borderColor: `${COLORS.green}40`, borderLeftWidth: 4, borderLeftColor: COLORS.green }]}>
+          <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: COLORS.green }]}>
             <View style={styles.cardTitleRow}>
               <View style={[styles.cardTitleIcon, { backgroundColor: COLORS.greenMuted }]}>
                 <Feather name="check-circle" size={14} color={COLORS.green} />
@@ -322,6 +559,61 @@ export default function MissionDetailScreen() {
             <Text style={styles.completedText}>
               This mission has been {mission.missionStatus.toLowerCase()} and is no longer editable.
             </Text>
+            {/* Show submitted photos if any */}
+            {(mission.odoBeforePhoto || mission.odoAfterPhoto || mission.tankBeforePhoto || mission.tankAfterPhoto) && (
+              <View style={{ marginTop: 12, gap: 10 }}>
+                <Text style={styles.fieldLabel}>Submitted Photos</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+                  {mission.odoBeforePhoto && (
+                    <View style={styles.thumbWrap}>
+                      <Image source={{ uri: mission.odoBeforePhoto }} style={styles.thumb} resizeMode="cover" />
+                      <Text style={styles.thumbLabel}>ODO Before</Text>
+                    </View>
+                  )}
+                  {mission.odoAfterPhoto && (
+                    <View style={styles.thumbWrap}>
+                      <Image source={{ uri: mission.odoAfterPhoto }} style={styles.thumb} resizeMode="cover" />
+                      <Text style={styles.thumbLabel}>ODO After</Text>
+                    </View>
+                  )}
+                  {mission.tankBeforePhoto && (
+                    <View style={styles.thumbWrap}>
+                      <Image source={{ uri: mission.tankBeforePhoto }} style={styles.thumb} resizeMode="cover" />
+                      <Text style={styles.thumbLabel}>Tank Before</Text>
+                    </View>
+                  )}
+                  {mission.tankAfterPhoto && (
+                    <View style={styles.thumbWrap}>
+                      <Image source={{ uri: mission.tankAfterPhoto }} style={styles.thumb} resizeMode="cover" />
+                      <Text style={styles.thumbLabel}>Tank After</Text>
+                    </View>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+            {/* Show submitted entries if any */}
+            {(mission.litersBefore != null || mission.litersAdded != null || mission.completionDate) && (
+              <View style={{ marginTop: 8, gap: 6 }}>
+                {mission.litersBefore != null && (
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>Liters Before</Text>
+                    <Text style={styles.detailValue}>{mission.litersBefore} L</Text>
+                  </View>
+                )}
+                {mission.litersAdded != null && (
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>Added Liters</Text>
+                    <Text style={styles.detailValue}>{mission.litersAdded} L</Text>
+                  </View>
+                )}
+                {mission.completionDate && (
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>Completion Date</Text>
+                    <Text style={styles.detailValue}>{new Date(mission.completionDate).toLocaleDateString()}</Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -358,9 +650,9 @@ const styles = StyleSheet.create({
   topHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
@@ -381,8 +673,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: -0.2,
   },
+  navBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: COLORS.navy,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  navBtnDisabled: { backgroundColor: COLORS.grayMuted },
+  navBtnText: { fontSize: 12, fontFamily: "Inter_600SemiBold", color: COLORS.white },
+  navBtnTextDisabled: { color: COLORS.textMuted },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 16, gap: 14 },
+  scrollContent: { paddingHorizontal: 16, paddingTop: 14, gap: 12 },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 18,
@@ -429,6 +733,13 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: "row", gap: 16, marginTop: 8 },
   metaItem: { flexDirection: "row", alignItems: "center", gap: 5 },
   metaText: { fontSize: 12, fontFamily: "Inter_400Regular", color: COLORS.textSecondary },
+  coordRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 6,
+  },
+  coordText: { fontSize: 11, fontFamily: "Inter_400Regular", color: COLORS.textMuted },
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
   cardTitleIcon: {
     width: 30,
@@ -458,6 +769,80 @@ const styles = StyleSheet.create({
   detailLabel: { fontSize: 13, fontFamily: "Inter_400Regular", color: COLORS.textSecondary },
   detailValue: { fontSize: 13, fontFamily: "Inter_600SemiBold", color: COLORS.text, textAlign: "right" },
   divider: { height: 1, backgroundColor: COLORS.divider },
+  // Photo documentation
+  photoField: { gap: 8 },
+  photoDivider: { height: 1, backgroundColor: COLORS.divider, marginVertical: 4 },
+  photoLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  photoIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  photoLabel: { flex: 1, fontSize: 13, fontFamily: "Inter_600SemiBold", color: COLORS.text },
+  retakeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: COLORS.grayMuted,
+  },
+  retakeBtnText: { fontSize: 11, fontFamily: "Inter_500Medium", color: COLORS.textMuted },
+  cameraBtn: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: COLORS.inputBorder,
+    borderStyle: "dashed",
+    borderRadius: 14,
+    height: 100,
+    backgroundColor: COLORS.inputBg,
+  },
+  cameraBtnText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: COLORS.textMuted,
+  },
+  photoPreview: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
+    backgroundColor: COLORS.grayMuted,
+  },
+  // Driver entries
+  entryRow: { flexDirection: "row", alignItems: "flex-start" },
+  entryField: { flex: 1 },
+  entrySpacer: { width: 12 },
+  entryLabel: {
+    fontSize: 11,
+    fontFamily: "Inter_700Bold",
+    color: COLORS.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  entryInput: {
+    backgroundColor: COLORS.inputBg,
+    borderWidth: 1.5,
+    borderColor: COLORS.inputBorder,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    fontFamily: "Inter_500Medium",
+    color: COLORS.text,
+  },
+  // Update mission
   fieldLabel: {
     fontSize: 11,
     fontFamily: "Inter_700Bold",
@@ -515,4 +900,8 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 20,
   },
+  // Submitted photos (read-only)
+  thumbWrap: { alignItems: "center", gap: 4 },
+  thumb: { width: 100, height: 80, borderRadius: 10 },
+  thumbLabel: { fontSize: 10, fontFamily: "Inter_500Medium", color: COLORS.textMuted },
 });

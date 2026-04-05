@@ -25,6 +25,15 @@ export const missionsTable = pgTable("missions", {
   reviewedAt: timestamp("reviewed_at"),
   assignedTechnicianId: integer("assigned_technician_id"),
   createdAt: timestamp("created_at").defaultNow(),
+  // Driver field entries
+  litersBefore: real("liters_before"),
+  litersAdded: real("liters_added"),
+  completionDate: timestamp("completion_date"),
+  // Photo documentation (stored as base64 data URIs)
+  odoBeforePhoto: text("odo_before_photo"),
+  odoAfterPhoto: text("odo_after_photo"),
+  tankBeforePhoto: text("tank_before_photo"),
+  tankAfterPhoto: text("tank_after_photo"),
 });
 
 export const insertMissionSchema = createInsertSchema(missionsTable).omit({ id: true, createdAt: true });
