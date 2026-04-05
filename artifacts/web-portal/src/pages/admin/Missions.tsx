@@ -440,6 +440,7 @@ export default function Missions() {
             <TableRow className="hover:bg-transparent">
               <TableHead className="font-semibold text-slate-600 h-12">Mission ID</TableHead>
               <TableHead className="font-semibold text-slate-600">Site</TableHead>
+              <TableHead className="font-semibold text-slate-600">Region</TableHead>
               <TableHead className="font-semibold text-slate-600">Driver</TableHead>
               <TableHead className="font-semibold text-slate-600">Liters</TableHead>
               <TableHead className="font-semibold text-slate-600">Status</TableHead>
@@ -449,11 +450,11 @@ export default function Missions() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-slate-500">Loading missions...</TableCell>
+                <TableCell colSpan={7} className="h-32 text-center text-slate-500">Loading missions...</TableCell>
               </TableRow>
             ) : filteredMissions?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center">
+                <TableCell colSpan={7} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center text-slate-400">
                     <FileText className="w-8 h-8 mb-2 opacity-50" />
                     <p>No missions found</p>
@@ -466,7 +467,11 @@ export default function Missions() {
                   <TableCell className="font-medium text-slate-900">{mission.missionId || `MSN-${mission.id}`}</TableCell>
                   <TableCell>
                     <div className="font-medium text-slate-900">{mission.siteName}</div>
-                    <div className="text-xs text-slate-500">{mission.city || 'Riyadh'}</div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium bg-sky-50 text-sky-700 border border-sky-100">
+                      {mission.city || '—'}
+                    </span>
                   </TableCell>
                   <TableCell>{mission.driverName || 'Unassigned'}</TableCell>
                   <TableCell className="font-medium text-slate-700">{mission.filledLiters || 0} L</TableCell>
