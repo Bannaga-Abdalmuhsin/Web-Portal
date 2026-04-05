@@ -193,21 +193,17 @@ export default function MissionDetailScreen() {
       Alert.alert("No location data", "This site does not have GPS coordinates recorded.");
       return;
     }
-    const { siteLat: lat, siteLng: lng, siteName } = mission;
-    const label = encodeURIComponent(siteName);
-    const url = Platform.select({
-      ios: `maps:0,0?q=${lat},${lng}(${label})`,
-      android: `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
-      default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    const { siteLat: lat, siteLng: lng } = mission;
+    const googleMapsWeb = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const googleMapsApp = Platform.select({
+      ios: `comgooglemaps://?q=${lat},${lng}&center=${lat},${lng}&zoom=17`,
+      android: `google.navigation:q=${lat},${lng}`,
+      default: googleMapsWeb,
     });
-    Linking.canOpenURL(url).then((supported) => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
-      }
+    Linking.canOpenURL(googleMapsApp).then((supported) => {
+      Linking.openURL(supported ? googleMapsApp : googleMapsWeb);
     }).catch(() => {
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
+      Linking.openURL(googleMapsWeb);
     });
   };
 
