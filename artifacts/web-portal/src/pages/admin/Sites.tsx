@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, MapPin, Upload, CheckCircle2, XCircle, RefreshCw, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Search, Trash2, MapPin, Upload, CheckCircle2, XCircle, RefreshCw, AlertCircle, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -60,6 +60,12 @@ const COW_STATUS_COLORS: Record<string, string> = {
   "MAINTENANCE": "bg-amber-50 text-amber-700 border-amber-200",
 };
 
+function formatRegion(r?: string | null): string {
+  if (!r) return "";
+  const m: Record<string, string> = { CENTRAL: "Central", EAST: "East" };
+  return m[r.toUpperCase()] ?? r;
+}
+
 export default function Sites() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -84,6 +90,8 @@ export default function Sites() {
     },
   });
 
+  const [editSiteId, setEditSiteId] = useState<number | null>(null);
+
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiFetch("/api/sites", { method: "POST", body: JSON.stringify(data) });
@@ -94,9 +102,26 @@ export default function Sites() {
       queryClient.invalidateQueries({ queryKey: ["sites"] });
       toast({ title: "Site created successfully" });
       setIsAddOpen(false);
+      setEditSiteId(null);
       form.reset();
     },
     onError: () => toast({ title: "Failed to create site", variant: "destructive" }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Record<string, unknown> }) => {
+      const res = await apiFetch(`/api/sites/${id}`, { method: "PUT", body: JSON.stringify(data) });
+      if (!res.ok) throw new Error("Failed to update site");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+      toast({ title: "Site updated successfully" });
+      setIsAddOpen(false);
+      setEditSiteId(null);
+      form.reset();
+    },
+    onError: () => toast({ title: "Failed to update site", variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -106,19 +131,48 @@ export default function Sites() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sites"] }),
   });
 
+  const defaultSiteValues = { name: "", region: "", district: "", city: "", cowStatus: "ON-AIR", siteLabel: "", lat: "", lng: "", nextFuelingPlan: "" };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", region: "", district: "", city: "", cowStatus: "ON-AIR", siteLabel: "", lat: "", lng: "", nextFuelingPlan: "" },
+    defaultValues: defaultSiteValues,
   });
 
+  const openAddSite = () => {
+    form.reset(defaultSiteValues);
+    setEditSiteId(null);
+    setIsAddOpen(true);
+  };
+
+  const openEditSite = (site: any) => {
+    form.reset({
+      name: site.name,
+      region: site.region || "",
+      district: site.district || "",
+      city: site.city || "",
+      cowStatus: site.cowStatus || "ON-AIR",
+      siteLabel: site.siteLabel || "",
+      lat: site.lat != null ? String(site.lat) : "",
+      lng: site.lng != null ? String(site.lng) : "",
+      nextFuelingPlan: site.nextFuelingPlan || "",
+    });
+    setEditSiteId(site.id);
+    setIsAddOpen(true);
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createMutation.mutate({
+    const payload = {
       ...values,
       lat: values.lat ? parseFloat(values.lat) : undefined,
       lng: values.lng ? parseFloat(values.lng) : undefined,
       project: "stc COW",
       active: true,
-    });
+    };
+    if (editSiteId !== null) {
+      updateMutation.mutate({ id: editSiteId, data: payload });
+    } else {
+      createMutation.mutate(payload);
+    }
   };
 
   const handleSyncSheets = async () => {
@@ -189,7 +243,7 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
           </div>
           {supervisorRegion ? (
             <div className="h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 font-medium flex items-center">
-              {supervisorRegion}
+              {formatRegion(supervisorRegion)}
             </div>
           ) : (
             <select
@@ -198,7 +252,7 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
               onChange={(e) => setRegionFilter(e.target.value)}
             >
               <option value="">All Regions</option>
-              {regions.map((r) => <option key={r} value={r}>{r}</option>)}
+              {regions.map((r) => <option key={r} value={r}>{formatRegion(r)}</option>)}
             </select>
           )}
         </div>
@@ -265,15 +319,13 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
           </Dialog>
 
           {/* Add Site */}
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-11 px-5 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 gap-2">
-                <Plus className="w-4 h-4" /> Add Site
-              </Button>
-            </DialogTrigger>
+          <Button className="h-11 px-5 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 gap-2" onClick={openAddSite}>
+            <Plus className="w-4 h-4" /> Add Site
+          </Button>
+          <Dialog open={isAddOpen} onOpenChange={(o) => { if (!o) { setIsAddOpen(false); setEditSiteId(null); } }}>
             <DialogContent className="sm:max-w-lg rounded-3xl p-6">
               <DialogHeader className="mb-4">
-                <DialogTitle className="text-2xl font-display">Add New Site</DialogTitle>
+                <DialogTitle className="text-2xl font-display">{editSiteId ? "Edit Site" : "Add New Site"}</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
@@ -287,7 +339,13 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
                   <FormField control={form.control} name="region" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Region</FormLabel>
-                      <FormControl><Input placeholder="Central" className="h-11 rounded-xl" {...field} /></FormControl>
+                      <FormControl>
+                        <select className="w-full h-11 px-3 rounded-xl border border-input bg-background text-sm" {...field}>
+                          <option value="">Select region...</option>
+                          <option value="CENTRAL">Central</option>
+                          <option value="EAST">East</option>
+                        </select>
+                      </FormControl>
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="district" render={({ field }) => (
@@ -338,8 +396,8 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
                       <FormControl><Input placeholder="2025-04-10" className="h-11 rounded-xl" {...field} /></FormControl>
                     </FormItem>
                   )} />
-                  <Button type="submit" className="col-span-2 h-12 rounded-xl mt-3 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? "Saving..." : "Save Site"}
+                  <Button type="submit" className="col-span-2 h-12 rounded-xl mt-3 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending}>
+                    {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : (editSiteId ? "Update Site" : "Save Site")}
                   </Button>
                 </form>
               </Form>
@@ -401,7 +459,7 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
                     <div className="font-semibold text-slate-900">{site.name}</div>
                     {site.siteLabel && <div className="text-xs text-slate-400">{site.siteLabel}</div>}
                   </TableCell>
-                  <TableCell className="text-slate-700">{site.region || <span className="text-slate-300">—</span>}</TableCell>
+                  <TableCell className="text-slate-700">{formatRegion(site.region) || <span className="text-slate-300">—</span>}</TableCell>
                   <TableCell>
                     <div className="text-sm text-slate-900">{site.city || "—"}</div>
                     {site.district && <div className="text-xs text-slate-400">{site.district}</div>}
@@ -435,20 +493,30 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
                     ) : <span className="text-slate-300 text-xs">—</span>}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                      onClick={() => {
-                        if (confirm(`Delete site "${site.name}"?`)) {
-                          deleteMutation.mutate(site.id, {
-                            onSuccess: () => toast({ title: "Site deleted" }),
-                          });
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        onClick={() => openEditSite(site)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                        onClick={() => {
+                          if (confirm(`Delete site "${site.name}"?`)) {
+                            deleteMutation.mutate(site.id, {
+                              onSuccess: () => toast({ title: "Site deleted" }),
+                            });
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useMissions, useCreateMission, useDeleteMission } from "@/hooks/use-missions";
+import { useMissions, useCreateMission, useUpdateMission, useDeleteMission } from "@/hooks/use-missions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, Trash2, FileText, Eye, CheckCircle, XCircle, RotateCcw, Camera, Droplet } from "lucide-react";
+import { Plus, Search, Trash2, FileText, Eye, CheckCircle, XCircle, RotateCcw, Camera, Droplet, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -301,40 +301,73 @@ function MissionReviewSheet({
   );
 }
 
+function formatRegion(r?: string | null): string {
+  if (!r) return "";
+  const m: Record<string, string> = { CENTRAL: "Central", EAST: "East" };
+  return m[r.toUpperCase()] ?? r;
+}
+
 export default function Missions() {
   const { user } = useAuth();
   const supervisorRegion = user?.role === "supervisor" ? (user.region || "") : "";
   const { data: missions, isLoading } = useMissions();
   const { data: drivers = [] } = useDrivers();
   const createMutation = useCreateMission();
+  const updateMutation = useUpdateMission();
   const deleteMutation = useDeleteMission();
   const { toast } = useToast();
 
+  const defaultMissionValues = { siteName: "", generator: "", project: "stc COW", missionStatus: "Creation", driverName: "", filledLiters: 0 };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editMissionId, setEditMissionId] = useState<number | null>(null);
   const [reviewMission, setReviewMission] = useState<{ id: number; ref: string } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      siteName: "",
-      generator: "",
-      project: "stc COW",
-      missionStatus: "Creation",
-      driverName: "",
-      filledLiters: 0,
-    }
+    defaultValues: defaultMissionValues,
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createMutation.mutate({ data: values }, {
-      onSuccess: () => {
-        toast({ title: "Mission created successfully" });
-        setIsDialogOpen(false);
-        form.reset();
-      },
-      onError: () => toast({ title: "Failed to create mission", variant: "destructive" })
+  const openCreate = () => {
+    form.reset(defaultMissionValues);
+    setEditMissionId(null);
+    setIsDialogOpen(true);
+  };
+
+  const openEdit = (mission: any) => {
+    form.reset({
+      siteName: mission.siteName,
+      generator: mission.generator || "",
+      project: mission.project || "stc COW",
+      missionStatus: mission.missionStatus,
+      driverName: mission.driverName || "",
+      filledLiters: mission.filledLiters || 0,
     });
+    setEditMissionId(mission.id);
+    setIsDialogOpen(true);
+  };
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    if (editMissionId !== null) {
+      updateMutation.mutate({ id: editMissionId, data: values }, {
+        onSuccess: () => {
+          toast({ title: "Mission updated" });
+          setIsDialogOpen(false);
+          setEditMissionId(null);
+        },
+        onError: () => toast({ title: "Failed to update mission", variant: "destructive" }),
+      });
+    } else {
+      createMutation.mutate({ data: values }, {
+        onSuccess: () => {
+          toast({ title: "Mission created successfully" });
+          setIsDialogOpen(false);
+          form.reset();
+        },
+        onError: () => toast({ title: "Failed to create mission", variant: "destructive" }),
+      });
+    }
   };
 
   const filteredMissions = missions?.filter(m => {
@@ -359,16 +392,14 @@ export default function Missions() {
         </div>
 
         <div className="flex gap-2 items-start flex-wrap">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all">
-                <Plus className="w-5 h-5 mr-2" />
-                New Mission
-              </Button>
-            </DialogTrigger>
+          <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all" onClick={openCreate}>
+            <Plus className="w-5 h-5 mr-2" />
+            New Mission
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={(o) => { if (!o) { setIsDialogOpen(false); setEditMissionId(null); } }}>
             <DialogContent className="sm:max-w-[500px] p-6 rounded-3xl">
               <DialogHeader className="mb-4">
-                <DialogTitle className="text-2xl font-display text-slate-900">Create Mission</DialogTitle>
+                <DialogTitle className="text-2xl font-display text-slate-900">{editMissionId ? "Edit Mission" : "Create Mission"}</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -430,8 +461,8 @@ export default function Missions() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full h-12 rounded-xl mt-6 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? "Creating..." : "Save Mission"}
+                  <Button type="submit" className="w-full h-12 rounded-xl mt-6 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending}>
+                    {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : (editMissionId ? "Update Mission" : "Save Mission")}
                   </Button>
                 </form>
               </Form>
@@ -476,7 +507,7 @@ export default function Missions() {
                   </TableCell>
                   <TableCell>
                     <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium bg-sky-50 text-sky-700 border border-sky-100">
-                      {(mission as any).region || mission.city || '—'}
+                      {formatRegion((mission as any).region || mission.city) || '—'}
                     </span>
                   </TableCell>
                   <TableCell>{mission.driverName || 'Unassigned'}</TableCell>
@@ -499,6 +530,14 @@ export default function Missions() {
                           Review
                         </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        onClick={() => openEdit(mission)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

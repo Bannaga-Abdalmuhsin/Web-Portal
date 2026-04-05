@@ -377,6 +377,22 @@ router.post("/missions/:id/send-back", async (req, res) => {
 });
 
 // GET report lines (for invoice preparation)
+router.put("/report-lines/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const body = req.body;
+    const updateData: any = {};
+    if (body.litersAdded !== undefined) updateData.litersAdded = body.litersAdded;
+    if (body.driverName !== undefined) updateData.driverName = body.driverName;
+    const [updated] = await db.update(reportLinesTable).set(updateData).where(eq(reportLinesTable.id, id)).returning();
+    if (!updated) return res.status(404).json({ error: "Not found" });
+    res.json({ id: updated.id, missionRef: updated.missionRef, siteName: updated.siteName, litersAdded: updated.litersAdded });
+  } catch (err) {
+    req.log.error({ err }, "Failed to update report line");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/report-lines", async (req, res) => {
   try {
     const lines = await db.select().from(reportLinesTable)

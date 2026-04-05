@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useDrivers, useCreateDriver, useDeleteDriver } from "@/hooks/use-drivers";
+import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver } from "@/hooks/use-drivers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, Users, CheckCircle2, XCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Search, Trash2, Users, CheckCircle2, XCircle, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,33 +25,60 @@ const formSchema = z.object({
 export default function Drivers() {
   const { data: drivers, isLoading } = useDrivers();
   const createMutation = useCreateDriver();
+  const updateMutation = useUpdateDriver();
   const deleteMutation = useDeleteDriver();
   const { toast } = useToast();
-  
+
+  const defaultDriverValues = { name: "", phone: "", email: "", zone: "", active: true, password: "" };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editDriverId, setEditDriverId] = useState<number | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      zone: "",
-      active: true,
-      password: "",
-    }
+    defaultValues: defaultDriverValues,
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createMutation.mutate({ data: values }, {
-      onSuccess: () => {
-        toast({ title: "Driver added successfully" });
-        setIsDialogOpen(false);
-        form.reset();
-      },
-      onError: () => toast({ title: "Failed to add driver", variant: "destructive" })
+  const openCreate = () => {
+    form.reset(defaultDriverValues);
+    setEditDriverId(null);
+    setIsDialogOpen(true);
+  };
+
+  const openEdit = (driver: any) => {
+    form.reset({
+      name: driver.name,
+      phone: driver.phone || "",
+      email: driver.email || "",
+      zone: driver.zone || "",
+      active: driver.active,
+      password: "",
     });
+    setEditDriverId(driver.id);
+    setIsDialogOpen(true);
+  };
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    if (editDriverId !== null) {
+      updateMutation.mutate({ id: editDriverId, data: values }, {
+        onSuccess: () => {
+          toast({ title: "Driver updated" });
+          setIsDialogOpen(false);
+          setEditDriverId(null);
+        },
+        onError: () => toast({ title: "Failed to update driver", variant: "destructive" }),
+      });
+    } else {
+      createMutation.mutate({ data: values }, {
+        onSuccess: () => {
+          toast({ title: "Driver added successfully" });
+          setIsDialogOpen(false);
+          form.reset();
+        },
+        onError: () => toast({ title: "Failed to add driver", variant: "destructive" }),
+      });
+    }
   };
 
   const filteredDrivers = drivers?.filter(d => 
@@ -72,16 +99,14 @@ export default function Drivers() {
           />
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all">
-              <Plus className="w-5 h-5 mr-2" />
-              Add Driver
-            </Button>
-          </DialogTrigger>
+        <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all" onClick={openCreate}>
+          <Plus className="w-5 h-5 mr-2" />
+          Add Driver
+        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={(o) => { if (!o) { setIsDialogOpen(false); setEditDriverId(null); } }}>
           <DialogContent className="sm:max-w-[420px] p-6 rounded-3xl">
             <DialogHeader className="mb-4">
-              <DialogTitle className="text-2xl font-display text-slate-900">Add New Driver</DialogTitle>
+              <DialogTitle className="text-2xl font-display text-slate-900">{editDriverId ? "Edit Driver" : "Add New Driver"}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -165,8 +190,8 @@ export default function Drivers() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-12 rounded-xl mt-6 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Adding..." : "Save Driver"}
+                <Button type="submit" className="w-full h-12 rounded-xl mt-6 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending}>
+                  {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : (editDriverId ? "Update Driver" : "Save Driver")}
                 </Button>
               </form>
             </Form>
@@ -220,20 +245,30 @@ export default function Drivers() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                      onClick={() => {
-                        if (confirm('Delete this driver?')) {
-                          deleteMutation.mutate({ id: driver.id }, {
-                            onSuccess: () => toast({ title: "Deleted" })
-                          });
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        onClick={() => openEdit(driver)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                        onClick={() => {
+                          if (confirm('Delete this driver?')) {
+                            deleteMutation.mutate({ id: driver.id }, {
+                              onSuccess: () => toast({ title: "Deleted" })
+                            });
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
