@@ -53,10 +53,7 @@ export default function ReportsPage() {
   const [unitPrice] = useState(0.63);
   const vatRate = 0.15;
 
-  const regions = useMemo(() => {
-    const set = new Set(reportLines.map((l) => l.region).filter(Boolean));
-    return Array.from(set).sort();
-  }, [reportLines]);
+  const REGIONS = ["Central", "East"];
 
   const lines = useMemo(() => {
     return reportLines
@@ -204,7 +201,7 @@ export default function ReportsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Regions</SelectItem>
-                  {regions.map((r) => (
+                  {REGIONS.map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>

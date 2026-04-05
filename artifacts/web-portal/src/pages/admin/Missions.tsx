@@ -19,6 +19,19 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getListMissionsQueryKey } from "@workspace/api-client-react";
 
+interface Driver { id: number; name: string; }
+
+function useDrivers() {
+  return useQuery<Driver[]>({
+    queryKey: ["drivers"],
+    queryFn: async () => {
+      const res = await fetch(`${apiBase}/api/drivers`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+}
+
 const statusColors: Record<string, string> = {
   "Creation": "bg-orange-100 text-orange-700 hover:bg-orange-200",
   "Finished by Driver": "bg-sky-100 text-sky-700 hover:bg-sky-200",
@@ -289,6 +302,7 @@ function MissionReviewSheet({
 
 export default function Missions() {
   const { data: missions, isLoading } = useMissions();
+  const { data: drivers = [] } = useDrivers();
   const createMutation = useCreateMission();
   const deleteMutation = useDeleteMission();
   const { toast } = useToast();
@@ -370,10 +384,20 @@ export default function Missions() {
                     name="driverName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Driver Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Assign driver..." className="h-11 rounded-xl" {...field} />
-                        </FormControl>
+                        <FormLabel>Driver</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-11 rounded-xl">
+                              <SelectValue placeholder="Select driver..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="unassigned">Unassigned</SelectItem>
+                            {drivers.map((d) => (
+                              <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
