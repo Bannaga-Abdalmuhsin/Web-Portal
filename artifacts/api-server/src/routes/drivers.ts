@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { driversTable, driverTasksTable, driverNotificationsTable } from "@workspace/db/schema";
+import { driversTable, driverTasksTable, driverNotificationsTable, missionsTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -198,6 +198,86 @@ router.get("/driver/notifications", async (req, res) => {
     })));
   } catch (err) {
     req.log.error({ err }, "Failed to list driver notifications");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Get all missions for driver app
+router.get("/driver/missions", async (req, res) => {
+  try {
+    const missions = await db.select().from(missionsTable).orderBy(desc(missionsTable.createdAt));
+    res.json(missions.map((m) => ({
+      id: m.id,
+      missionId: m.missionId,
+      siteName: m.siteName,
+      generator: m.generator,
+      project: m.project,
+      driverName: m.driverName,
+      assignedDriver: m.assignedDriver,
+      city: m.city,
+      filledLiters: m.filledLiters,
+      virtualCalculated: m.virtualCalculated,
+      actualInTank: m.actualInTank,
+      quantityAddedLastTask: m.quantityAddedLastTask,
+      notes: m.notes,
+      missionStatus: m.missionStatus,
+      createdBy: m.createdBy,
+      createdDate: m.createdDate?.toISOString() ?? null,
+    })));
+  } catch (err) {
+    req.log.error({ err }, "Failed to list driver missions");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Get single mission for driver app
+router.get("/driver/missions/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
+    if (!mission) return res.status(404).json({ error: "Mission not found" });
+    res.json({
+      id: mission.id,
+      missionId: mission.missionId,
+      siteName: mission.siteName,
+      generator: mission.generator,
+      project: mission.project,
+      driverName: mission.driverName,
+      assignedDriver: mission.assignedDriver,
+      city: mission.city,
+      filledLiters: mission.filledLiters,
+      virtualCalculated: mission.virtualCalculated,
+      actualInTank: mission.actualInTank,
+      quantityAddedLastTask: mission.quantityAddedLastTask,
+      notes: mission.notes,
+      missionStatus: mission.missionStatus,
+      createdBy: mission.createdBy,
+      createdDate: mission.createdDate?.toISOString() ?? null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Failed to get driver mission");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Driver updates mission status (e.g. mark as Finished by Driver)
+router.put("/driver/missions/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { missionStatus, notes, driverName } = req.body;
+    const [updated] = await db
+      .update(missionsTable)
+      .set({
+        ...(missionStatus && { missionStatus }),
+        ...(notes !== undefined && { notes }),
+        ...(driverName && { driverName }),
+      })
+      .where(eq(missionsTable.id, id))
+      .returning();
+    if (!updated) return res.status(404).json({ error: "Mission not found" });
+    res.json({ success: true, id: updated.id, missionStatus: updated.missionStatus });
+  } catch (err) {
+    req.log.error({ err }, "Failed to update driver mission");
     res.status(500).json({ error: "Internal server error" });
   }
 });

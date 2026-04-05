@@ -28,16 +28,17 @@ export default function LoginScreen() {
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
-      const res = await apiFetch("/api/technician/login", {
+      const res = await apiFetch("/api/driver/login", {
         method: "POST",
         body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         await login({
-          technicianId: data.technicianId,
+          driverId: data.driverId,
           name: data.name,
           email: data.email,
+          phone: data.phone,
           zone: data.zone,
           token: data.token,
         });
@@ -76,7 +77,7 @@ export default function LoginScreen() {
               style={styles.logoImg}
               resizeMode="contain"
             />
-            <Text style={styles.subtitle}>Technician · Daily Fueling Follow-up</Text>
+            <Text style={styles.subtitle}>Driver · Daily Fueling Operations</Text>
           </View>
 
           {/* Form */}
@@ -141,7 +142,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.footer}>ACES Managed Services · Technician Access</Text>
+          <Text style={styles.footer}>ACES Managed Services · Driver Access</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

@@ -1,29 +1,29 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { setAuthToken } from "@/lib/api";
-import { registerPushToken } from "@/lib/push";
 
-const AUTH_KEY = "aces_tech_auth";
+const AUTH_KEY = "aces_driver_auth";
 
-interface TechUser {
-  technicianId: number;
+interface DriverUser {
+  driverId: number;
   name: string;
   email: string;
+  phone?: string;
   zone: string;
   token: string;
 }
 
 interface AuthContextValue {
-  user: TechUser | null;
+  user: DriverUser | null;
   isLoading: boolean;
-  login: (user: TechUser) => Promise<void>;
+  login: (user: DriverUser) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<TechUser | null>(null);
+  const [user, setUser] = useState<DriverUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,11 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const stored = await AsyncStorage.getItem(AUTH_KEY);
         if (stored) {
-          const parsed: TechUser = JSON.parse(stored);
+          const parsed: DriverUser = JSON.parse(stored);
           setUser(parsed);
           setAuthToken(parsed.token);
-          // Re-attempt push token registration on app restart (fire-and-forget)
-          registerPushToken(parsed.technicianId).catch(() => undefined);
         }
       } catch {
         // ignore storage errors
@@ -45,12 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     load();
   }, []);
 
-  const login = async (u: TechUser) => {
+  const login = async (u: DriverUser) => {
     await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(u));
     setUser(u);
     setAuthToken(u.token);
-    // Register device push token (fire-and-forget — gracefully skipped in Expo Go / web)
-    registerPushToken(u.technicianId).catch(() => undefined);
   };
 
   const logout = async () => {

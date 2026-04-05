@@ -51,7 +51,7 @@ export default function ProfileScreen() {
     .map((n) => n[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase() ?? "T";
+    .toUpperCase() ?? "D";
 
   return (
     <View style={[styles.root, { paddingTop: topPad, paddingBottom: bottomPad }]}>
@@ -64,24 +64,26 @@ export default function ProfileScreen() {
         <View style={styles.avatarBox}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <Text style={styles.name}>{user?.name ?? "Technician"}</Text>
-        <Text style={styles.role}>Field Technician</Text>
+        <Text style={styles.name}>{user?.name ?? "Driver"}</Text>
+        <Text style={styles.role}>Field Driver</Text>
       </View>
 
       {/* Info card */}
       <View style={styles.card}>
         <InfoRow icon="mail" label="Email" value={user?.email ?? "—"} />
         <View style={styles.divider} />
+        <InfoRow icon="phone" label="Phone" value={user?.phone ?? "—"} />
+        <View style={styles.divider} />
         <InfoRow icon="map-pin" label="Zone" value={user?.zone ?? "—"} />
         <View style={styles.divider} />
-        <InfoRow icon="hash" label="Technician ID" value={String(user?.technicianId ?? "—")} />
+        <InfoRow icon="hash" label="Driver ID" value={String(user?.driverId ?? "—")} />
       </View>
 
       {/* App info */}
       <View style={styles.card}>
         <InfoRow icon="cpu" label="Platform" value="ACES Managed Services" />
         <View style={styles.divider} />
-        <InfoRow icon="tool" label="Module" value="Technician Follow-up" />
+        <InfoRow icon="truck" label="Module" value="Driver Operations" />
         <View style={styles.divider} />
         <InfoRow icon="info" label="Version" value="1.0.0" />
       </View>

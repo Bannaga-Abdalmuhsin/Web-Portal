@@ -24,39 +24,35 @@ interface Mission {
   actualInTank: number;
   quantityAddedLastTask: number;
   missionStatus: string;
-  technicianRemark: string;
-  technicianStatus: string;
-  reviewedBy: string;
-  reviewedAt: string | null;
+  notes: string;
   createdDate: string | null;
 }
 
 const MISSION_STATUS: Record<string, { label: string; bg: string; text: string }> = {
-  "Creation":                { label: "New",        bg: COLORS.amberMuted,  text: COLORS.amber },
-  "Finished by Driver":      { label: "Finished",   bg: COLORS.skyMuted,    text: COLORS.sky },
-  "Task approved":           { label: "Approved",   bg: COLORS.greenMuted,  text: COLORS.green },
-  "Task returned to driver": { label: "Returned",   bg: COLORS.indigoMuted, text: COLORS.indigo },
-  "Reported by driver":      { label: "Reported",   bg: COLORS.roseMuted,   text: COLORS.rose },
-  "Canceled":                { label: "Canceled",   bg: COLORS.navyCard,    text: COLORS.gray },
+  "Creation":            { label: "New",       bg: COLORS.amberMuted, text: COLORS.amber },
+  "Finished by Driver":  { label: "Finished",  bg: COLORS.skyMuted,   text: COLORS.sky },
+  "Task approved":       { label: "Approved",  bg: COLORS.greenMuted, text: COLORS.green },
+  "Reported by driver":  { label: "Reported",  bg: COLORS.roseMuted,  text: COLORS.rose },
+  "Canceled":            { label: "Canceled",  bg: COLORS.navyCard,   text: COLORS.gray },
 };
 
-const TECH_STATUS: Record<string, { bg: string; text: string }> = {
-  "Pending":  { bg: COLORS.amberMuted,  text: COLORS.amber },
-  "Reviewed": { bg: COLORS.greenMuted,  text: COLORS.green },
-  "Issue":    { bg: COLORS.roseMuted,   text: COLORS.rose },
-};
-
-const FILTER_TABS = ["All", "Pending", "Reviewed", "Issue"] as const;
+const FILTER_TABS = ["All", "New", "Finished", "Approved"] as const;
 type FilterTab = typeof FILTER_TABS[number];
+
+const FILTER_MAP: Record<FilterTab, string | null> = {
+  All: null,
+  New: "Creation",
+  Finished: "Finished by Driver",
+  Approved: "Task approved",
+};
 
 function MissionCard({ mission, onPress }: { mission: Mission; onPress: () => void }) {
   const ms = MISSION_STATUS[mission.missionStatus] ?? { label: mission.missionStatus, bg: COLORS.navyCard, text: COLORS.gray };
-  const ts = TECH_STATUS[mission.technicianStatus ?? "Pending"] ?? TECH_STATUS["Pending"];
-  const isPending = !mission.technicianStatus || mission.technicianStatus === "Pending";
+  const isNew = mission.missionStatus === "Creation";
 
   return (
     <TouchableOpacity
-      style={[styles.card, isPending && styles.cardPending]}
+      style={[styles.card, isNew && styles.cardNew]}
       onPress={onPress}
       activeOpacity={0.75}
       testID={`mission-card-${mission.id}`}
@@ -80,16 +76,14 @@ function MissionCard({ mission, onPress }: { mission: Mission; onPress: () => vo
         </View>
         <View style={styles.metaItem}>
           <Feather name="droplet" size={12} color={COLORS.sky} />
-          <Text style={styles.metaText}>{mission.filledLiters} L</Text>
+          <Text style={styles.metaText}>{mission.quantityAddedLastTask ?? 0} L last</Text>
         </View>
       </View>
 
       <View style={styles.cardFooter}>
-        <View style={[styles.techBadge, { backgroundColor: ts.bg }]}>
-          <Text style={[styles.techBadgeText, { color: ts.text }]}>
-            {mission.technicianStatus || "Pending"}
-          </Text>
-        </View>
+        <Text style={styles.footerDate}>
+          {mission.createdDate ? new Date(mission.createdDate).toLocaleDateString() : "—"}
+        </Text>
         <Feather name="chevron-right" size={16} color={COLORS.grayDark} />
       </View>
     </TouchableOpacity>
@@ -104,12 +98,13 @@ export default function TasksScreen() {
   const [activeTab, setActiveTab] = useState<FilterTab>("All");
 
   const { data = [], isLoading, refetch } = useQuery<Mission[]>({
-    queryKey: ["tech-missions"],
+    queryKey: ["driver-missions", user?.driverId],
     queryFn: async () => {
-      const res = await apiFetch("/api/technician/missions");
+      const res = await apiFetch(`/api/driver/missions?driverId=${user?.driverId ?? ""}`);
       if (!res.ok) throw new Error("Failed to load");
       return res.json();
     },
+    enabled: !!user?.driverId,
     refetchInterval: 30000,
   });
 
@@ -121,16 +116,16 @@ export default function TasksScreen() {
         return m.siteName?.toLowerCase().includes(q) || m.missionId?.toLowerCase().includes(q);
       })
       .filter((m) => {
-        if (activeTab === "All") return true;
-        const ts = m.technicianStatus || "Pending";
-        return ts === activeTab;
+        const statusFilter = FILTER_MAP[activeTab];
+        if (!statusFilter) return true;
+        return m.missionStatus === statusFilter;
       });
   }, [data, search, activeTab]);
 
   const counts = useMemo(() => ({
-    Pending: data.filter((m) => !m.technicianStatus || m.technicianStatus === "Pending").length,
-    Reviewed: data.filter((m) => m.technicianStatus === "Reviewed").length,
-    Issue: data.filter((m) => m.technicianStatus === "Issue").length,
+    New: data.filter((m) => m.missionStatus === "Creation").length,
+    Finished: data.filter((m) => m.missionStatus === "Finished by Driver").length,
+    Approved: data.filter((m) => m.missionStatus === "Task approved").length,
   }), [data]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -140,7 +135,7 @@ export default function TasksScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>My Tasks</Text>
+          <Text style={styles.headerTitle}>My Missions</Text>
           <Text style={styles.headerSub}>{data.length} missions · {user?.zone}</Text>
         </View>
       </View>
@@ -148,16 +143,16 @@ export default function TasksScreen() {
       {/* Stats row */}
       <View style={styles.statsRow}>
         <View style={[styles.statCard, { backgroundColor: COLORS.amberMuted }]}>
-          <Text style={[styles.statNum, { color: COLORS.amber }]}>{counts.Pending}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.amber }]}>Pending</Text>
+          <Text style={[styles.statNum, { color: COLORS.amber }]}>{counts.New}</Text>
+          <Text style={[styles.statLabel, { color: COLORS.amber }]}>New</Text>
+        </View>
+        <View style={[styles.statCard, { backgroundColor: COLORS.skyMuted }]}>
+          <Text style={[styles.statNum, { color: COLORS.sky }]}>{counts.Finished}</Text>
+          <Text style={[styles.statLabel, { color: COLORS.sky }]}>Finished</Text>
         </View>
         <View style={[styles.statCard, { backgroundColor: COLORS.greenMuted }]}>
-          <Text style={[styles.statNum, { color: COLORS.green }]}>{counts.Reviewed}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.green }]}>Reviewed</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: COLORS.roseMuted }]}>
-          <Text style={[styles.statNum, { color: COLORS.rose }]}>{counts.Issue}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.rose }]}>Issue</Text>
+          <Text style={[styles.statNum, { color: COLORS.green }]}>{counts.Approved}</Text>
+          <Text style={[styles.statLabel, { color: COLORS.green }]}>Approved</Text>
         </View>
       </View>
 
@@ -214,7 +209,7 @@ export default function TasksScreen() {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Feather name="clipboard" size={40} color={COLORS.grayDark} />
-            <Text style={styles.emptyTitle}>No tasks found</Text>
+            <Text style={styles.emptyTitle}>No missions found</Text>
             <Text style={styles.emptyText}>
               {isLoading ? "Loading..." : "Pull down to refresh"}
             </Text>
@@ -329,7 +324,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 6,
   },
-  cardPending: {
+  cardNew: {
     borderColor: `${COLORS.amber}44`,
   },
   cardHeader: {
@@ -397,16 +392,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.navyBorder,
   },
-  techBadge: {
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  techBadgeText: {
+  footerDate: {
     fontSize: 11,
-    fontFamily: "Inter_600SemiBold",
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
+    fontFamily: "Inter_400Regular",
+    color: COLORS.grayDark,
   },
   empty: {
     alignItems: "center",
