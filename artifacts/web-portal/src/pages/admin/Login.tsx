@@ -47,16 +47,16 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-50/90 to-transparent" />
       </div>
 
-      <div className="relative z-10 w-full flex flex-col justify-center max-w-xl px-8 lg:px-16">
-        <div className="mb-12">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center px-6">
+        <div className="mb-8 flex justify-center">
           <img 
             src={`${import.meta.env.BASE_URL}images/aces-logo.png`} 
             alt="ACES Logo" 
-            className="h-20 object-contain drop-shadow-xl"
+            className="h-36 object-contain drop-shadow-xl"
           />
         </div>
         
-        <Card className="glass-panel border-0 shadow-2xl rounded-3xl p-2">
+        <Card className="glass-panel border-0 shadow-2xl rounded-3xl p-2 w-full max-w-md">
           <CardContent className="p-8">
             <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">Welcome Back</h1>
             <p className="text-slate-500 mb-8">Sign in to the ACES Operations Portal.</p>
