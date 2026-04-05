@@ -32,21 +32,21 @@ function RiyadhBackground() {
     <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
       <defs>
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#060f1e" />
-          <stop offset="55%" stopColor="#0B1E3E" />
-          <stop offset="100%" stopColor="#0d2448" />
+          <stop offset="0%" stopColor="#0d2245" />
+          <stop offset="45%" stopColor="#173260" />
+          <stop offset="100%" stopColor="#1a3a6a" />
         </linearGradient>
         <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0d2448" />
-          <stop offset="100%" stopColor="#061020" />
+          <stop offset="0%" stopColor="#1a3a6a" />
+          <stop offset="100%" stopColor="#0d2040" />
         </linearGradient>
         <radialGradient id="towerGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#E30613" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="#E30613" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#E30613" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="cityGlow" cx="50%" cy="30%" r="60%">
-          <stop offset="0%" stopColor="#1a3a6e" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#0B1E3E" stopOpacity="0" />
+          <stop offset="0%" stopColor="#2a5aaa" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#173260" stopOpacity="0" />
         </radialGradient>
         <filter id="blur4"><feGaussianBlur stdDeviation="4" /></filter>
         <filter id="glow">
@@ -61,7 +61,7 @@ function RiyadhBackground() {
 
       {/* Stars */}
       {STARS.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 1.5 : 1} fill="white" opacity={0.35 + (i % 4) * 0.1} />
+        <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 1.5 : 1} fill="white" opacity={0.55 + (i % 4) * 0.1} />
       ))}
 
       {/* Ground */}
@@ -283,7 +283,7 @@ export default function Login() {
       </div>
 
       {/* Gradient overlay so left-side card is legible */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#060f1e]/95 via-[#0B1E3E]/65 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#0d2245]/80 via-[#173260]/45 to-transparent pointer-events-none" />
 
       <div className="relative z-10 w-full flex flex-col items-center justify-center px-6">
         <div className="mb-8 flex justify-center">
@@ -296,7 +296,7 @@ export default function Login() {
 
         <Card
           className="border border-white/10 shadow-2xl rounded-3xl p-2 w-full max-w-md backdrop-blur-xl"
-          style={{ background: "rgba(6,15,30,0.80)" }}
+          style={{ background: "rgba(13,34,69,0.72)" }}
         >
           <CardContent className="p-8">
             <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome Back</h1>
