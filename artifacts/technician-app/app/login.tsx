@@ -70,61 +70,75 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
+          {/* Top brand stripe */}
+          <View style={styles.topStripe} />
+
+          {/* Logo card */}
           <View style={styles.logoSection}>
-            <Image
-              source={require("../assets/images/aces-logo.png")}
-              style={styles.logoImg}
-              resizeMode="contain"
-            />
-            <Text style={styles.subtitle}>Driver · Daily Fueling Operations</Text>
+            <View style={styles.logoCard}>
+              <Image
+                source={require("../assets/images/aces-logo.png")}
+                style={styles.logoImg}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.appTitle}>Driver Portal</Text>
+            <Text style={styles.subtitle}>Daily Fueling Operations</Text>
           </View>
 
-          {/* Form */}
-          <View style={styles.form}>
+          {/* Form card */}
+          <View style={styles.formCard}>
+            <Text style={styles.formTitle}>Sign In</Text>
+
             {!!error && (
               <View style={styles.errorBox}>
-                <Feather name="alert-circle" size={16} color="#FB7185" />
+                <Feather name="alert-circle" size={15} color={COLORS.rose} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
 
             {/* Email */}
-            <View style={styles.inputWrap}>
-              <Feather name="mail" size={18} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email address"
-                placeholderTextColor={COLORS.grayDark}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoComplete="email"
-                testID="email-input"
-              />
+            <View style={styles.fieldWrap}>
+              <Text style={styles.fieldLabel}>Email Address</Text>
+              <View style={styles.inputWrap}>
+                <Feather name="mail" size={16} color={COLORS.gray} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="your@email.com"
+                  placeholderTextColor={COLORS.textMuted}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  testID="email-input"
+                />
+              </View>
             </View>
 
             {/* Password */}
-            <View style={styles.inputWrap}>
-              <Feather name="lock" size={18} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { paddingRight: 48 }]}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Password"
-                placeholderTextColor={COLORS.grayDark}
-                secureTextEntry={!showPassword}
-                autoComplete="current-password"
-                testID="password-input"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword((v) => !v)}
-                style={styles.eyeBtn}
-                activeOpacity={0.7}
-              >
-                <Feather name={showPassword ? "eye-off" : "eye"} size={18} color={COLORS.gray} />
-              </TouchableOpacity>
+            <View style={styles.fieldWrap}>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <View style={styles.inputWrap}>
+                <Feather name="lock" size={16} color={COLORS.gray} style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { paddingRight: 48 }]}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="••••••••"
+                  placeholderTextColor={COLORS.textMuted}
+                  secureTextEntry={!showPassword}
+                  autoComplete="current-password"
+                  testID="password-input"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword((v) => !v)}
+                  style={styles.eyeBtn}
+                  activeOpacity={0.7}
+                >
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color={COLORS.gray} />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity
@@ -137,12 +151,15 @@ export default function LoginScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" size="small" />
               ) : (
-                <Text style={styles.loginBtnText}>Sign In</Text>
+                <>
+                  <Text style={styles.loginBtnText}>Sign In</Text>
+                  <Feather name="arrow-right" size={18} color="#fff" />
+                </>
               )}
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.footer}>ACES Managed Services · Driver Access</Text>
+          <Text style={styles.footer}>ACES Managed Services · Secure Driver Access</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -152,7 +169,12 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.navy,
+    backgroundColor: COLORS.bg,
+  },
+  topStripe: {
+    height: 6,
+    backgroundColor: COLORS.red,
+    marginBottom: 0,
   },
   scroll: {
     flexGrow: 1,
@@ -162,80 +184,119 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 36,
-    marginTop: 20,
+    marginBottom: 28,
+    marginTop: 32,
+    gap: 6,
+  },
+  logoCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 8,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
   logoImg: {
-    width: 260,
-    height: 130,
-    marginBottom: 12,
+    width: 220,
+    height: 100,
+  },
+  appTitle: {
+    fontSize: 22,
+    fontFamily: "Inter_700Bold",
+    color: COLORS.navy,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
-    textAlign: "center",
+    color: COLORS.textSecondary,
   },
-  form: {
-    gap: 12,
+  formCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: 24,
+    gap: 16,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 20,
+    elevation: 3,
+  },
+  formTitle: {
+    fontSize: 20,
+    fontFamily: "Inter_700Bold",
+    color: COLORS.text,
+    marginBottom: 4,
   },
   errorBox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(251,113,133,0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(251,113,133,0.3)",
+    backgroundColor: COLORS.roseMuted,
     borderRadius: 12,
     padding: 12,
   },
   errorText: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: "#FB7185",
+    color: COLORS.rose,
     flex: 1,
+  },
+  fieldWrap: {
+    gap: 6,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.3,
   },
   inputWrap: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.navyCard,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 56,
+    backgroundColor: COLORS.inputBg,
+    borderWidth: 1.5,
+    borderColor: COLORS.inputBorder,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    height: 52,
   },
   inputIcon: {
-    marginRight: 12,
+    marginRight: 10,
   },
   input: {
     flex: 1,
     fontSize: 15,
     fontFamily: "Inter_400Regular",
-    color: COLORS.white,
-    height: 56,
+    color: COLORS.text,
+    height: 52,
   },
   eyeBtn: {
     position: "absolute",
-    right: 16,
-    height: 56,
+    right: 14,
+    height: 52,
     justifyContent: "center",
   },
   loginBtn: {
-    height: 56,
-    borderRadius: 16,
+    height: 54,
+    borderRadius: 14,
     backgroundColor: COLORS.red,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: 4,
+    flexDirection: "row",
+    gap: 8,
     shadowColor: COLORS.red,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 8,
+    elevation: 6,
   },
   loginBtnDisabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   loginBtnText: {
     fontSize: 16,
@@ -245,8 +306,8 @@ const styles = StyleSheet.create({
   footer: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
-    color: COLORS.textSubtle,
+    color: COLORS.textMuted,
     textAlign: "center",
-    marginTop: 40,
+    marginTop: 32,
   },
 });

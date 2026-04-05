@@ -36,31 +36,39 @@ function ClassicTabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.red,
-        tabBarInactiveTintColor: COLORS.grayDark,
+        tabBarInactiveTintColor: COLORS.gray,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontFamily: "Inter_500Medium",
+        },
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : COLORS.navyDark,
+          backgroundColor: isIOS ? "transparent" : COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: COLORS.navyBorder,
+          borderTopColor: COLORS.cardBorder,
           elevation: 0,
+          shadowColor: COLORS.navy,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
           ...(isWeb ? { height: 84 } : {}),
         },
         tabBarBackground: () =>
           isIOS ? (
             <BlurView
-              intensity={80}
-              tint="dark"
+              intensity={85}
+              tint="light"
               style={StyleSheet.absoluteFill}
             />
           ) : isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: COLORS.navyDark }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: COLORS.white }]} />
           ) : null,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Tasks",
+          title: "Missions",
           tabBarIcon: ({ color, size }) =>
             isIOS ? (
               <SymbolView name="checklist" tintColor={color} size={size} />

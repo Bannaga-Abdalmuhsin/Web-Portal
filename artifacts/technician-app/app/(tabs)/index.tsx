@@ -33,7 +33,7 @@ const MISSION_STATUS: Record<string, { label: string; bg: string; text: string }
   "Finished by Driver":  { label: "Finished",  bg: COLORS.skyMuted,   text: COLORS.sky },
   "Task approved":       { label: "Approved",  bg: COLORS.greenMuted, text: COLORS.green },
   "Reported by driver":  { label: "Reported",  bg: COLORS.roseMuted,  text: COLORS.rose },
-  "Canceled":            { label: "Canceled",  bg: COLORS.navyCard,   text: COLORS.gray },
+  "Canceled":            { label: "Canceled",  bg: COLORS.grayMuted,  text: COLORS.gray },
 };
 
 const FILTER_TABS = ["All", "New", "Finished", "Approved"] as const;
@@ -47,18 +47,19 @@ const FILTER_MAP: Record<FilterTab, string | null> = {
 };
 
 function MissionCard({ mission, onPress }: { mission: Mission; onPress: () => void }) {
-  const ms = MISSION_STATUS[mission.missionStatus] ?? { label: mission.missionStatus, bg: COLORS.navyCard, text: COLORS.gray };
+  const ms = MISSION_STATUS[mission.missionStatus] ?? { label: mission.missionStatus, bg: COLORS.grayMuted, text: COLORS.gray };
   const isNew = mission.missionStatus === "Creation";
 
   return (
     <TouchableOpacity
       style={[styles.card, isNew && styles.cardNew]}
       onPress={onPress}
-      activeOpacity={0.75}
+      activeOpacity={0.72}
       testID={`mission-card-${mission.id}`}
     >
       <View style={styles.cardHeader}>
         <View style={styles.missionIdBadge}>
+          <Feather name="hash" size={10} color={COLORS.gray} />
           <Text style={styles.missionIdText}>{mission.missionId || `MSN-${mission.id}`}</Text>
         </View>
         <View style={[styles.badge, { backgroundColor: ms.bg }]}>
@@ -76,7 +77,7 @@ function MissionCard({ mission, onPress }: { mission: Mission; onPress: () => vo
         </View>
         <View style={styles.metaItem}>
           <Feather name="droplet" size={12} color={COLORS.sky} />
-          <Text style={styles.metaText}>{mission.quantityAddedLastTask ?? 0} L last</Text>
+          <Text style={styles.metaText}>{mission.quantityAddedLastTask ?? 0} L last fill</Text>
         </View>
       </View>
 
@@ -84,7 +85,9 @@ function MissionCard({ mission, onPress }: { mission: Mission; onPress: () => vo
         <Text style={styles.footerDate}>
           {mission.createdDate ? new Date(mission.createdDate).toLocaleDateString() : "—"}
         </Text>
-        <Feather name="chevron-right" size={16} color={COLORS.grayDark} />
+        <View style={styles.arrowBtn}>
+          <Feather name="chevron-right" size={14} color={COLORS.navy} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -136,40 +139,43 @@ export default function TasksScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>My Missions</Text>
-          <Text style={styles.headerSub}>{data.length} missions · {user?.zone}</Text>
+          <Text style={styles.headerSub}>{data.length} total · {user?.zone}</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Text style={styles.headerBadgeText}>{counts.New} new</Text>
         </View>
       </View>
 
       {/* Stats row */}
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: COLORS.amberMuted }]}>
+        <View style={[styles.statCard, { borderLeftColor: COLORS.amber }]}>
           <Text style={[styles.statNum, { color: COLORS.amber }]}>{counts.New}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.amber }]}>New</Text>
+          <Text style={styles.statLabel}>New</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: COLORS.skyMuted }]}>
+        <View style={[styles.statCard, { borderLeftColor: COLORS.sky }]}>
           <Text style={[styles.statNum, { color: COLORS.sky }]}>{counts.Finished}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.sky }]}>Finished</Text>
+          <Text style={styles.statLabel}>Finished</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: COLORS.greenMuted }]}>
+        <View style={[styles.statCard, { borderLeftColor: COLORS.green }]}>
           <Text style={[styles.statNum, { color: COLORS.green }]}>{counts.Approved}</Text>
-          <Text style={[styles.statLabel, { color: COLORS.green }]}>Approved</Text>
+          <Text style={styles.statLabel}>Approved</Text>
         </View>
       </View>
 
       {/* Search */}
       <View style={styles.searchWrap}>
-        <Feather name="search" size={16} color={COLORS.gray} style={{ marginRight: 10 }} />
+        <Feather name="search" size={15} color={COLORS.gray} style={{ marginRight: 10 }} />
         <TextInput
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
           placeholder="Search site or mission ID..."
-          placeholderTextColor={COLORS.grayDark}
+          placeholderTextColor={COLORS.textMuted}
           testID="search-input"
         />
         {!!search && (
-          <TouchableOpacity onPress={() => setSearch("")}>
-            <Feather name="x" size={16} color={COLORS.gray} />
+          <TouchableOpacity onPress={() => setSearch("")} style={styles.clearBtn}>
+            <Feather name="x" size={14} color={COLORS.gray} />
           </TouchableOpacity>
         )}
       </View>
@@ -208,10 +214,12 @@ export default function TasksScreen() {
         scrollEnabled={filtered.length > 0}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Feather name="clipboard" size={40} color={COLORS.grayDark} />
+            <View style={styles.emptyIcon}>
+              <Feather name="clipboard" size={32} color={COLORS.gray} />
+            </View>
             <Text style={styles.emptyTitle}>No missions found</Text>
             <Text style={styles.emptyText}>
-              {isLoading ? "Loading..." : "Pull down to refresh"}
+              {isLoading ? "Loading your missions..." : "Pull down to refresh"}
             </Text>
           </View>
         }
@@ -223,12 +231,12 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.navy,
+    backgroundColor: COLORS.bg,
   },
   header: {
     paddingHorizontal: 20,
-    paddingBottom: 12,
-    paddingTop: 8,
+    paddingBottom: 14,
+    paddingTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -236,43 +244,62 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 26,
     fontFamily: "Inter_700Bold",
-    color: COLORS.white,
+    color: COLORS.text,
+    letterSpacing: -0.5,
   },
   headerSub: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
+    color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  headerBadge: {
+    backgroundColor: COLORS.redMuted,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  headerBadgeText: {
+    fontSize: 12,
+    fontFamily: "Inter_700Bold",
+    color: COLORS.red,
   },
   statsRow: {
     flexDirection: "row",
     gap: 10,
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   statCard: {
     flex: 1,
+    backgroundColor: COLORS.white,
     borderRadius: 14,
-    paddingVertical: 10,
-    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderLeftWidth: 4,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statNum: {
     fontSize: 22,
     fontFamily: "Inter_700Bold",
+    color: COLORS.text,
   },
   statLabel: {
     fontSize: 11,
-    fontFamily: "Inter_600SemiBold",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    fontFamily: "Inter_500Medium",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   searchWrap: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.navyCard,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
+    backgroundColor: COLORS.white,
+    borderWidth: 1.5,
+    borderColor: COLORS.inputBorder,
     borderRadius: 14,
     paddingHorizontal: 14,
     height: 44,
@@ -283,7 +310,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontFamily: "Inter_400Regular",
-    color: COLORS.white,
+    color: COLORS.text,
+  },
+  clearBtn: {
+    padding: 4,
   },
   chipRow: {
     flexDirection: "row",
@@ -292,21 +322,21 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: COLORS.navyCard,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
+    backgroundColor: COLORS.white,
+    borderWidth: 1.5,
+    borderColor: COLORS.cardBorder,
   },
   chipActive: {
-    backgroundColor: COLORS.red,
-    borderColor: COLORS.red,
+    backgroundColor: COLORS.navy,
+    borderColor: COLORS.navy,
   },
   chipText: {
     fontSize: 12,
     fontFamily: "Inter_600SemiBold",
-    color: COLORS.gray,
+    color: COLORS.textSecondary,
   },
   chipTextActive: {
     color: COLORS.white,
@@ -317,39 +347,46 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    backgroundColor: COLORS.navyCard,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
+    backgroundColor: COLORS.white,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: COLORS.cardBorder,
     padding: 16,
     gap: 6,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   cardNew: {
-    borderColor: `${COLORS.amber}44`,
+    borderColor: COLORS.amber,
+    borderLeftWidth: 4,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   missionIdBadge: {
-    backgroundColor: "rgba(0,0,0,0.3)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: COLORS.grayMuted,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
   },
   missionIdText: {
     fontSize: 11,
     fontFamily: "Inter_500Medium",
-    color: COLORS.gray,
-    letterSpacing: 0.5,
+    color: COLORS.textSecondary,
+    letterSpacing: 0.3,
   },
   badge: {
     borderRadius: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
   },
   badgeText: {
@@ -361,12 +398,12 @@ const styles = StyleSheet.create({
   siteName: {
     fontSize: 16,
     fontFamily: "Inter_700Bold",
-    color: COLORS.white,
+    color: COLORS.text,
   },
   generator: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
+    color: COLORS.textSecondary,
   },
   cardMeta: {
     flexDirection: "row",
@@ -381,7 +418,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
+    color: COLORS.textSecondary,
   },
   cardFooter: {
     flexDirection: "row",
@@ -390,12 +427,20 @@ const styles = StyleSheet.create({
     marginTop: 6,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: COLORS.navyBorder,
+    borderTopColor: COLORS.divider,
   },
   footerDate: {
     fontSize: 11,
     fontFamily: "Inter_400Regular",
-    color: COLORS.grayDark,
+    color: COLORS.textMuted,
+  },
+  arrowBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    backgroundColor: COLORS.bg,
+    alignItems: "center",
+    justifyContent: "center",
   },
   empty: {
     alignItems: "center",
@@ -403,14 +448,23 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     gap: 10,
   },
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: COLORS.grayMuted,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
   emptyTitle: {
     fontSize: 16,
     fontFamily: "Inter_600SemiBold",
-    color: COLORS.gray,
+    color: COLORS.text,
   },
   emptyText: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: COLORS.grayDark,
+    color: COLORS.textSecondary,
   },
 });

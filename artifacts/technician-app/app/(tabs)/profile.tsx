@@ -15,9 +15,11 @@ type FeatherIconName = ComponentProps<typeof Feather>["name"];
 function InfoRow({ icon, label, value }: { icon: FeatherIconName; label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <Feather name={icon} size={16} color={COLORS.gray} />
+      <View style={styles.infoIconBox}>
+        <Feather name={icon} size={15} color={COLORS.navy} />
+      </View>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
     </View>
   );
 }
@@ -55,6 +57,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.root, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
@@ -65,11 +68,15 @@ export default function ProfileScreen() {
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
         <Text style={styles.name}>{user?.name ?? "Driver"}</Text>
-        <Text style={styles.role}>Field Driver</Text>
+        <View style={styles.rolePill}>
+          <Feather name="truck" size={12} color={COLORS.navy} />
+          <Text style={styles.role}>Field Driver</Text>
+        </View>
       </View>
 
       {/* Info card */}
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>Account Details</Text>
         <InfoRow icon="mail" label="Email" value={user?.email ?? "—"} />
         <View style={styles.divider} />
         <InfoRow icon="phone" label="Phone" value={user?.phone ?? "—"} />
@@ -81,6 +88,7 @@ export default function ProfileScreen() {
 
       {/* App info */}
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>Application</Text>
         <InfoRow icon="cpu" label="Platform" value="ACES Managed Services" />
         <View style={styles.divider} />
         <InfoRow icon="truck" label="Module" value="Driver Operations" />
@@ -95,7 +103,7 @@ export default function ProfileScreen() {
         activeOpacity={0.8}
         testID="logout-button"
       >
-        <Feather name="log-out" size={18} color={COLORS.rose} />
+        <Feather name="log-out" size={17} color={COLORS.rose} />
         <Text style={styles.logoutText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
@@ -105,34 +113,35 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.navy,
+    backgroundColor: COLORS.bg,
     paddingHorizontal: 20,
   },
   header: {
-    paddingBottom: 16,
-    paddingTop: 8,
+    paddingBottom: 14,
+    paddingTop: 10,
   },
   headerTitle: {
     fontSize: 26,
     fontFamily: "Inter_700Bold",
-    color: COLORS.white,
+    color: COLORS.text,
+    letterSpacing: -0.5,
   },
   avatarSection: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 22,
     gap: 8,
   },
   avatarBox: {
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: COLORS.red,
+    backgroundColor: COLORS.navy,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: COLORS.red,
+    shadowColor: COLORS.navy,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
     elevation: 8,
   },
   avatarText: {
@@ -141,47 +150,79 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   name: {
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: "Inter_700Bold",
-    color: COLORS.white,
+    color: COLORS.text,
+    letterSpacing: -0.3,
+  },
+  rolePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: COLORS.grayMuted,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
   },
   role: {
-    fontSize: 14,
-    fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
+    color: COLORS.navy,
   },
   card: {
-    backgroundColor: COLORS.navyCard,
+    backgroundColor: COLORS.white,
     borderRadius: 18,
-    borderWidth: 1,
-    borderColor: COLORS.navyBorder,
+    borderWidth: 1.5,
+    borderColor: COLORS.cardBorder,
     paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 4,
     marginBottom: 14,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 11,
+    fontFamily: "Inter_700Bold",
+    color: COLORS.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 8,
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingVertical: 14,
+    paddingVertical: 12,
+  },
+  infoIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    backgroundColor: COLORS.grayMuted,
+    alignItems: "center",
+    justifyContent: "center",
   },
   infoLabel: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: COLORS.gray,
+    color: COLORS.textSecondary,
     flex: 1,
-    marginLeft: 4,
   },
   infoValue: {
     fontSize: 13,
     fontFamily: "Inter_600SemiBold",
-    color: COLORS.white,
+    color: COLORS.text,
     maxWidth: "55%",
     textAlign: "right" as const,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.navyBorder,
-    marginLeft: 30,
+    backgroundColor: COLORS.divider,
+    marginLeft: 42,
   },
   logoutBtn: {
     flexDirection: "row",
@@ -191,9 +232,9 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 16,
     backgroundColor: COLORS.roseMuted,
-    borderWidth: 1,
-    borderColor: `${COLORS.rose}44`,
-    marginTop: 8,
+    borderWidth: 1.5,
+    borderColor: `${COLORS.rose}30`,
+    marginTop: 4,
   },
   logoutText: {
     fontSize: 15,
