@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { missionsTable, techniciansTable } from "@workspace/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { missionsTable, techniciansTable, sitesTable } from "@workspace/db/schema";
+import { eq, desc, ne, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -175,6 +175,81 @@ router.delete("/missions/:id", async (req, res) => {
     res.status(204).send();
   } catch (err) {
     req.log.error({ err }, "Failed to delete mission");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * POST /missions/generate-from-sites
+ * Creates missions for every site whose nextFuelingPlan is today or overdue,
+ * skipping any site that already has an open (non-Canceled) mission.
+ */
+router.post("/missions/generate-from-sites", async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Fetch all sites with a fueling plan date
+    const sites = await db.select().from(sitesTable);
+
+    // Fetch existing open missions (not Canceled) to avoid duplicates
+    const openMissions = await db
+      .select({ siteName: missionsTable.siteName })
+      .from(missionsTable)
+      .where(ne(missionsTable.missionStatus, "Canceled"));
+    const openSiteNames = new Set(openMissions.map((m) => m.siteName.toLowerCase()));
+
+    let created = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    // Date stamp for mission IDs: YYYYMMDD
+    const stamp = today.toISOString().slice(0, 10).replace(/-/g, "");
+
+    for (const site of sites) {
+      const planStr = (site.nextFuelingPlan ?? "").trim();
+      if (!planStr || planStr === "#N/A") { skipped++; continue; }
+
+      // Parse MM-DD-YYYY format
+      const parts = planStr.split("-");
+      if (parts.length !== 3) { skipped++; continue; }
+      const [mm, dd, yyyy] = parts;
+      const planDate = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+      planDate.setHours(0, 0, 0, 0);
+      if (isNaN(planDate.getTime()) || planDate > today) { skipped++; continue; }
+
+      // Skip if an open mission already exists for this site
+      if (openSiteNames.has(site.name.toLowerCase())) { skipped++; continue; }
+
+      try {
+        const missionId = `MSN-${stamp}-${site.name}`;
+        await db.insert(missionsTable).values({
+          missionId,
+          siteName:              site.name,
+          generator:             site.name,
+          project:               site.project || "stc COW",
+          city:                  site.city || "",
+          driverName:            "",
+          assignedDriver:        "",
+          filledLiters:          0,
+          virtualCalculated:     0,
+          actualInTank:          0,
+          quantityAddedLastTask: site.lastFuelingQty ?? 0,
+          missionStatus:         "Creation",
+          createdBy:             "System",
+          notes:                 `Auto-generated — plan date: ${planStr}`,
+          assignedTechnicianId:  site.assignedTechnicianId ?? undefined,
+        });
+        openSiteNames.add(site.name.toLowerCase()); // prevent double-insert in same run
+        created++;
+      } catch (err) {
+        errors.push(`"${site.name}": ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+
+    res.json({ created, skipped, errors, total: sites.length });
+  } catch (err) {
+    req.log.error({ err }, "Failed to generate missions from sites");
     res.status(500).json({ error: "Internal server error" });
   }
 });

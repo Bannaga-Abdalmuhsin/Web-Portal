@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, FileText } from "lucide-react";
+import { Plus, Search, Trash2, FileText, Zap, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const statusColors: Record<string, string> = {
   "Creation": "bg-orange-100 text-orange-700 hover:bg-orange-200",
@@ -31,14 +32,36 @@ const formSchema = z.object({
   filledLiters: z.coerce.number().optional(),
 });
 
+const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export default function Missions() {
   const { data: missions, isLoading } = useMissions();
   const createMutation = useCreateMission();
   const deleteMutation = useDeleteMission();
   const { toast } = useToast();
-  
+  const queryClient = useQueryClient();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [genResult, setGenResult] = useState<{ created: number; skipped: number; errors: string[] } | null>(null);
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    setGenResult(null);
+    try {
+      const res = await fetch(`${apiBase}/api/missions/generate-from-sites`, { method: "POST" });
+      const result = await res.json();
+      if (!res.ok) { toast({ title: result.error || "Generation failed", variant: "destructive" }); return; }
+      setGenResult(result);
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+      toast({ title: result.created > 0 ? `Created ${result.created} mission${result.created !== 1 ? "s" : ""}` : "No new missions — all due sites already have open missions" });
+    } catch {
+      toast({ title: "Failed to generate missions", variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,7 +104,27 @@ export default function Missions() {
           />
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2 items-start flex-wrap">
+          {/* Generate from Sites */}
+          <div className="flex flex-col gap-1">
+            <Button
+              variant="outline"
+              className="h-12 px-5 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-50 gap-2"
+              onClick={handleGenerate}
+              disabled={generating}
+            >
+              <Zap className={`w-4 h-4 ${generating ? "animate-pulse" : ""}`} />
+              {generating ? "Generating…" : "Generate from Due Sites"}
+            </Button>
+            {genResult && (
+              <div className="text-xs text-slate-500 px-1 flex items-center gap-1">
+                {genResult.errors.length > 0 && <AlertCircle className="w-3 h-3 text-red-400" />}
+                ✓ {genResult.created} created · {genResult.skipped} skipped
+              </div>
+            )}
+          </div>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all">
               <Plus className="w-5 h-5 mr-2" />
