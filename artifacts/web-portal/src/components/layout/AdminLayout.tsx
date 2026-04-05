@@ -69,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className="fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-200 shadow-xl shadow-slate-200/20 z-30 flex flex-col">
         <div className="h-20 flex items-center px-8 border-b border-slate-100">
           <img 
-            src={`${import.meta.env.BASE_URL}images/logo.png`} 
+            src={`${import.meta.env.BASE_URL}images/aces-logo-main.png`} 
             alt="ACES Logo" 
             className="h-10 object-contain"
           />
