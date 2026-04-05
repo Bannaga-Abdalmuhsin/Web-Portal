@@ -73,15 +73,13 @@ export default function LoginScreen() {
           {/* Top brand stripe */}
           <View style={styles.topStripe} />
 
-          {/* Logo card */}
+          {/* Logo */}
           <View style={styles.logoSection}>
-            <View style={styles.logoCard}>
-              <Image
-                source={require("../assets/images/aces-logo.png")}
-                style={styles.logoImg}
-                resizeMode="contain"
-              />
-            </View>
+            <Image
+              source={require("../assets/images/login-logo.png")}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
             <Text style={styles.appTitle}>Driver Portal</Text>
             <Text style={styles.subtitle}>Daily Fueling Operations</Text>
           </View>
@@ -188,20 +186,9 @@ const styles = StyleSheet.create({
     marginTop: 32,
     gap: 6,
   },
-  logoCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 8,
-    shadowColor: COLORS.navy,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-  },
   logoImg: {
-    width: 220,
-    height: 100,
+    width: 290,
+    height: 112,
   },
   appTitle: {
     fontSize: 22,
