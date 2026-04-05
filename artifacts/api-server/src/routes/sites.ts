@@ -199,6 +199,9 @@ const GOOGLE_SHEETS_URL =
 /** Regions excluded from sync — sites in these regions are never imported */
 const EXCLUDED_REGIONS = new Set(["west", "south"]);
 
+/** Individual site names excluded from sync */
+const EXCLUDED_SITES = new Set(["cow301"]);
+
 /**
  * POST /sites/sync-sheets
  * Fetches live data from the Google Sheets Apps Script endpoint and upserts
@@ -256,6 +259,9 @@ router.post("/sites/sync-sheets", async (req, res) => {
     for (const row of dashboard.rows) {
       const name = String(row[idxName] ?? "").trim();
       if (!name) { skipped++; continue; }
+
+      // Skip excluded individual sites
+      if (EXCLUDED_SITES.has(name.toLowerCase())) { skipped++; continue; }
 
       // Skip excluded regions (West, South)
       const rowRegion = idxRegion >= 0 ? String(row[idxRegion] ?? "").trim().toLowerCase() : "";
