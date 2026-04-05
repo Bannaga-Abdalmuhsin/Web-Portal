@@ -14,7 +14,6 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminMissions from "@/pages/admin/Missions";
 import AdminSites from "@/pages/admin/Sites";
 import AdminDrivers from "@/pages/admin/Drivers";
-import AdminGenerators from "@/pages/admin/Generators";
 import AdminReports from "@/pages/admin/Reports";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminSettings from "@/pages/admin/Settings";
@@ -82,7 +81,6 @@ function Router() {
               <Route path="/missions" component={AdminMissions} />
               <Route path="/sites" component={AdminSites} />
               <Route path="/drivers" component={AdminDrivers} />
-              <Route path="/generators" component={AdminGenerators} />
               <Route path="/reports" component={AdminReports} />
               <Route path="/notifications" component={AdminNotifications} />
               <Route path="/settings" component={AdminSettings} />

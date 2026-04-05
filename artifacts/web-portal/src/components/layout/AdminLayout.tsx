@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth-context";
 import { 
   LayoutDashboard, 
   MapPin, 
-  Zap, 
   Users, 
   Settings, 
   LogOut,
@@ -51,7 +50,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/missions", icon: FileText, label: "Missions" },
     { href: "/sites", icon: MapPin, label: "Sites" },
-    { href: "/generators", icon: Zap, label: "Generators" },
     { href: "/drivers", icon: Users, label: "Drivers" },
     { href: "/reports", icon: FileText, label: "Reports" },
     { href: "/notifications", icon: Bell, label: "Notifications" },
