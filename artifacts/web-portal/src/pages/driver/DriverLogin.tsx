@@ -47,11 +47,11 @@ export default function DriverLogin() {
       </div>
 
       <div className="relative z-10 w-full max-w-md px-6 py-12 flex flex-col items-center">
-        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-primary/20 mb-8 p-4">
+        <div className="mb-8">
           <img 
-            src={`${import.meta.env.BASE_URL}images/logo.png`} 
+            src={`${import.meta.env.BASE_URL}images/aces-logo.png`} 
             alt="ACES Logo" 
-            className="w-full h-auto object-contain"
+            className="h-20 object-contain drop-shadow-2xl"
           />
         </div>
         

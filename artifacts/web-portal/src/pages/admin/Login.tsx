@@ -50,9 +50,9 @@ export default function Login() {
       <div className="relative z-10 w-full flex flex-col justify-center max-w-xl px-8 lg:px-16">
         <div className="mb-12">
           <img 
-            src={`${import.meta.env.BASE_URL}images/logo.png`} 
+            src={`${import.meta.env.BASE_URL}images/aces-logo.png`} 
             alt="ACES Logo" 
-            className="h-16 object-contain drop-shadow-xl"
+            className="h-20 object-contain drop-shadow-xl"
           />
         </div>
         

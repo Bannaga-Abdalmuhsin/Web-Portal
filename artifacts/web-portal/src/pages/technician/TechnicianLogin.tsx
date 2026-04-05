@@ -3,13 +3,13 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth-context";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mail, Lock, Loader2, Wrench } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
 
 export default function TechnicianLogin() {
   const { loginTechnician } = useAuth();
   const [, setLocation] = useLocation();
-  const [email, setEmail] = useState("ahmed@aces-sa.com");
-  const [password, setPassword] = useState("Tech@1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -46,8 +46,12 @@ export default function TechnicianLogin() {
       <div className="w-full max-w-sm z-10 space-y-8">
         {/* Logo & Title */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-[#E30613] to-[#a01010] shadow-2xl shadow-[#E30613]/30">
-            <Wrench className="w-10 h-10 text-white" />
+          <div className="flex justify-center">
+            <img
+              src={`${import.meta.env.BASE_URL}images/aces-logo.png`}
+              alt="ACES Logo"
+              className="h-20 object-contain drop-shadow-2xl"
+            />
           </div>
           <div>
             <h1 className="text-3xl font-display font-bold text-white">Technician Portal</h1>
