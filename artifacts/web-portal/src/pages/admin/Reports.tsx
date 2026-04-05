@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, MapPin, Droplet, FileText, BarChart3 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -49,6 +50,8 @@ export default function ReportsPage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [siteQuery, setSiteQuery] = useState("");
+  const { user } = useAuth();
+  const supervisorRegion = user?.role === "supervisor" ? (user.region || "") : "";
   const [regionFilter, setRegionFilter] = useState("all");
   const [unitPrice] = useState(0.63);
   const vatRate = 0.15;
@@ -56,8 +59,9 @@ export default function ReportsPage() {
   const REGIONS = ["CENTRAL", "EAST"];
 
   const lines = useMemo(() => {
+    const activeRegion = supervisorRegion || regionFilter;
     return reportLines
-      .filter((l) => regionFilter === "all" || l.region.toUpperCase() === regionFilter)
+      .filter((l) => activeRegion === "all" || !activeRegion || l.region.toUpperCase() === activeRegion.toUpperCase())
       .filter((l) => !siteQuery || l.siteName?.toLowerCase().includes(siteQuery.toLowerCase()))
       .filter((l) => {
         if (!fromDate && !toDate) return true;
@@ -195,17 +199,23 @@ export default function ReportsPage() {
             </div>
             <div>
               <Label className="text-xs mb-1 block">Region</Label>
-              <Select value={regionFilter} onValueChange={setRegionFilter}>
-                <SelectTrigger className="w-44 h-9">
-                  <SelectValue placeholder="All regions" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {REGIONS.map((r) => (
-                    <SelectItem key={r} value={r}>{r}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {supervisorRegion ? (
+                <div className="w-44 h-9 flex items-center px-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-700 font-medium">
+                  {supervisorRegion}
+                </div>
+              ) : (
+                <Select value={regionFilter} onValueChange={setRegionFilter}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder="All regions" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Regions</SelectItem>
+                    {REGIONS.map((r) => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <Label className="text-xs mb-1 block">Site</Label>

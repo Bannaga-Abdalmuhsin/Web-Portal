@@ -10,6 +10,7 @@ export const adminsTable = pgTable("admins", {
   passwordHash: text("password_hash").notNull(),
   position: text("position").notNull().default("User"),
   role: text("role").notNull().default("superadmin"),
+  region: text("region").notNull().default(""),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

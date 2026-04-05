@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Pencil, Trash2, ShieldCheck, UserCog } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
-type AdminForm = { name: string; username: string; email: string; password: string; position: string; role: string };
-const emptyForm: AdminForm = { name: "", username: "", email: "", password: "", position: "Admin", role: "superadmin" };
+type AdminForm = { name: string; username: string; email: string; password: string; position: string; role: string; region: string };
+const emptyForm: AdminForm = { name: "", username: "", email: "", password: "", position: "Admin", role: "superadmin", region: "" };
 
 const ROLE_CONFIG: Record<string, { label: string; color: string }> = {
   superadmin: { label: "Admin", color: "bg-primary/10 text-primary border-primary/20" },
@@ -39,17 +39,17 @@ export default function AdminsPage() {
   const openCreate = () => { setEditId(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (a: any) => {
     setEditId(a.id);
-    setForm({ name: a.name, username: a.username, email: a.email || "", password: "", position: a.position || "Admin", role: a.role || "superadmin" });
+    setForm({ name: a.name, username: a.username, email: a.email || "", password: "", position: a.position || "Admin", role: (a as any).role || "superadmin", region: (a as any).region || "" });
     setDialogOpen(true);
   };
 
   const onSave = async () => {
     if (editId !== null) {
-      const data: any = { name: form.name, username: form.username, email: form.email, position: form.position, role: form.role };
+      const data: any = { name: form.name, username: form.username, email: form.email, position: form.position, role: form.role, region: form.region };
       if (form.password) data.password = form.password;
       await updateMutation.mutateAsync({ id: editId, data });
     } else {
-      await createMutation.mutateAsync({ data: form });
+      await createMutation.mutateAsync({ data: { ...form } });
     }
     setDialogOpen(false);
     refetch();
@@ -88,6 +88,7 @@ export default function AdminsPage() {
               <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Region</TableHead>
               {isSuperAdmin && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
@@ -107,6 +108,12 @@ export default function AdminsPage() {
                         : <><ShieldCheck className="w-3 h-3 mr-1 inline" />Admin</>
                       }
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-600">
+                    {(a as any).role === "supervisor" && (a as any).region
+                      ? <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium bg-sky-50 text-sky-700 border border-sky-100">{(a as any).region}</span>
+                      : <span className="text-slate-300">—</span>
+                    }
                   </TableCell>
                   {isSuperAdmin && (
                     <TableCell>
@@ -136,7 +143,7 @@ export default function AdminsPage() {
             <div><Label>Password {editId && "(leave blank to keep current)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} /></div>
             <div>
               <Label>Role</Label>
-              <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v, position: v === "supervisor" ? "Supervisor" : "Admin" }))}>
+              <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v, position: v === "supervisor" ? "Supervisor" : "Admin", region: v !== "supervisor" ? "" : f.region }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="superadmin">
@@ -148,6 +155,18 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
             </div>
+            {form.role === "supervisor" && (
+              <div>
+                <Label>Assigned Region</Label>
+                <Select value={form.region} onValueChange={(v) => setForm((f) => ({ ...f, region: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select region..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CENTRAL">Central</SelectItem>
+                    <SelectItem value="EAST">East</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

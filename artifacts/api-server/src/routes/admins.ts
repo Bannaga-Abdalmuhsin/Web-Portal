@@ -20,6 +20,7 @@ router.get("/admins", async (req, res) => {
       email: a.email,
       position: a.position,
       role: a.role,
+      region: a.region,
     })));
   } catch (err) {
     req.log.error({ err }, "Failed to list admins");
@@ -37,8 +38,9 @@ router.post("/admins", async (req, res) => {
       passwordHash: body.password ? hashPassword(body.password) : "",
       position: body.position || "User",
       role: body.role || "superadmin",
+      region: body.region || "",
     }).returning();
-    res.status(201).json({ id: admin.id, name: admin.name, username: admin.username, email: admin.email, position: admin.position, role: admin.role });
+    res.status(201).json({ id: admin.id, name: admin.name, username: admin.username, email: admin.email, position: admin.position, role: admin.role, region: admin.region });
   } catch (err) {
     req.log.error({ err }, "Failed to create admin");
     res.status(500).json({ error: "Internal server error" });
@@ -55,11 +57,12 @@ router.put("/admins/:id", async (req, res) => {
       email: body.email,
       position: body.position,
       role: body.role,
+      region: body.region ?? "",
     };
     if (body.password) updateData.passwordHash = hashPassword(body.password);
     const [admin] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, id)).returning();
     if (!admin) return res.status(404).json({ error: "Not found" });
-    res.json({ id: admin.id, name: admin.name, username: admin.username, email: admin.email, position: admin.position, role: admin.role });
+    res.json({ id: admin.id, name: admin.name, username: admin.username, email: admin.email, position: admin.position, role: admin.role, region: admin.region });
   } catch (err) {
     req.log.error({ err }, "Failed to update admin");
     res.status(500).json({ error: "Internal server error" });
@@ -91,6 +94,7 @@ router.post("/auth/login", async (req, res) => {
       return res.json({
         success: true,
         role: admin.role || "superadmin",
+        region: admin.region || "",
         username: admin.username,
       });
     }

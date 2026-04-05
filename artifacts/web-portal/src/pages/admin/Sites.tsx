@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth-context";
 
 interface Site {
   id: number;
@@ -61,6 +62,8 @@ const COW_STATUS_COLORS: Record<string, string> = {
 
 export default function Sites() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const supervisorRegion = user?.role === "supervisor" ? (user.region || "") : "";
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
@@ -161,7 +164,8 @@ export default function Sites() {
       s.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.siteLabel?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchRegion = !regionFilter || s.region === regionFilter;
+    const activeRegion = supervisorRegion || regionFilter;
+    const matchRegion = !activeRegion || s.region?.toUpperCase() === activeRegion.toUpperCase();
     return matchSearch && matchRegion;
   });
 
@@ -183,14 +187,20 @@ COW532,Western,Al Aziziyah,Jeddah,OFF-AIR,Label-B,21.3891,39.8579,2025-04-12,202
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select
-            className="h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-            value={regionFilter}
-            onChange={(e) => setRegionFilter(e.target.value)}
-          >
-            <option value="">All Regions</option>
-            {regions.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
+          {supervisorRegion ? (
+            <div className="h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 font-medium flex items-center">
+              {supervisorRegion}
+            </div>
+          ) : (
+            <select
+              className="h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={regionFilter}
+              onChange={(e) => setRegionFilter(e.target.value)}
+            >
+              <option value="">All Regions</option>
+              {regions.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          )}
         </div>
 
         <div className="flex gap-2 flex-wrap">

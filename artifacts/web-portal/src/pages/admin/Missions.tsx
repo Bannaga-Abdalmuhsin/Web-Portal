@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Search, Trash2, FileText, Eye, CheckCircle, XCircle, RotateCcw, Camera, Droplet } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -301,6 +302,8 @@ function MissionReviewSheet({
 }
 
 export default function Missions() {
+  const { user } = useAuth();
+  const supervisorRegion = user?.role === "supervisor" ? (user.region || "") : "";
   const { data: missions, isLoading } = useMissions();
   const { data: drivers = [] } = useDrivers();
   const createMutation = useCreateMission();
@@ -334,10 +337,13 @@ export default function Missions() {
     });
   };
 
-  const filteredMissions = missions?.filter(m =>
-    m.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.missionId?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMissions = missions?.filter(m => {
+    const matchSearch = m.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (m.missionId?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
+    const mRegion = (m as any).region || (m as any).city || "";
+    const matchRegion = !supervisorRegion || mRegion.toUpperCase() === supervisorRegion.toUpperCase();
+    return matchSearch && matchRegion;
+  });
 
   return (
     <div className="space-y-6">

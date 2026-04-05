@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 interface AuthUser {
   username?: string;
   role?: string;
+  region?: string;
   driverId?: number;
   zone?: string;
   type: "admin" | "driver";
@@ -11,7 +12,7 @@ interface AuthUser {
 
 interface AuthContextType {
   user: AuthUser | null;
-  loginAdmin: (username: string, role: string) => void;
+  loginAdmin: (username: string, role: string, region?: string) => void;
   loginDriver: (driverId: number, username: string) => void;
   logout: () => void;
 }
@@ -38,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loginAdmin = (username: string, role: string) => {
-    const newUser: AuthUser = { type: "admin", username, role };
+  const loginAdmin = (username: string, role: string, region?: string) => {
+    const newUser: AuthUser = { type: "admin", username, role, region: region || "" };
     localStorage.setItem("aces_auth", JSON.stringify(newUser));
     setUser(newUser);
   };

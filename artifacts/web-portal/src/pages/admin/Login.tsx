@@ -263,7 +263,7 @@ export default function Login() {
     loginMutation.mutate({ data: { username, password } }, {
       onSuccess: (data) => {
         if (data.success) {
-          loginAdmin(data.username || username, data.role || "superadmin");
+          loginAdmin(data.username || username, data.role || "superadmin", data.region || "");
           setLocation("/");
         } else {
           setError("Invalid credentials");
