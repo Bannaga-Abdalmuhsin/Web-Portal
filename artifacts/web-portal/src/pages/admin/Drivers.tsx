@@ -169,7 +169,11 @@ export default function Drivers() {
                     <FormItem>
                       <FormLabel>Assigned Zone</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Central Region" className="h-11 rounded-xl" {...field} />
+                        <select className="w-full h-11 px-3 rounded-xl border border-input bg-background text-sm" {...field}>
+                          <option value="">Select zone...</option>
+                          <option value="Central">Central</option>
+                          <option value="East">East</option>
+                        </select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
