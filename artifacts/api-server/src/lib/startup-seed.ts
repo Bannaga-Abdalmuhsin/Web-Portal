@@ -4452,6 +4452,10 @@ export async function runSeedIfEmpty(): Promise<void> {
   }
 
   // Seed drivers
+  const driverPasswordHash = process.env.SEED_DRIVER_PASSWORD_HASH;
+  if (!driverPasswordHash) {
+    throw new Error("SEED_DRIVER_PASSWORD_HASH environment variable is not set. Cannot seed driver accounts.");
+  }
   const insertedDrivers = await db.insert(driversTable).values([
     {
       name: "Bannaga Altieb",
@@ -4459,7 +4463,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "+966542966343",
       zone: "stc COW CR",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
     {
       name: "Bannaga",
@@ -4467,7 +4471,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "+966542966343",
       zone: "Central Region",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
     {
       name: "Alshafeea",
@@ -4475,7 +4479,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "530048763",
       zone: "Central Region",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
     {
       name: "Ayman",
@@ -4483,7 +4487,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "549872597",
       zone: "Central Region",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
     {
       name: "Baliqh",
@@ -4491,7 +4495,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "509471245",
       zone: "Central Region",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
     {
       name: "Ameen",
@@ -4499,7 +4503,7 @@ export async function runSeedIfEmpty(): Promise<void> {
       phone: "500580235",
       zone: "Central Region",
       active: true,
-      passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+      passwordHash: driverPasswordHash,
     },
   ]).returning({ id: driversTable.id, name: driversTable.name });
 
