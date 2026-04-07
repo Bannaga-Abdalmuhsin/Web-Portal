@@ -4401,11 +4401,15 @@ export async function runSeedIfEmpty(): Promise<void> {
   }
 
   // Seed admin
+  const adminPasswordHash = process.env.SEED_ADMIN_PASSWORD_HASH;
+  if (!adminPasswordHash) {
+    throw new Error("SEED_ADMIN_PASSWORD_HASH environment variable is not set. Cannot seed admin account.");
+  }
   await db.insert(adminsTable).values({
     name: "Administrator",
     username: "Bannaga",
     email: "admin@aces-sa.com",
-    passwordHash: "8a9b04eb2e4d97b331e2cff938a0ca9248650191e1cda2caeeef9ed8ad2a1719",
+    passwordHash: adminPasswordHash,
     position: "Admin",
   }).onConflictDoNothing();
 
