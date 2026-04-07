@@ -2,8 +2,16 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { adminsTable, sitesTable, missionsTable, driversTable } from "@workspace/db/schema";
 import { count } from "drizzle-orm";
+import crypto from "crypto";
 
 const router: IRouter = Router();
+
+function hashPassword(password: string): string {
+  return crypto.createHash("sha256").update(password).digest("hex");
+}
+
+const adminPasswordHash = hashPassword(process.env.SEED_ADMIN_PASSWORD ?? "Admin@1234");
+const driverPasswordHash = hashPassword(process.env.SEED_DRIVER_PASSWORD ?? "Driver@1234");
 
 const SEED_SITES = [
   {
@@ -4402,7 +4410,7 @@ const SEED_ADMINS = [
     name: "Administrator",
     username: "Bannaga",
     email: "admin@aces-sa.com",
-    passwordHash: "8a9b04eb2e4d97b331e2cff938a0ca9248650191e1cda2caeeef9ed8ad2a1719",
+    passwordHash: adminPasswordHash,
     position: "Admin",
   },
 ];
@@ -4414,7 +4422,7 @@ const SEED_DRIVERS = [
     phone: "+966542966343",
     zone: "stc COW CR",
     active: true,
-    passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    passwordHash: driverPasswordHash,
   },
   {
     name: "Bannaga",
@@ -4422,7 +4430,7 @@ const SEED_DRIVERS = [
     phone: "+966542966343",
     zone: "Central Region",
     active: true,
-    passwordHash: "f8523124e3f6f219d326ffaf7facf0449fc6103c53c2d9922267000114891f50",
+    passwordHash: driverPasswordHash,
   },
 ];
 
