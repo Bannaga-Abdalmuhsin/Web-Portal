@@ -181,7 +181,7 @@ function RiyadhBackground() {
       <path d="M695 656 L700 644 L705 656 Z" fill="#dde4ef" />
 
       {/* ── Abraj Al-Bait (Makkah Clock Tower) — moved to far right near Kaaba ── */}
-      <g transform="translate(860, 0)">
+      <g transform="translate(780, 0)">
         {/* Podium base */}
         <rect x="516" y="598" width="148" height="162" fill="#dde4ef" />
         {[0,1,2,3].map(r => [0,1,2,3].map(c => (
