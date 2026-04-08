@@ -180,61 +180,63 @@ function RiyadhBackground() {
       <rect x="695" y="656" width="10" height="104" fill="#e2e8f0" />
       <path d="M695 656 L700 644 L705 656 Z" fill="#dde4ef" />
 
-      {/* ── Abraj Al-Bait (Makkah Clock Tower) ── */}
-      {/* Podium base */}
-      <rect x="516" y="598" width="148" height="162" fill="#dde4ef" />
-      {[0,1,2,3].map(r => [0,1,2,3].map(c => (
-        <rect key={`pod${r}${c}`} x={522+c*34} y={606+r*36} width="24" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
-      )))}
-      {/* Flanking hotel towers */}
-      <rect x="491" y="522" width="32" height="238" fill="#e2e8f0" />
-      <rect x="657" y="522" width="32" height="238" fill="#e2e8f0" />
-      {[0,1,2,3,4,5].map(r => (
-        <g key={`ht${r}`}>
-          <rect x={495} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
-          <rect x={661} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
-        </g>
-      ))}
-      {/* Main clock tower shaft */}
-      <rect x="557" y="190" width="66" height="410" fill="#e2e8f0" />
-      <rect x="563" y="190" width="54" height="410" fill="#e8eef8" />
-      {[0,1,2,3,4,5,6,7,8,9].map(r => (
-        <g key={`cw${r}`}>
-          <rect x={566} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
-          <rect x={596} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
-        </g>
-      ))}
-      {/* Clock head — wide section */}
-      <rect x="533" y="138" width="114" height="54" fill="#dde4ef" rx="2" />
-      <rect x="537" y="142" width="106" height="46" fill="#e4eaf5" rx="2" />
-      <rect x="533" y="188" width="114" height="5" fill="#c9a227" opacity="0.5" />
-      {/* Clock face */}
-      <circle cx="590" cy="165" r="42" fill="white" opacity="0.88" />
-      <circle cx="590" cy="165" r="39" fill="#f5f8ff" />
-      <circle cx="590" cy="165" r="35" fill="none" stroke="#1e3a6e" strokeWidth="2" opacity="0.3" />
-      {[0,1,2,3,4,5,6,7,8,9,10,11].map(i => {
-        const angle = (i * 30 - 90) * Math.PI / 180;
-        const r1 = 30, r2 = i % 3 === 0 ? 23 : 27;
-        return (
-          <line key={`ctick${i}`}
-            x1={590+r1*Math.cos(angle)} y1={165+r1*Math.sin(angle)}
-            x2={590+r2*Math.cos(angle)} y2={165+r2*Math.sin(angle)}
-            stroke="#1e3a6e" strokeWidth={i % 3 === 0 ? 2.5 : 1.2} opacity="0.4" />
-        );
-      })}
-      <line x1="590" y1="165" x2="590" y2="145" stroke="#1e3a6e" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
-      <line x1="590" y1="165" x2="610" y2="170" stroke="#E30613" strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
-      <circle cx="590" cy="165" r="3.5" fill="#1e3a6e" opacity="0.5" />
-      {/* Crown battlements */}
-      <rect x="554" y="96" width="72" height="44" fill="#dde4ef" />
-      {[0,1,2,3,4].map(i => (
-        <rect key={`bat${i}`} x={554+i*14} y={84} width="10" height="14" rx="1" fill="#dde4ef" />
-      ))}
-      {/* Golden spire */}
-      <rect x="587" y="64" width="6" height="22" rx="2" fill="#c9a227" opacity="0.65" />
-      {/* Crescent */}
-      <path d="M582 63 Q590 50 598 63 Q591 56 582 63" fill="#c9a227" opacity="0.85" />
-      <circle cx="590" cy="47" r="3.5" fill="#E30613" opacity="0.85" filter="url(#glow)" />
+      {/* ── Abraj Al-Bait (Makkah Clock Tower) — moved to far right near Kaaba ── */}
+      <g transform="translate(860, 0)">
+        {/* Podium base */}
+        <rect x="516" y="598" width="148" height="162" fill="#dde4ef" />
+        {[0,1,2,3].map(r => [0,1,2,3].map(c => (
+          <rect key={`pod${r}${c}`} x={522+c*34} y={606+r*36} width="24" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
+        )))}
+        {/* Flanking hotel towers */}
+        <rect x="491" y="522" width="32" height="238" fill="#e2e8f0" />
+        <rect x="657" y="522" width="32" height="238" fill="#e2e8f0" />
+        {[0,1,2,3,4,5].map(r => (
+          <g key={`ht${r}`}>
+            <rect x={495} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
+            <rect x={661} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
+          </g>
+        ))}
+        {/* Main clock tower shaft */}
+        <rect x="557" y="190" width="66" height="410" fill="#e2e8f0" />
+        <rect x="563" y="190" width="54" height="410" fill="#e8eef8" />
+        {[0,1,2,3,4,5,6,7,8,9].map(r => (
+          <g key={`cw${r}`}>
+            <rect x={566} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
+            <rect x={596} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
+          </g>
+        ))}
+        {/* Clock head — wide section */}
+        <rect x="533" y="138" width="114" height="54" fill="#dde4ef" rx="2" />
+        <rect x="537" y="142" width="106" height="46" fill="#e4eaf5" rx="2" />
+        <rect x="533" y="188" width="114" height="5" fill="#c9a227" opacity="0.5" />
+        {/* Clock face */}
+        <circle cx="590" cy="165" r="42" fill="white" opacity="0.88" />
+        <circle cx="590" cy="165" r="39" fill="#f5f8ff" />
+        <circle cx="590" cy="165" r="35" fill="none" stroke="#1e3a6e" strokeWidth="2" opacity="0.3" />
+        {[0,1,2,3,4,5,6,7,8,9,10,11].map(i => {
+          const angle = (i * 30 - 90) * Math.PI / 180;
+          const r1 = 30, r2 = i % 3 === 0 ? 23 : 27;
+          return (
+            <line key={`ctick${i}`}
+              x1={590+r1*Math.cos(angle)} y1={165+r1*Math.sin(angle)}
+              x2={590+r2*Math.cos(angle)} y2={165+r2*Math.sin(angle)}
+              stroke="#1e3a6e" strokeWidth={i % 3 === 0 ? 2.5 : 1.2} opacity="0.4" />
+          );
+        })}
+        <line x1="590" y1="165" x2="590" y2="145" stroke="#1e3a6e" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
+        <line x1="590" y1="165" x2="610" y2="170" stroke="#E30613" strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
+        <circle cx="590" cy="165" r="3.5" fill="#1e3a6e" opacity="0.5" />
+        {/* Crown battlements */}
+        <rect x="554" y="96" width="72" height="44" fill="#dde4ef" />
+        {[0,1,2,3,4].map(i => (
+          <rect key={`bat${i}`} x={554+i*14} y={84} width="10" height="14" rx="1" fill="#dde4ef" />
+        ))}
+        {/* Golden spire */}
+        <rect x="587" y="64" width="6" height="22" rx="2" fill="#c9a227" opacity="0.65" />
+        {/* Crescent */}
+        <path d="M582 63 Q590 50 598 63 Q591 56 582 63" fill="#c9a227" opacity="0.85" />
+        <circle cx="590" cy="47" r="3.5" fill="#E30613" opacity="0.85" filter="url(#glow)" />
+      </g>
 
       {/* ── Riyadh Tower (tallest) ── */}
       <rect x="800" y="202" width="80" height="558" fill="#dde6f0" />
