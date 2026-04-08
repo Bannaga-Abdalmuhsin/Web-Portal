@@ -296,39 +296,40 @@ function RiyadhBackground() {
       <ellipse cx="1315" cy="720" rx="65" ry="28" fill="none" stroke="#c8d4e4" strokeWidth="1.2" opacity="0.55" />
       <ellipse cx="1315" cy="720" rx="52" ry="22" fill="none" stroke="#c8d4e4" strokeWidth="0.8" opacity="0.4" />
 
-      {/* ── The Holy Kaaba ── */}
-      {/* Ground shadow */}
-      <ellipse cx="1320" cy="748" rx="50" ry="10" fill="#475569" opacity="0.14" />
+      {/* ── The Holy Kaaba — centered in Mataf ── */}
+      {/* Kaaba center target: x=1315, bottom≈y=718 (sitting on courtyard floor) */}
+      {/* Front face: w=32, h=36 → x=1299..1331, y=682..718 */}
+      {/* Top offset: 10 right, 10 up → top-left=(1299,682), top-right=(1331,682), TR+off=(1341,672), TL+off=(1309,672) */}
+      {/* Right face: (1331,682)→(1331,718)→(1341,708)→(1341,672) */}
 
-      {/* ── Cube geometry (isometric 3-face view) ── */}
+      {/* Cube shadow on courtyard */}
+      <ellipse cx="1315" cy="719" rx="22" ry="6" fill="#475569" opacity="0.18" />
+
       {/* Top face — lightest gray */}
-      <polygon points="1278,656 1356,656 1378,634 1300,634" fill="#94a3b8" />
+      <polygon points="1299,682 1331,682 1341,672 1309,672" fill="#94a3b8" />
       {/* Front face — medium gray */}
-      <rect x="1278" y="656" width="78" height="82" fill="#64748b" />
+      <rect x="1299" y="682" width="32" height="36" fill="#64748b" />
       {/* Right side face — darkest gray */}
-      <polygon points="1356,656 1356,738 1378,716 1378,634" fill="#475569" />
+      <polygon points="1331,682 1331,718 1341,708 1341,672" fill="#475569" />
 
-      {/* Front face: horizontal band (Kiswa) in dark gray */}
-      <rect x="1278" y="672" width="78" height="13" fill="#374151" />
-      <rect x="1278" y="670" width="78" height="2" fill="#2d3748" opacity="0.7" />
-      <rect x="1278" y="683" width="78" height="2" fill="#2d3748" opacity="0.7" />
-      {/* Band on right face (perspective-matched) */}
-      <polygon points="1356,672 1378,650 1378,652 1356,674" fill="#2d3748" opacity="0.5" />
-      <polygon points="1356,683 1378,661 1378,663 1356,685" fill="#2d3748" opacity="0.5" />
+      {/* Kiswa band on front face */}
+      <rect x="1299" y="689" width="32" height="6" fill="#374151" />
+      <rect x="1299" y="688" width="32" height="1.5" fill="#2d3748" opacity="0.7" />
+      <rect x="1299" y="695" width="32" height="1.5" fill="#2d3748" opacity="0.7" />
+      {/* Kiswa band on right face (perspective) */}
+      <polygon points="1331,689 1341,679 1341,681 1331,691" fill="#2d3748" opacity="0.5" />
+      <polygon points="1331,695 1341,685 1341,687 1331,697" fill="#2d3748" opacity="0.5" />
 
-      {/* Door — slightly lighter gray inset */}
-      <rect x="1302" y="661" width="22" height="30" rx="1" fill="#4b5563" />
-      <rect x="1304" y="663" width="18" height="26" rx="1" fill="#374151" />
-      <rect x="1305" y="664" width="16" height="12" rx="1" fill="#4b5563" opacity="0.5" />
-      {/* Door arch hint */}
-      <path d="M1304 663 Q1313 657 1322 663" fill="none" stroke="#4b5563" strokeWidth="1.5" />
+      {/* Door — centered on front face */}
+      <rect x="1309" y="684" width="9" height="14" rx="1" fill="#4b5563" />
+      <rect x="1310" y="685" width="7" height="12" rx="1" fill="#374151" />
+      {/* Door arch */}
+      <path d="M1309 685 Q1313.5 681 1318 685" fill="none" stroke="#4b5563" strokeWidth="1" />
 
-      {/* Top face edge highlight */}
-      <polygon points="1278,656 1356,656 1378,634 1300,634" fill="none" stroke="#b0bec8" strokeWidth="1" opacity="0.5" />
-      {/* Front face edge highlight */}
-      <rect x="1278" y="656" width="78" height="82" fill="none" stroke="#6b7a8a" strokeWidth="1" />
-      {/* Right face edge */}
-      <polygon points="1356,656 1356,738 1378,716 1378,634" fill="none" stroke="#3d4f60" strokeWidth="1" />
+      {/* Face edge highlights */}
+      <polygon points="1299,682 1331,682 1341,672 1309,672" fill="none" stroke="#b0bec8" strokeWidth="0.8" opacity="0.6" />
+      <rect x="1299" y="682" width="32" height="36" fill="none" stroke="#6b7a8a" strokeWidth="0.8" />
+      <polygon points="1331,682 1331,718 1341,708 1341,672" fill="none" stroke="#3d4f60" strokeWidth="0.8" />
 
       {/* ══════ GSM TOWER ══════ */}
       <ellipse cx="1100" cy="520" rx="140" ry="140" fill="url(#towerGlow)" filter="url(#blur4)" />
