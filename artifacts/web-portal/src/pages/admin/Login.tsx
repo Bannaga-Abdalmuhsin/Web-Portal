@@ -24,7 +24,7 @@ const NET_LINES: [number,number,number,number][] = [
 
 function RiyadhBackground() {
   return (
-    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
+    <svg viewBox="-80 -80 1600 1060" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
       <defs>
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#dbeafe" />
@@ -51,7 +51,7 @@ function RiyadhBackground() {
       </defs>
 
       {/* Sky */}
-      <rect width="1440" height="900" fill="url(#skyGrad)" />
+      <rect x="-100" y="-100" width="1700" height="1200" fill="url(#skyGrad)" />
       <ellipse cx="720" cy="680" rx="700" ry="200" fill="url(#cityGlow)" />
 
       {/* Sun */}
@@ -68,8 +68,8 @@ function RiyadhBackground() {
       <ellipse cx="1240" cy="90" rx="50" ry="20" fill="white" opacity="0.75" />
 
       {/* Ground */}
-      <rect x="0" y="760" width="1440" height="140" fill="url(#groundGrad)" />
-      <rect x="0" y="758" width="1440" height="3" fill="#94a3b8" opacity="0.4" />
+      <rect x="-100" y="760" width="1700" height="300" fill="url(#groundGrad)" />
+      <rect x="-100" y="758" width="1700" height="3" fill="#94a3b8" opacity="0.4" />
       {ROAD_MARKS.map((x, i) => (
         <rect key={i} x={x} y="800" width="60" height="4" rx="2" fill="#94a3b8" opacity="0.25" />
       ))}
@@ -249,27 +249,79 @@ function RiyadhBackground() {
       <line x1="840" y1="150" x2="840" y2="112" stroke="#94a3b8" strokeWidth="3" />
       <circle cx="840" cy="110" r="5" fill="#E30613" opacity="0.8" filter="url(#glow)" />
 
-      {/* ── Right cluster ── */}
-      <rect x="900" y="532" width="85" height="228" fill="#dde6f0" />
-      {[0,1,2,3].map(r => WIN_COLS_3.map(c => (
-        <rect key={`i${r}${c}`} x={908+c*25} y={542+r*50} width="16" height="30" rx="1" fill="#bfdbfe" opacity="0.6" />
-      )))}
-      <rect x="1000" y="582" width="70" height="178" fill="#e2e8f0" />
-      {[0,1,2].map(r => [0,1].map(c => (
-        <rect key={`j${r}${c}`} x={1013+c*25} y={592+r*50} width="16" height="30" rx="1" fill="#bfdbfe" opacity="0.55" />
-      )))}
-      <rect x="1085" y="562" width="90" height="198" fill="#e2e8f0" />
-      <rect x="1090" y="556" width="80" height="24" fill="#dde6f0" />
-      {[0,1,2,3].map(r => WIN_COLS_3.map(c => (
-        <rect key={`k${r}${c}`} x={1093+c*25} y={566+r*45} width="16" height="28" rx="1" fill="#bfdbfe" opacity="0.5" />
-      )))}
-      <rect x="1190" y="612" width="110" height="148" fill="#dde6f0" />
-      <rect x="1195" y="606" width="100" height="10" fill="#e2e8f0" />
-      {[0,1,2].map(r => WIN_COLS_4.map(c => (
-        <rect key={`l${r}${c}`} x={1200+c*24} y={618+r*43} width="16" height="28" rx="1" fill="#bfdbfe" opacity="0.5" />
-      )))}
-      <rect x="1315" y="652" width="75" height="108" fill="#dde6f0" />
-      <rect x="1405" y="692" width="35" height="68" fill="#e2e8f0" />
+      {/* ══════ Masjid al-Haram + Holy Kaaba — Makkah (right side) ══════ */}
+
+      {/* ── Mosque outer body ── */}
+      <rect x="1155" y="693" width="285" height="67" fill="#e6ecf5" />
+      <rect x="1155" y="683" width="285" height="12" fill="#dde4ef" />
+
+      {/* Front arched arcade */}
+      {[0,1,2,3,4,5,6,7].map(i => (
+        <path key={`hka${i}`}
+          d={`M ${1161+i*34} 760 L ${1161+i*34} 733 Q ${1178+i*34} 717 ${1195+i*34} 733 L ${1195+i*34} 760`}
+          fill="#cdd7eb" />
+      ))}
+
+      {/* ── Minarets of Masjid al-Haram ── */}
+      {/* Far left */}
+      <rect x="1153" y="558" width="13" height="202" fill="#dde4ef" />
+      <rect x="1154" y="558" width="11" height="202" fill="#e4eaf5" />
+      <polygon points="1153,558 1159.5,536 1166,558" fill="#cdd5e8" />
+      <circle cx="1160" cy="532" r="4.5" fill="#c9a227" opacity="0.7" />
+      <ellipse cx="1160" cy="537" rx="7" ry="3.5" fill="#d6dfee" />
+      {/* Centre-left */}
+      <rect x="1223" y="590" width="11" height="170" fill="#e2e8f0" />
+      <polygon points="1223,590 1228.5,577 1234,590" fill="#d8e2f0" />
+      <circle cx="1229" cy="573" r="3.5" fill="#c9a227" opacity="0.65" />
+      {/* Centre-right */}
+      <rect x="1340" y="590" width="11" height="170" fill="#e2e8f0" />
+      <polygon points="1340,590 1345.5,577 1351,590" fill="#d8e2f0" />
+      <circle cx="1346" cy="573" r="3.5" fill="#c9a227" opacity="0.65" />
+      {/* Far right */}
+      <rect x="1422" y="558" width="13" height="202" fill="#dde4ef" />
+      <rect x="1423" y="558" width="11" height="202" fill="#e4eaf5" />
+      <polygon points="1422,558 1428.5,536 1435,558" fill="#cdd5e8" />
+      <circle cx="1429" cy="532" r="4.5" fill="#c9a227" opacity="0.7" />
+      <ellipse cx="1429" cy="537" rx="7" ry="3.5" fill="#d6dfee" />
+
+      {/* ── Domes along roofline ── */}
+      <ellipse cx="1270" cy="686" rx="30" ry="17" fill="#dde6f0" />
+      <ellipse cx="1380" cy="686" rx="30" ry="17" fill="#dde6f0" />
+      <ellipse cx="1193" cy="693" rx="20" ry="13" fill="#e2e8f0" />
+      <ellipse cx="1438" cy="693" rx="20" ry="13" fill="#e2e8f0" />
+
+      {/* ── Marble Mataf (circumambulation courtyard) ── */}
+      <ellipse cx="1315" cy="722" rx="82" ry="38" fill="#f0f4f8" opacity="0.85" />
+      <ellipse cx="1315" cy="720" rx="68" ry="31" fill="#f5f8fb" opacity="0.9" />
+      <ellipse cx="1315" cy="720" rx="65" ry="28" fill="none" stroke="#c8d4e4" strokeWidth="1.2" opacity="0.55" />
+      <ellipse cx="1315" cy="720" rx="52" ry="22" fill="none" stroke="#c8d4e4" strokeWidth="0.8" opacity="0.4" />
+
+      {/* ── The Holy Kaaba ── */}
+      {/* Soft shadow */}
+      <ellipse cx="1315" cy="752" rx="42" ry="9" fill="#64748b" opacity="0.12" />
+      {/* Main black cube — front face */}
+      <rect x="1283" y="672" width="64" height="72" fill="#181824" rx="1" />
+      {/* Left side face (slightly lighter) */}
+      <polygon points="1283,672 1270,680 1270,752 1283,744" fill="#0f0f1a" />
+      {/* Top face */}
+      <polygon points="1283,672 1347,672 1334,662 1270,662" fill="#242434" />
+      {/* Kiswa gold band */}
+      <rect x="1283" y="689" width="64" height="14" fill="#c9a227" opacity="0.8" />
+      <rect x="1283" y="687" width="64" height="2" fill="#8a6010" opacity="0.7" />
+      <rect x="1283" y="701" width="64" height="2" fill="#8a6010" opacity="0.7" />
+      {/* Calligraphy zone on band */}
+      {[0,1,2,3].map(i => (
+        <rect key={`kc${i}`} x={1287+i*15} y={692} width="9" height="6" rx="1" fill="#e8c040" opacity="0.55" />
+      ))}
+      {/* Kiswa lower embroidery strip */}
+      <rect x="1283" y="726" width="64" height="6" fill="#c9a227" opacity="0.35" />
+      {/* Door of the Kaaba (golden frame, elevated) */}
+      <rect x="1305" y="679" width="20" height="26" rx="1" fill="#c9a227" opacity="0.9" />
+      <rect x="1307" y="681" width="16" height="22" rx="1" fill="#7a5210" opacity="0.85" />
+      <rect x="1308" y="682" width="14" height="10" rx="1" fill="#9a6818" opacity="0.5" />
+      {/* Hajar Aswad (Black Stone corner, SE) */}
+      <ellipse cx="1283" cy="730" rx="6" ry="6" fill="#0a0a14" stroke="#94a3b8" strokeWidth="1.5" />
+      <ellipse cx="1283" cy="730" rx="3" ry="3" fill="#1a1a2a" opacity="0.8" />
 
       {/* ══════ GSM TOWER ══════ */}
       <ellipse cx="1100" cy="520" rx="140" ry="140" fill="url(#towerGlow)" filter="url(#blur4)" />
