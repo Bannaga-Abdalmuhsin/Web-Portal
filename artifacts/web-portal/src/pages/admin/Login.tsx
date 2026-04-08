@@ -11,8 +11,8 @@ const WIN_ROWS = [0, 1, 2, 3, 4, 5, 6, 7];
 const WIN_COLS_3 = [0, 1, 2];
 const WIN_COLS_4 = [0, 1, 2, 3];
 const WIN_COLS_7 = [0, 1, 2, 3, 4, 5, 6];
-const BRACE_ROWS = [230, 290, 350, 410, 470, 530, 590, 650];
-const BRACE_DIAG = [230, 290, 350, 410, 470, 530, 590];
+const BRACE_ROWS = [230, 290, 350, 410, 470, 530, 590, 650, 710, 770, 830, 890];
+const BRACE_DIAG = [230, 290, 350, 410, 470, 530, 590, 650, 710, 770, 830];
 const SIGNAL_RADII = [40, 70, 100, 130];
 const RING_RADII = [160, 220, 280];
 const ROAD_MARKS = [100,200,300,400,500,600,700,800,900,1000,1100,1200,1300];
@@ -161,9 +161,9 @@ function RiyadhBackground() {
       <ellipse cx="1100" cy="520" rx="140" ry="140" fill="url(#towerGlow)" filter="url(#blur4)" />
 
       {/* Lattice legs */}
-      <line x1="1100" y1="200" x2="1050" y2="680" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
-      <line x1="1100" y1="200" x2="1150" y2="680" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
-      <line x1="1100" y1="200" x2="1100" y2="680" stroke="#94a3b8" strokeWidth="3" />
+      <line x1="1100" y1="200" x2="1027" y2="900" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+      <line x1="1100" y1="200" x2="1173" y2="900" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+      <line x1="1100" y1="200" x2="1100" y2="900" stroke="#94a3b8" strokeWidth="3" />
 
       {/* Horizontal braces */}
       {BRACE_ROWS.map((y, i) => {
