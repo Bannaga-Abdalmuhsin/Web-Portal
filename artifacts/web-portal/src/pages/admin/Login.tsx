@@ -205,6 +205,16 @@ function RiyadhBackground() {
             <rect x={596} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
           </g>
         ))}
+        {/* Crown battlements — drawn first so clock face renders on top */}
+        <rect x="554" y="96" width="72" height="44" fill="#dde4ef" />
+        {[0,1,2,3,4].map(i => (
+          <rect key={`bat${i}`} x={554+i*14} y={84} width="10" height="14" rx="1" fill="#dde4ef" />
+        ))}
+        {/* Golden spire */}
+        <rect x="587" y="64" width="6" height="22" rx="2" fill="#c9a227" opacity="0.65" />
+        {/* Crescent */}
+        <path d="M582 63 Q590 50 598 63 Q591 56 582 63" fill="#c9a227" opacity="0.85" />
+        <circle cx="590" cy="47" r="3.5" fill="#E30613" opacity="0.85" filter="url(#glow)" />
         {/* Clock head — wide section */}
         <rect x="533" y="138" width="114" height="54" fill="#dde4ef" rx="2" />
         <rect x="537" y="142" width="106" height="46" fill="#e4eaf5" rx="2" />
@@ -226,16 +236,6 @@ function RiyadhBackground() {
         <line x1="590" y1="165" x2="590" y2="145" stroke="#1e3a6e" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
         <line x1="590" y1="165" x2="610" y2="170" stroke="#E30613" strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
         <circle cx="590" cy="165" r="3.5" fill="#1e3a6e" opacity="0.5" />
-        {/* Crown battlements */}
-        <rect x="554" y="96" width="72" height="44" fill="#dde4ef" />
-        {[0,1,2,3,4].map(i => (
-          <rect key={`bat${i}`} x={554+i*14} y={84} width="10" height="14" rx="1" fill="#dde4ef" />
-        ))}
-        {/* Golden spire */}
-        <rect x="587" y="64" width="6" height="22" rx="2" fill="#c9a227" opacity="0.65" />
-        {/* Crescent */}
-        <path d="M582 63 Q590 50 598 63 Q591 56 582 63" fill="#c9a227" opacity="0.85" />
-        <circle cx="590" cy="47" r="3.5" fill="#E30613" opacity="0.85" filter="url(#glow)" />
       </g>
 
       {/* ── Riyadh Tower (tallest) ── */}
