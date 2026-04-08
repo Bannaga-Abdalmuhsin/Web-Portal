@@ -74,34 +74,81 @@ function RiyadhBackground() {
         <rect key={i} x={x} y="800" width="60" height="4" rx="2" fill="#94a3b8" opacity="0.25" />
       ))}
 
-      {/* ── Left cluster ── */}
-      <rect x="30" y="640" width="80" height="120" fill="#cbd5e1" />
-      {[0,1,2,3].map(r => WIN_COLS_3.map(c => (
-        <rect key={`a${r}${c}`} x={42+c*22} y={648+r*26} width="14" height="16" rx="1" fill="#bfdbfe" opacity="0.8" />
-      )))}
-      <rect x="55" y="622" width="50" height="20" fill="#e2e8f0" />
+      {/* ══════ Al-Masjid an-Nabawi — Prophet's Mosque, Madinah ══════ */}
 
-      <rect x="120" y="592" width="100" height="168" fill="#e2e8f0" />
-      {[0,1,2,3,4].map(r => WIN_COLS_4.map(c => (
-        <rect key={`b${r}${c}`} x={127+c*23} y={601+r*30} width="14" height="18" rx="1" fill="#bfdbfe" opacity="0.65" />
-      )))}
-      <rect x="130" y="576" width="80" height="18" fill="#e2e8f0" />
+      {/* ── Mosque main body ── */}
+      <rect x="10" y="692" width="400" height="68" fill="#e6ecf5" />
+      {/* Stepped roofline */}
+      <rect x="10" y="682" width="400" height="12" fill="#dde4ef" />
 
-      <rect x="230" y="660" width="70" height="100" fill="#cbd5e1" />
-      {[0,1,2].map(r => [0,1].map(c => (
-        <rect key={`c${r}${c}`} x={240+c*28} y={668+r*28} width="14" height="16" rx="1" fill="#bfdbfe" opacity="0.6" />
-      )))}
+      {/* Front arched arcade */}
+      {[0,1,2,3,4,5,6,7,8,9].map(i => (
+        <path key={`nb${i}`}
+          d={`M ${14+i*38} 760 L ${14+i*38} 732 Q ${33+i*38} 716 ${52+i*38} 732 L ${52+i*38} 760`}
+          fill="#cdd7eb" />
+      ))}
 
-      {/* ── Al Faisaliah Tower ── */}
-      <rect x="310" y="460" width="90" height="300" fill="#e2e8f0" />
-      <rect x="320" y="460" width="70" height="300" fill="#dde6f0" />
-      {WIN_ROWS.map(r => WIN_COLS_3.map(c => (
-        <rect key={`d${r}${c}`} x={323+c*22} y={468+r*34} width="14" height="20" rx="1" fill="#bfdbfe" opacity="0.65" />
-      )))}
-      <polygon points="355,352 400,460 310,460" fill="#e2e8f0" />
-      <rect x="312" y="455" width="86" height="8" fill="#c9a227" opacity="0.4" />
-      <line x1="355" y1="340" x2="355" y2="310" stroke="#c9a227" strokeWidth="3" />
-      <circle cx="355" cy="306" r="4" fill="#E30613" opacity="0.7" filter="url(#glow)" />
+      {/* ── Green Dome (iconic, over Prophet's tomb) ── */}
+      <ellipse cx="205" cy="678" rx="58" ry="32" fill="#6db98a" opacity="0.7" />
+      <ellipse cx="205" cy="675" rx="46" ry="26" fill="#7ec89a" opacity="0.8" />
+      <ellipse cx="205" cy="673" rx="34" ry="18" fill="#8fd4a8" opacity="0.85" />
+      {/* Drum base of dome */}
+      <rect x="163" y="678" width="84" height="14" fill="#c5d5e8" />
+      {/* Gold finial + crescent */}
+      <rect x="202" y="648" width="6" height="26" rx="2" fill="#c9a227" opacity="0.85" />
+      <path d="M197 647 Q205 634 213 647 Q205 640 197 647" fill="#c9a227" opacity="0.95" />
+      <circle cx="205" cy="631" r="3" fill="#c9a227" opacity="0.8" />
+
+      {/* ── Secondary domes along roofline ── */}
+      <ellipse cx="125" cy="688" rx="30" ry="17" fill="#dde6f0" />
+      <ellipse cx="285" cy="688" rx="30" ry="17" fill="#dde6f0" />
+      <ellipse cx="60" cy="694" rx="20" ry="13" fill="#e2e8f0" />
+      <ellipse cx="350" cy="694" rx="20" ry="13" fill="#e2e8f0" />
+      <ellipse cx="22" cy="698" rx="13" ry="9" fill="#e8edf5" />
+      <ellipse cx="392" cy="698" rx="13" ry="9" fill="#e8edf5" />
+
+      {/* ── Outer tall minarets (pencil-shaped) ── */}
+      {/* Far left */}
+      <rect x="14" y="558" width="13" height="202" fill="#dde4ef" />
+      <rect x="15" y="558" width="11" height="202" fill="#e4eaf5" />
+      <polygon points="14,558 20.5,536 27,558" fill="#cdd5e8" />
+      <circle cx="20" cy="532" r="4.5" fill="#c9a227" opacity="0.7" />
+      <ellipse cx="20" cy="537" rx="7" ry="4" fill="#d6dfee" />
+      {/* Far right */}
+      <rect x="393" y="558" width="13" height="202" fill="#dde4ef" />
+      <rect x="394" y="558" width="11" height="202" fill="#e4eaf5" />
+      <polygon points="393,558 399.5,536 406,558" fill="#cdd5e8" />
+      <circle cx="400" cy="532" r="4.5" fill="#c9a227" opacity="0.7" />
+      <ellipse cx="400" cy="537" rx="7" ry="4" fill="#d6dfee" />
+
+      {/* ── Inner minarets ── */}
+      {/* Left inner */}
+      <rect x="78" y="592" width="11" height="168" fill="#e2e8f0" />
+      <polygon points="78,592 83.5,578 89,592" fill="#d8e2f0" />
+      <circle cx="83" cy="574" r="3.5" fill="#c9a227" opacity="0.65" />
+      {/* Right inner */}
+      <rect x="331" y="592" width="11" height="168" fill="#e2e8f0" />
+      <polygon points="331,592 336.5,578 342,592" fill="#d8e2f0" />
+      <circle cx="336" cy="574" r="3.5" fill="#c9a227" opacity="0.65" />
+      {/* Centre-left */}
+      <rect x="148" y="610" width="9" height="150" fill="#e4eaf5" />
+      <polygon points="148,610 152.5,599 157,610" fill="#dde6f0" />
+      <circle cx="152" cy="596" r="3" fill="#c9a227" opacity="0.6" />
+      {/* Centre-right */}
+      <rect x="263" y="610" width="9" height="150" fill="#e4eaf5" />
+      <polygon points="263,610 267.5,599 272,610" fill="#dde6f0" />
+      <circle cx="267" cy="596" r="3" fill="#c9a227" opacity="0.6" />
+
+      {/* ── Retractable umbrella shades (iconic courtyard feature) ── */}
+      {[0,1,2,3].map(i => (
+        <g key={`umb${i}`}>
+          <line x1={68+i*80} y1="692" x2={68+i*80} y2="668" stroke="#94a3b8" strokeWidth="2" opacity="0.4" />
+          <path d={`M ${32+i*80} 668 Q ${68+i*80} 652 ${104+i*80} 668`}
+            fill="#d4dff0" opacity="0.65" />
+          <line x1={32+i*80} y1="668" x2={104+i*80} y2="668"
+            stroke="#b8c8de" strokeWidth="1" opacity="0.5" />
+        </g>
+      ))}
 
       {/* ── Masjid al-Haram (Holy Mosque) ── */}
       {/* Mosque outer body */}
