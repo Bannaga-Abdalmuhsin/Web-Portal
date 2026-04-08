@@ -103,24 +103,91 @@ function RiyadhBackground() {
       <line x1="355" y1="340" x2="355" y2="310" stroke="#c9a227" strokeWidth="3" />
       <circle cx="355" cy="306" r="4" fill="#E30613" opacity="0.7" filter="url(#glow)" />
 
-      {/* ── Kingdom Centre Tower ── */}
-      <rect x="490" y="265" width="50" height="495" fill="#e2e8f0" />
-      <rect x="640" y="265" width="50" height="495" fill="#e2e8f0" />
-      <rect x="475" y="612" width="230" height="148" fill="#e2e8f0" />
-      <rect x="480" y="452" width="220" height="58" fill="#cbd5e1" />
-      <path d="M540 265 Q590 165 640 265" fill="none" stroke="#cbd5e1" strokeWidth="28" />
-      {[0,1,2,3,4,5,6,7,8,9].map(r => (
-        <rect key={`e${r}`} x={498} y={272+r*34} width="34" height="22" rx="2" fill="#bfdbfe" opacity="0.6" />
+      {/* ── Masjid al-Haram (Holy Mosque) ── */}
+      {/* Mosque outer body */}
+      <rect x="435" y="698" width="310" height="62" fill="#e4eaf5" />
+      {/* Arched arcade along front */}
+      {[0,1,2,3,4,5,6,7].map(i => (
+        <path key={`ma${i}`} d={`M ${441+i*36} 760 L ${441+i*36} 735 Q ${459+i*36} 720 ${477+i*36} 735 L ${477+i*36} 760`}
+          fill="#d0d9ed" />
       ))}
-      {[0,1,2,3,4,5,6,7,8,9].map(r => (
-        <rect key={`f${r}`} x={648} y={272+r*34} width="34" height="22" rx="2" fill="#bfdbfe" opacity="0.6" />
-      ))}
-      {[0,1,2,3,4,5,6,7].map(r => WIN_COLS_7.map(c => (
-        <rect key={`g${r}${c}`} x={482+c*30} y={618+r*18} width="20" height="11" rx="1" fill="#bfdbfe" opacity="0.45" />
+      {/* Central large dome */}
+      <ellipse cx="590" cy="696" rx="54" ry="27" fill="#dde4ef" />
+      <ellipse cx="590" cy="694" rx="42" ry="21" fill="#e6ecf7" />
+      <path d="M584 669 Q590 659 596 669 Q590 663 584 669" fill="#c9a227" opacity="0.75" />
+      {/* Secondary side domes */}
+      <ellipse cx="507" cy="704" rx="32" ry="19" fill="#dde4ef" />
+      <ellipse cx="673" cy="704" rx="32" ry="19" fill="#dde4ef" />
+      <ellipse cx="455" cy="710" rx="20" ry="13" fill="#e2e8f0" />
+      <ellipse cx="725" cy="710" rx="20" ry="13" fill="#e2e8f0" />
+      {/* Outer tall minarets */}
+      <rect x="435" y="642" width="12" height="118" fill="#dde4ef" />
+      <path d="M435 642 L441 626 L447 642 Z" fill="#cbd5e1" />
+      <circle cx="441" cy="622" r="3.5" fill="#c9a227" opacity="0.65" />
+      <rect x="733" y="642" width="12" height="118" fill="#dde4ef" />
+      <path d="M733 642 L739 626 L745 642 Z" fill="#cbd5e1" />
+      <circle cx="739" cy="622" r="3.5" fill="#c9a227" opacity="0.65" />
+      {/* Inner minarets */}
+      <rect x="475" y="656" width="10" height="104" fill="#e2e8f0" />
+      <path d="M475 656 L480 644 L485 656 Z" fill="#dde4ef" />
+      <rect x="695" y="656" width="10" height="104" fill="#e2e8f0" />
+      <path d="M695 656 L700 644 L705 656 Z" fill="#dde4ef" />
+
+      {/* ── Abraj Al-Bait (Makkah Clock Tower) ── */}
+      {/* Podium base */}
+      <rect x="516" y="598" width="148" height="162" fill="#dde4ef" />
+      {[0,1,2,3].map(r => [0,1,2,3].map(c => (
+        <rect key={`pod${r}${c}`} x={522+c*34} y={606+r*36} width="24" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
       )))}
-      <ellipse cx="590" cy="222" rx="80" ry="28" fill="#E30613" opacity="0.06" filter="url(#blur4)" />
-      <circle cx="590" cy="192" r="6" fill="#E30613" opacity="0.7" filter="url(#glow)" />
-      <line x1="590" y1="186" x2="590" y2="162" stroke="#E30613" strokeWidth="2" opacity="0.5" />
+      {/* Flanking hotel towers */}
+      <rect x="491" y="522" width="32" height="238" fill="#e2e8f0" />
+      <rect x="657" y="522" width="32" height="238" fill="#e2e8f0" />
+      {[0,1,2,3,4,5].map(r => (
+        <g key={`ht${r}`}>
+          <rect x={495} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
+          <rect x={661} y={530+r*36} width="22" height="22" rx="1" fill="#bfdbfe" opacity="0.5" />
+        </g>
+      ))}
+      {/* Main clock tower shaft */}
+      <rect x="557" y="190" width="66" height="410" fill="#e2e8f0" />
+      <rect x="563" y="190" width="54" height="410" fill="#e8eef8" />
+      {[0,1,2,3,4,5,6,7,8,9].map(r => (
+        <g key={`cw${r}`}>
+          <rect x={566} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
+          <rect x={596} y={198+r*38} width="18" height="24" rx="1" fill="#bfdbfe" opacity="0.55" />
+        </g>
+      ))}
+      {/* Clock head — wide section */}
+      <rect x="533" y="138" width="114" height="54" fill="#dde4ef" rx="2" />
+      <rect x="537" y="142" width="106" height="46" fill="#e4eaf5" rx="2" />
+      <rect x="533" y="188" width="114" height="5" fill="#c9a227" opacity="0.5" />
+      {/* Clock face */}
+      <circle cx="590" cy="165" r="42" fill="white" opacity="0.88" />
+      <circle cx="590" cy="165" r="39" fill="#f5f8ff" />
+      <circle cx="590" cy="165" r="35" fill="none" stroke="#1e3a6e" strokeWidth="2" opacity="0.3" />
+      {[0,1,2,3,4,5,6,7,8,9,10,11].map(i => {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+        const r1 = 30, r2 = i % 3 === 0 ? 23 : 27;
+        return (
+          <line key={`ctick${i}`}
+            x1={590+r1*Math.cos(angle)} y1={165+r1*Math.sin(angle)}
+            x2={590+r2*Math.cos(angle)} y2={165+r2*Math.sin(angle)}
+            stroke="#1e3a6e" strokeWidth={i % 3 === 0 ? 2.5 : 1.2} opacity="0.4" />
+        );
+      })}
+      <line x1="590" y1="165" x2="590" y2="145" stroke="#1e3a6e" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
+      <line x1="590" y1="165" x2="610" y2="170" stroke="#E30613" strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
+      <circle cx="590" cy="165" r="3.5" fill="#1e3a6e" opacity="0.5" />
+      {/* Crown battlements */}
+      <rect x="554" y="96" width="72" height="44" fill="#dde4ef" />
+      {[0,1,2,3,4].map(i => (
+        <rect key={`bat${i}`} x={554+i*14} y={84} width="10" height="14" rx="1" fill="#dde4ef" />
+      ))}
+      {/* Golden spire */}
+      <rect x="587" y="64" width="6" height="22" rx="2" fill="#c9a227" opacity="0.65" />
+      {/* Crescent */}
+      <path d="M582 63 Q590 50 598 63 Q591 56 582 63" fill="#c9a227" opacity="0.85" />
+      <circle cx="590" cy="47" r="3.5" fill="#E30613" opacity="0.85" filter="url(#glow)" />
 
       {/* ── Riyadh Tower (tallest) ── */}
       <rect x="800" y="202" width="80" height="558" fill="#dde6f0" />
