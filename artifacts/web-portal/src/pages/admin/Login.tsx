@@ -320,11 +320,11 @@ function RiyadhBackground() {
       <polygon points="1331,689 1341,679 1341,681 1331,691" fill="#2d3748" opacity="0.5" />
       <polygon points="1331,695 1341,685 1341,687 1331,697" fill="#2d3748" opacity="0.5" />
 
-      {/* Door — centered on front face */}
-      <rect x="1309" y="684" width="9" height="14" rx="1" fill="#4b5563" />
-      <rect x="1310" y="685" width="7" height="12" rx="1" fill="#374151" />
-      {/* Door arch */}
-      <path d="M1309 685 Q1313.5 681 1318 685" fill="none" stroke="#4b5563" strokeWidth="1" />
+      {/* Door — bottom-center of front face (y=704..718) */}
+      <rect x="1310" y="704" width="9" height="14" rx="1" fill="#4b5563" />
+      <rect x="1311" y="705" width="7" height="12" rx="1" fill="#374151" />
+      {/* Door arch at top of door */}
+      <path d="M1310 705 Q1314.5 701 1319 705" fill="none" stroke="#4b5563" strokeWidth="1" />
 
       {/* Face edge highlights */}
       <polygon points="1299,682 1331,682 1341,672 1309,672" fill="none" stroke="#b0bec8" strokeWidth="0.8" opacity="0.6" />
