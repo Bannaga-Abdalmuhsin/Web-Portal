@@ -297,31 +297,38 @@ function RiyadhBackground() {
       <ellipse cx="1315" cy="720" rx="52" ry="22" fill="none" stroke="#c8d4e4" strokeWidth="0.8" opacity="0.4" />
 
       {/* ── The Holy Kaaba ── */}
-      {/* Soft shadow */}
-      <ellipse cx="1315" cy="752" rx="42" ry="9" fill="#64748b" opacity="0.12" />
-      {/* Main black cube — front face */}
-      <rect x="1283" y="672" width="64" height="72" fill="#181824" rx="1" />
-      {/* Left side face (slightly lighter) */}
-      <polygon points="1283,672 1270,680 1270,752 1283,744" fill="#0f0f1a" />
-      {/* Top face */}
-      <polygon points="1283,672 1347,672 1334,662 1270,662" fill="#242434" />
-      {/* Kiswa gold band */}
-      <rect x="1283" y="689" width="64" height="14" fill="#c9a227" opacity="0.8" />
-      <rect x="1283" y="687" width="64" height="2" fill="#8a6010" opacity="0.7" />
-      <rect x="1283" y="701" width="64" height="2" fill="#8a6010" opacity="0.7" />
-      {/* Calligraphy zone on band */}
-      {[0,1,2,3].map(i => (
-        <rect key={`kc${i}`} x={1287+i*15} y={692} width="9" height="6" rx="1" fill="#e8c040" opacity="0.55" />
-      ))}
-      {/* Kiswa lower embroidery strip */}
-      <rect x="1283" y="726" width="64" height="6" fill="#c9a227" opacity="0.35" />
-      {/* Door of the Kaaba (golden frame, elevated) */}
-      <rect x="1305" y="679" width="20" height="26" rx="1" fill="#c9a227" opacity="0.9" />
-      <rect x="1307" y="681" width="16" height="22" rx="1" fill="#7a5210" opacity="0.85" />
-      <rect x="1308" y="682" width="14" height="10" rx="1" fill="#9a6818" opacity="0.5" />
-      {/* Hajar Aswad (Black Stone corner, SE) */}
-      <ellipse cx="1283" cy="730" rx="6" ry="6" fill="#0a0a14" stroke="#94a3b8" strokeWidth="1.5" />
-      <ellipse cx="1283" cy="730" rx="3" ry="3" fill="#1a1a2a" opacity="0.8" />
+      {/* Ground shadow */}
+      <ellipse cx="1320" cy="748" rx="50" ry="10" fill="#475569" opacity="0.14" />
+
+      {/* ── Cube geometry (isometric 3-face view) ── */}
+      {/* Top face — lightest gray */}
+      <polygon points="1278,656 1356,656 1378,634 1300,634" fill="#94a3b8" />
+      {/* Front face — medium gray */}
+      <rect x="1278" y="656" width="78" height="82" fill="#64748b" />
+      {/* Right side face — darkest gray */}
+      <polygon points="1356,656 1356,738 1378,716 1378,634" fill="#475569" />
+
+      {/* Front face: horizontal band (Kiswa) in dark gray */}
+      <rect x="1278" y="672" width="78" height="13" fill="#374151" />
+      <rect x="1278" y="670" width="78" height="2" fill="#2d3748" opacity="0.7" />
+      <rect x="1278" y="683" width="78" height="2" fill="#2d3748" opacity="0.7" />
+      {/* Band on right face (perspective-matched) */}
+      <polygon points="1356,672 1378,650 1378,652 1356,674" fill="#2d3748" opacity="0.5" />
+      <polygon points="1356,683 1378,661 1378,663 1356,685" fill="#2d3748" opacity="0.5" />
+
+      {/* Door — slightly lighter gray inset */}
+      <rect x="1302" y="661" width="22" height="30" rx="1" fill="#4b5563" />
+      <rect x="1304" y="663" width="18" height="26" rx="1" fill="#374151" />
+      <rect x="1305" y="664" width="16" height="12" rx="1" fill="#4b5563" opacity="0.5" />
+      {/* Door arch hint */}
+      <path d="M1304 663 Q1313 657 1322 663" fill="none" stroke="#4b5563" strokeWidth="1.5" />
+
+      {/* Top face edge highlight */}
+      <polygon points="1278,656 1356,656 1378,634 1300,634" fill="none" stroke="#b0bec8" strokeWidth="1" opacity="0.5" />
+      {/* Front face edge highlight */}
+      <rect x="1278" y="656" width="78" height="82" fill="none" stroke="#6b7a8a" strokeWidth="1" />
+      {/* Right face edge */}
+      <polygon points="1356,656 1356,738 1378,716 1378,634" fill="none" stroke="#3d4f60" strokeWidth="1" />
 
       {/* ══════ GSM TOWER ══════ */}
       <ellipse cx="1100" cy="520" rx="140" ry="140" fill="url(#towerGlow)" filter="url(#blur4)" />
