@@ -31,4 +31,3 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-"Rplit Access Token" = "tEaY5_HMMnZYKomr5_ngbipLS7ufSRIog9L0j07_"
