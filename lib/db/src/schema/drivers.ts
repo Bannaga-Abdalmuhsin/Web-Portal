@@ -10,6 +10,7 @@ export const driversTable = pgTable("drivers", {
   zone: text("zone").notNull().default(""),
   active: boolean("active").notNull().default(true),
   passwordHash: text("password_hash").notNull().default(""),
+  imageUrl: text("image_url").default(""),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
