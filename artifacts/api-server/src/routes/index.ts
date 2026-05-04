@@ -10,6 +10,7 @@ import settingsRouter from "./settings";
 import adminsRouter from "./admins";
 import techniciansRouter from "./technicians";
 import dashboardRouter from "./dashboard";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(settingsRouter);
 router.use(adminsRouter);
 router.use(techniciansRouter);
 router.use(dashboardRouter);
+router.use(storageRouter);
 
 export default router;

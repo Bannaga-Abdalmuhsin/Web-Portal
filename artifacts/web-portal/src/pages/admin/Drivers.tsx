@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver } from "@/hooks/use-drivers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, Users, CheckCircle2, XCircle, Pencil } from "lucide-react";
+import { Plus, Search, Trash2, Users, CheckCircle2, XCircle, Pencil, Camera, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,18 @@ const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal('')),
 });
 
+async function uploadImage(file: File): Promise<string> {
+  const urlRes = await fetch("/api/storage/uploads/request-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+  });
+  if (!urlRes.ok) throw new Error("Failed to get upload URL");
+  const { uploadURL, objectPath } = await urlRes.json();
+  await fetch(uploadURL, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+  return `/api/storage${objectPath}`;
+}
+
 export default function Drivers() {
   const { data: drivers, isLoading } = useDrivers();
   const createMutation = useCreateDriver();
@@ -34,6 +46,10 @@ export default function Drivers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editDriverId, setEditDriverId] = useState<number | null>(null);
+  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,6 +59,8 @@ export default function Drivers() {
   const openCreate = () => {
     form.reset(defaultDriverValues);
     setEditDriverId(null);
+    setPendingImageUrl(null);
+    setPreviewUrl(null);
     setIsDialogOpen(true);
   };
 
@@ -56,12 +74,32 @@ export default function Drivers() {
       password: "",
     });
     setEditDriverId(driver.id);
+    setPendingImageUrl(driver.imageUrl || null);
+    setPreviewUrl(driver.imageUrl || null);
     setIsDialogOpen(true);
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPreviewUrl(URL.createObjectURL(file));
+    try {
+      setImageUploading(true);
+      const url = await uploadImage(file);
+      setPendingImageUrl(url);
+    } catch {
+      toast({ title: "Image upload failed", variant: "destructive" });
+      setPreviewUrl(null);
+      setPendingImageUrl(null);
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const payload = { ...values, imageUrl: pendingImageUrl ?? "" };
     if (editDriverId !== null) {
-      updateMutation.mutate({ id: editDriverId, data: values }, {
+      updateMutation.mutate({ id: editDriverId, data: payload }, {
         onSuccess: () => {
           toast({ title: "Driver updated" });
           setIsDialogOpen(false);
@@ -70,7 +108,7 @@ export default function Drivers() {
         onError: () => toast({ title: "Failed to update driver", variant: "destructive" }),
       });
     } else {
-      createMutation.mutate({ data: values }, {
+      createMutation.mutate({ data: payload }, {
         onSuccess: () => {
           toast({ title: "Driver added successfully" });
           setIsDialogOpen(false);
@@ -81,33 +119,66 @@ export default function Drivers() {
     }
   };
 
-  const filteredDrivers = drivers?.filter(d => 
+  const filteredDrivers = drivers?.filter(d =>
     d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.zone?.toLowerCase().includes(searchTerm.toLowerCase())
+    (d.zone?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
   );
+
+  const getInitials = (name: string) =>
+    name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <Input 
-            placeholder="Search drivers by name or zone..." 
+          <Input
+            placeholder="Search drivers by name or zone..."
             className="pl-10 h-12 bg-white border-slate-200 rounded-xl shadow-sm focus-visible:ring-primary/20"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <Button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all" onClick={openCreate}>
           <Plus className="w-5 h-5 mr-2" />
           Add Driver
         </Button>
+
         <Dialog open={isDialogOpen} onOpenChange={(o) => { if (!o) { setIsDialogOpen(false); setEditDriverId(null); } }}>
-          <DialogContent className="sm:max-w-[420px] p-6 rounded-3xl">
-            <DialogHeader className="mb-4">
+          <DialogContent className="sm:max-w-[440px] p-6 rounded-3xl">
+            <DialogHeader className="mb-2">
               <DialogTitle className="text-2xl font-display text-slate-900">{editDriverId ? "Edit Driver" : "Add New Driver"}</DialogTitle>
             </DialogHeader>
+
+            {/* Photo upload */}
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <div
+                className="relative w-20 h-20 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Driver" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-slate-400">
+                    {form.watch("name") ? getInitials(form.watch("name")) : <Camera className="w-7 h-7 text-slate-400" />}
+                  </span>
+                )}
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  {imageUploading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs text-primary hover:underline font-medium"
+                disabled={imageUploading}
+              >
+                {imageUploading ? "Uploading…" : previewUrl ? "Change photo" : "Upload photo"}
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -194,7 +265,7 @@ export default function Drivers() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-12 rounded-xl mt-6 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending}>
+                <Button type="submit" className="w-full h-12 rounded-xl mt-2 text-base shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending || imageUploading}>
                   {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : (editDriverId ? "Update Driver" : "Save Driver")}
                 </Button>
               </form>
@@ -207,7 +278,7 @@ export default function Drivers() {
         <Table>
           <TableHeader className="bg-slate-50 border-b border-slate-100">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="font-semibold text-slate-600 h-12">Driver Name</TableHead>
+              <TableHead className="font-semibold text-slate-600 h-12">Driver</TableHead>
               <TableHead className="font-semibold text-slate-600">Contact</TableHead>
               <TableHead className="font-semibold text-slate-600">Zone</TableHead>
               <TableHead className="font-semibold text-slate-600">Status</TableHead>
@@ -231,7 +302,22 @@ export default function Drivers() {
             ) : (
               filteredDrivers?.map((driver) => (
                 <TableRow key={driver.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
-                  <TableCell className="font-medium text-slate-900">{driver.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      {(driver as any).imageUrl ? (
+                        <img
+                          src={(driver as any).imageUrl}
+                          alt={driver.name}
+                          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-bold text-primary">{getInitials(driver.name)}</span>
+                        </div>
+                      )}
+                      <span className="font-medium text-slate-900">{driver.name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="text-sm text-slate-900">{driver.email || '-'}</div>
                     <div className="text-xs text-slate-500">{driver.phone || '-'}</div>

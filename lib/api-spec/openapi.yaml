@@ -23,6 +23,8 @@ tags:
     description: Settings operations
   - name: admins
     description: Admin user operations
+  - name: storage
+    description: Object storage upload and serving endpoints
 paths:
   /healthz:
     get:
@@ -743,6 +745,53 @@ paths:
         "204":
           description: Deleted
 
+  /storage/uploads/request-url:
+    post:
+      tags: [storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUploadUrlBody'
+      responses:
+        '200':
+          description: Presigned upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestUploadUrlResponse'
+        '400':
+          description: Missing or invalid required fields
+        '500':
+          description: Failed to generate upload URL
+
+  /storage/objects/{objectPath}:
+    get:
+      tags: [storage]
+      operationId: getStorageObject
+      summary: Serve an object entity from PRIVATE_OBJECT_DIR
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content streamed with correct Content-Type
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Object not found
+        '500':
+          description: Failed to serve object
+
 components:
   schemas:
     HealthStatus:
@@ -879,6 +928,8 @@ components:
         active:
           type: boolean
         passwordHash:
+          type: string
+        imageUrl:
           type: string
       required:
         - id
@@ -1414,4 +1465,27 @@ components:
         technicianStatus:
           type: string
         reviewedBy:
+          type: string
+
+    RequestUploadUrlBody:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+
+    RequestUploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
           type: string

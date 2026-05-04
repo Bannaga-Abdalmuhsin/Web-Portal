@@ -11,6 +11,7 @@ interface DriverUser {
   phone?: string;
   zone: string;
   token: string;
+  imageUrl?: string;
 }
 
 interface AuthContextValue {
@@ -18,6 +19,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (user: DriverUser) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (partial: Partial<DriverUser>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -55,8 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(null);
   };
 
+  const updateUser = async (partial: Partial<DriverUser>) => {
+    if (!user) return;
+    const updated = { ...user, ...partial };
+    await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+    setUser(updated);
+  };
+
   const value = useMemo(
-    () => ({ user, isLoading, login, logout }),
+    () => ({ user, isLoading, login, logout, updateUser }),
     [user, isLoading],
   );
 

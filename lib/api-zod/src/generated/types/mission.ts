@@ -23,4 +23,8 @@ export interface Mission {
   notes?: string;
   missionStatus: string;
   createdBy?: string;
+  technicianRemark?: string;
+  technicianStatus?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }

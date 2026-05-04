@@ -26,6 +26,10 @@ export interface Mission {
   notes?: string;
   missionStatus: string;
   createdBy?: string;
+  technicianRemark?: string;
+  technicianStatus?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }
 
 export interface CreateMissionInput {
@@ -67,6 +71,7 @@ export interface Driver {
   zone?: string;
   active: boolean;
   passwordHash?: string;
+  imageUrl?: string;
 }
 
 export interface CreateDriverInput {
@@ -319,6 +324,41 @@ export interface UpdateTechnicianInput {
   email?: string;
   zone?: string;
   active?: boolean;
+  password?: string;
+}
+
+export interface TechnicianLoginInput {
+  email: string;
+  password: string;
+}
+
+export interface TechnicianLoginResponse {
+  success: boolean;
+  technicianId?: number;
+  name?: string;
+  email?: string;
+  zone?: string;
+  token?: string;
+}
+
+export interface TechnicianFollowUpInput {
+  technicianRemark?: string;
+  technicianStatus?: string;
+  reviewedBy?: string;
+}
+
+export interface RequestUploadUrlBody {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface RequestUploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
 }
 
 export type ListDriverTasksParams = {
@@ -327,4 +367,9 @@ export type ListDriverTasksParams = {
 
 export type ListDriverNotificationsParams = {
   driverId: number;
+};
+
+export type ListTechnicianMissionsParams = {
+  zone?: string;
+  status?: string;
 };

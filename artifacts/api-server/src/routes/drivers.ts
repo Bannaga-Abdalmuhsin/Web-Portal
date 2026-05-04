@@ -10,18 +10,23 @@ function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
+function driverToJson(d: typeof driversTable.$inferSelect) {
+  return {
+    id: d.id,
+    name: d.name,
+    phone: d.phone,
+    email: d.email,
+    zone: d.zone,
+    active: d.active,
+    imageUrl: d.imageUrl ?? "",
+  };
+}
+
 // List drivers
 router.get("/drivers", async (req, res) => {
   try {
     const drivers = await db.select().from(driversTable).orderBy(driversTable.name);
-    res.json(drivers.map((d) => ({
-      id: d.id,
-      name: d.name,
-      phone: d.phone,
-      email: d.email,
-      zone: d.zone,
-      active: d.active,
-    })));
+    res.json(drivers.map(driverToJson));
   } catch (err) {
     req.log.error({ err }, "Failed to list drivers");
     res.status(500).json({ error: "Internal server error" });
@@ -39,8 +44,9 @@ router.post("/drivers", async (req, res) => {
       zone: body.zone || "",
       active: body.active !== undefined ? body.active : true,
       passwordHash: body.password ? hashPassword(body.password) : "",
+      imageUrl: body.imageUrl || "",
     }).returning();
-    res.status(201).json({ id: driver.id, name: driver.name, phone: driver.phone, email: driver.email, zone: driver.zone, active: driver.active });
+    res.status(201).json(driverToJson(driver));
   } catch (err) {
     req.log.error({ err }, "Failed to create driver");
     res.status(500).json({ error: "Internal server error" });
@@ -52,7 +58,7 @@ router.put("/drivers/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const body = req.body;
-    const updateData: any = {
+    const updateData: Partial<typeof driversTable.$inferInsert> = {
       name: body.name,
       phone: body.phone,
       email: body.email,
@@ -60,9 +66,10 @@ router.put("/drivers/:id", async (req, res) => {
       active: body.active,
     };
     if (body.password) updateData.passwordHash = hashPassword(body.password);
+    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     const [driver] = await db.update(driversTable).set(updateData).where(eq(driversTable.id, id)).returning();
     if (!driver) return res.status(404).json({ error: "Not found" });
-    res.json({ id: driver.id, name: driver.name, phone: driver.phone, email: driver.email, zone: driver.zone, active: driver.active });
+    res.json(driverToJson(driver));
   } catch (err) {
     req.log.error({ err }, "Failed to update driver");
     res.status(500).json({ error: "Internal server error" });
@@ -101,6 +108,7 @@ router.post("/driver/login", async (req, res) => {
       email: driver.email,
       phone: driver.phone,
       zone: driver.zone,
+      imageUrl: driver.imageUrl ?? "",
       token: `driver-${driver.id}-${Date.now()}`,
     });
   } catch (err) {
@@ -240,7 +248,6 @@ router.get("/driver/missions/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [mission] = await db.select().from(missionsTable).where(eq(missionsTable.id, id));
     if (!mission) return res.status(404).json({ error: "Mission not found" });
-    // Fetch site lat/lng for navigation
     let siteLat: number | null = null;
     let siteLng: number | null = null;
     if (mission.siteName) {
@@ -308,7 +315,6 @@ router.put("/driver/missions/:id", async (req, res) => {
       .returning();
     if (!updated) return res.status(404).json({ error: "Mission not found" });
 
-    // Auto-create or update driver_entries record when driver marks as finished
     if (missionStatus === "Finished by Driver") {
       const [existingEntry] = await db.select({ id: driverEntriesTable.id })
         .from(driverEntriesTable).where(eq(driverEntriesTable.missionId, id));

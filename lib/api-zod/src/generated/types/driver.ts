@@ -14,4 +14,5 @@ export interface Driver {
   zone?: string;
   active: boolean;
   passwordHash?: string;
+  imageUrl?: string;
 }

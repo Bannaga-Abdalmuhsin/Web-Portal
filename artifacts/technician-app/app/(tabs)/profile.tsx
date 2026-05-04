@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, Platform,
+  View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Image, ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import { useAuth } from "@/contexts/auth";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/colors";
+import { getBaseUrl } from "@/lib/api";
 
 type FeatherIconName = ComponentProps<typeof Feather>["name"];
 
@@ -25,11 +27,12 @@ function InfoRow({ icon, label, value }: { icon: FeatherIconName; label: string;
 }
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const [uploading, setUploading] = useState(false);
 
   const handleLogout = () => {
     const doLogout = async () => {
@@ -48,6 +51,55 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleChangePhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission needed", "Please allow access to your photo library to upload a profile image.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    try {
+      setUploading(true);
+      const asset = result.assets[0];
+      const fileName = `driver-${user?.driverId}-${Date.now()}.jpg`;
+
+      const urlRes = await fetch(`${getBaseUrl()}/api/storage/uploads/request-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: fileName, size: asset.fileSize ?? 100000, contentType: "image/jpeg" }),
+      });
+      if (!urlRes.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await urlRes.json();
+
+      const imgRes = await fetch(asset.uri);
+      const blob = await imgRes.blob();
+      await fetch(uploadURL, { method: "PUT", headers: { "Content-Type": "image/jpeg" }, body: blob });
+
+      const imageUrl = `/api/storage${objectPath}`;
+      await fetch(`${getBaseUrl()}/api/drivers/${user?.driverId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+
+      await updateUser({ imageUrl });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch {
+      Alert.alert("Upload failed", "Could not upload profile image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const initials = user?.name
     ?.split(" ")
     .map((n) => n[0])
@@ -55,18 +107,35 @@ export default function ProfileScreen() {
     .join("")
     .toUpperCase() ?? "D";
 
+  const imageUrl = user?.imageUrl
+    ? user.imageUrl.startsWith("/api/")
+      ? `${getBaseUrl()}${user.imageUrl}`
+      : user.imageUrl
+    : null;
+
   return (
     <View style={[styles.root, { paddingTop: topPad, paddingBottom: bottomPad }]}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
 
-      {/* Avatar section */}
       <View style={styles.avatarSection}>
-        <View style={styles.avatarBox}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        <TouchableOpacity onPress={handleChangePhoto} activeOpacity={0.8} style={styles.avatarWrapper}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.avatarImage} />
+          ) : (
+            <View style={styles.avatarBox}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+          )}
+          <View style={styles.cameraOverlay}>
+            {uploading ? (
+              <ActivityIndicator size="small" color={COLORS.white} />
+            ) : (
+              <Feather name="camera" size={14} color={COLORS.white} />
+            )}
+          </View>
+        </TouchableOpacity>
         <Text style={styles.name}>{user?.name ?? "Driver"}</Text>
         <View style={styles.rolePill}>
           <Feather name="truck" size={12} color={COLORS.navy} />
@@ -74,7 +143,6 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* Info card */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Account Details</Text>
         <InfoRow icon="mail" label="Email" value={user?.email ?? "—"} />
@@ -86,7 +154,6 @@ export default function ProfileScreen() {
         <InfoRow icon="hash" label="Driver ID" value={String(user?.driverId ?? "—")} />
       </View>
 
-      {/* App info */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Application</Text>
         <InfoRow icon="cpu" label="Platform" value="ACES Managed Services" />
@@ -96,7 +163,6 @@ export default function ProfileScreen() {
         <InfoRow icon="info" label="Version" value="1.0.0" />
       </View>
 
-      {/* Logout */}
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={handleLogout}
@@ -131,10 +197,13 @@ const styles = StyleSheet.create({
     marginBottom: 22,
     gap: 8,
   },
+  avatarWrapper: {
+    position: "relative",
+  },
   avatarBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
+    width: 88,
+    height: 88,
+    borderRadius: 26,
     backgroundColor: COLORS.navy,
     alignItems: "center",
     justifyContent: "center",
@@ -144,10 +213,32 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 8,
   },
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 26,
+    shadowColor: COLORS.navy,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+  },
   avatarText: {
     fontSize: 28,
     fontFamily: "Inter_700Bold",
     color: COLORS.white,
+  },
+  cameraOverlay: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 28,
+    height: 28,
+    borderRadius: 9,
+    backgroundColor: COLORS.navy,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: COLORS.bg,
   },
   name: {
     fontSize: 20,

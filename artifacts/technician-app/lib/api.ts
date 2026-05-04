@@ -1,5 +1,9 @@
 const BASE = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
 
+export function getBaseUrl(): string {
+  return BASE;
+}
+
 let _authToken: string | null = null;
 
 export function setAuthToken(token: string | null) {

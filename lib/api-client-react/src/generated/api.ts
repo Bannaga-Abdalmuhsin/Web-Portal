@@ -36,12 +36,18 @@ import type {
   HealthStatus,
   ListDriverNotificationsParams,
   ListDriverTasksParams,
+  ListTechnicianMissionsParams,
   LoginInput,
   LoginResponse,
   Mission,
   Notification,
+  RequestUploadUrlBody,
+  RequestUploadUrlResponse,
   Site,
   Technician,
+  TechnicianFollowUpInput,
+  TechnicianLoginInput,
+  TechnicianLoginResponse,
   UpdateAdminInput,
   UpdateDriverInput,
   UpdateDriverTaskInput,
@@ -2970,6 +2976,279 @@ export const useCreateTechnician = <
 };
 
 /**
+ * @summary Technician login
+ */
+export const getTechnicianLoginUrl = () => {
+  return `/api/technician/login`;
+};
+
+export const technicianLogin = async (
+  technicianLoginInput: TechnicianLoginInput,
+  options?: RequestInit,
+): Promise<TechnicianLoginResponse> => {
+  return customFetch<TechnicianLoginResponse>(getTechnicianLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(technicianLoginInput),
+  });
+};
+
+export const getTechnicianLoginMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof technicianLogin>>,
+    TError,
+    { data: BodyType<TechnicianLoginInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof technicianLogin>>,
+  TError,
+  { data: BodyType<TechnicianLoginInput> },
+  TContext
+> => {
+  const mutationKey = ["technicianLogin"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof technicianLogin>>,
+    { data: BodyType<TechnicianLoginInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return technicianLogin(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type TechnicianLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof technicianLogin>>
+>;
+export type TechnicianLoginMutationBody = BodyType<TechnicianLoginInput>;
+export type TechnicianLoginMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Technician login
+ */
+export const useTechnicianLogin = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof technicianLogin>>,
+    TError,
+    { data: BodyType<TechnicianLoginInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof technicianLogin>>,
+  TError,
+  { data: BodyType<TechnicianLoginInput> },
+  TContext
+> => {
+  return useMutation(getTechnicianLoginMutationOptions(options));
+};
+
+/**
+ * @summary List missions for technician follow-up
+ */
+export const getListTechnicianMissionsUrl = (
+  params?: ListTechnicianMissionsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/technician/missions?${stringifiedParams}`
+    : `/api/technician/missions`;
+};
+
+export const listTechnicianMissions = async (
+  params?: ListTechnicianMissionsParams,
+  options?: RequestInit,
+): Promise<Mission[]> => {
+  return customFetch<Mission[]>(getListTechnicianMissionsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTechnicianMissionsQueryKey = (
+  params?: ListTechnicianMissionsParams,
+) => {
+  return [`/api/technician/missions`, ...(params ? [params] : [])] as const;
+};
+
+export const getListTechnicianMissionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTechnicianMissions>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTechnicianMissionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTechnicianMissions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListTechnicianMissionsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listTechnicianMissions>>
+  > = ({ signal }) =>
+    listTechnicianMissions(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTechnicianMissions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTechnicianMissionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTechnicianMissions>>
+>;
+export type ListTechnicianMissionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List missions for technician follow-up
+ */
+
+export function useListTechnicianMissions<
+  TData = Awaited<ReturnType<typeof listTechnicianMissions>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTechnicianMissionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTechnicianMissions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTechnicianMissionsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Technician follow-up on a mission
+ */
+export const getTechnicianFollowUpUrl = (id: number) => {
+  return `/api/technician/missions/${id}/followup`;
+};
+
+export const technicianFollowUp = async (
+  id: number,
+  technicianFollowUpInput: TechnicianFollowUpInput,
+  options?: RequestInit,
+): Promise<Mission> => {
+  return customFetch<Mission>(getTechnicianFollowUpUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(technicianFollowUpInput),
+  });
+};
+
+export const getTechnicianFollowUpMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof technicianFollowUp>>,
+    TError,
+    { id: number; data: BodyType<TechnicianFollowUpInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof technicianFollowUp>>,
+  TError,
+  { id: number; data: BodyType<TechnicianFollowUpInput> },
+  TContext
+> => {
+  const mutationKey = ["technicianFollowUp"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof technicianFollowUp>>,
+    { id: number; data: BodyType<TechnicianFollowUpInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return technicianFollowUp(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type TechnicianFollowUpMutationResult = NonNullable<
+  Awaited<ReturnType<typeof technicianFollowUp>>
+>;
+export type TechnicianFollowUpMutationBody = BodyType<TechnicianFollowUpInput>;
+export type TechnicianFollowUpMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Technician follow-up on a mission
+ */
+export const useTechnicianFollowUp = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof technicianFollowUp>>,
+    TError,
+    { id: number; data: BodyType<TechnicianFollowUpInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof technicianFollowUp>>,
+  TError,
+  { id: number; data: BodyType<TechnicianFollowUpInput> },
+  TContext
+> => {
+  return useMutation(getTechnicianFollowUpMutationOptions(options));
+};
+
+/**
  * @summary Update a technician
  */
 export const getUpdateTechnicianUrl = (id: number) => {
@@ -3139,3 +3418,178 @@ export const useDeleteTechnician = <
 > => {
   return useMutation(getDeleteTechnicianMutationOptions(options));
 };
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+export const getRequestUploadUrlUrl = () => {
+  return `/api/storage/uploads/request-url`;
+};
+
+export const requestUploadUrl = async (
+  requestUploadUrlBody: RequestUploadUrlBody,
+  options?: RequestInit,
+): Promise<RequestUploadUrlResponse> => {
+  return customFetch<RequestUploadUrlResponse>(getRequestUploadUrlUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(requestUploadUrlBody),
+  });
+};
+
+export const getRequestUploadUrlMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    TError,
+    { data: BodyType<RequestUploadUrlBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof requestUploadUrl>>,
+  TError,
+  { data: BodyType<RequestUploadUrlBody> },
+  TContext
+> => {
+  const mutationKey = ["requestUploadUrl"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    { data: BodyType<RequestUploadUrlBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return requestUploadUrl(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RequestUploadUrlMutationResult = NonNullable<
+  Awaited<ReturnType<typeof requestUploadUrl>>
+>;
+export type RequestUploadUrlMutationBody = BodyType<RequestUploadUrlBody>;
+export type RequestUploadUrlMutationError = ErrorType<void>;
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+export const useRequestUploadUrl = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestUploadUrl>>,
+    TError,
+    { data: BodyType<RequestUploadUrlBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof requestUploadUrl>>,
+  TError,
+  { data: BodyType<RequestUploadUrlBody> },
+  TContext
+> => {
+  return useMutation(getRequestUploadUrlMutationOptions(options));
+};
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+export const getGetStorageObjectUrl = (objectPath: string) => {
+  return `/api/storage/objects/${objectPath}`;
+};
+
+export const getStorageObject = async (
+  objectPath: string,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getGetStorageObjectUrl(objectPath), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetStorageObjectQueryKey = (objectPath: string) => {
+  return [`/api/storage/objects/${objectPath}`] as const;
+};
+
+export const getGetStorageObjectQueryOptions = <
+  TData = Awaited<ReturnType<typeof getStorageObject>>,
+  TError = ErrorType<void>,
+>(
+  objectPath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getStorageObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetStorageObjectQueryKey(objectPath);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getStorageObject>>
+  > = ({ signal }) =>
+    getStorageObject(objectPath, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!objectPath,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getStorageObject>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetStorageObjectQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStorageObject>>
+>;
+export type GetStorageObjectQueryError = ErrorType<void>;
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+
+export function useGetStorageObject<
+  TData = Awaited<ReturnType<typeof getStorageObject>>,
+  TError = ErrorType<void>,
+>(
+  objectPath: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getStorageObject>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetStorageObjectQueryOptions(objectPath, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

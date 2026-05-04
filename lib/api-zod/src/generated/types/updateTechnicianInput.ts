@@ -12,4 +12,5 @@ export interface UpdateTechnicianInput {
   email?: string;
   zone?: string;
   active?: boolean;
+  password?: string;
 }

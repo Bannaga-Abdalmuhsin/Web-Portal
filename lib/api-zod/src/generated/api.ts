@@ -34,6 +34,10 @@ export const ListMissionsResponseItem = zod.object({
   notes: zod.string().optional(),
   missionStatus: zod.string(),
   createdBy: zod.string().optional(),
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+  reviewedAt: zod.string().optional(),
 });
 export const ListMissionsResponse = zod.array(ListMissionsResponseItem);
 
@@ -80,6 +84,10 @@ export const GetMissionResponse = zod.object({
   notes: zod.string().optional(),
   missionStatus: zod.string(),
   createdBy: zod.string().optional(),
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+  reviewedAt: zod.string().optional(),
 });
 
 /**
@@ -121,6 +129,10 @@ export const UpdateMissionResponse = zod.object({
   notes: zod.string().optional(),
   missionStatus: zod.string(),
   createdBy: zod.string().optional(),
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+  reviewedAt: zod.string().optional(),
 });
 
 /**
@@ -141,6 +153,7 @@ export const ListDriversResponseItem = zod.object({
   zone: zod.string().optional(),
   active: zod.boolean(),
   passwordHash: zod.string().optional(),
+  imageUrl: zod.string().optional(),
 });
 export const ListDriversResponse = zod.array(ListDriversResponseItem);
 
@@ -180,6 +193,7 @@ export const UpdateDriverResponse = zod.object({
   zone: zod.string().optional(),
   active: zod.boolean(),
   passwordHash: zod.string().optional(),
+  imageUrl: zod.string().optional(),
 });
 
 /**
@@ -634,6 +648,93 @@ export const CreateTechnicianBody = zod.object({
 });
 
 /**
+ * @summary Technician login
+ */
+export const TechnicianLoginBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+});
+
+export const TechnicianLoginResponse = zod.object({
+  success: zod.boolean(),
+  technicianId: zod.number().optional(),
+  name: zod.string().optional(),
+  email: zod.string().optional(),
+  zone: zod.string().optional(),
+  token: zod.string().optional(),
+});
+
+/**
+ * @summary List missions for technician follow-up
+ */
+export const ListTechnicianMissionsQueryParams = zod.object({
+  zone: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+});
+
+export const ListTechnicianMissionsResponseItem = zod.object({
+  id: zod.number(),
+  missionId: zod.string(),
+  siteName: zod.string(),
+  generator: zod.string().optional(),
+  project: zod.string().optional(),
+  driverName: zod.string().optional(),
+  assignedDriver: zod.string().optional(),
+  createdDate: zod.string().optional(),
+  filledLiters: zod.number().optional(),
+  virtualCalculated: zod.number().optional(),
+  actualInTank: zod.number().optional(),
+  quantityAddedLastTask: zod.number().optional(),
+  city: zod.string().optional(),
+  notes: zod.string().optional(),
+  missionStatus: zod.string(),
+  createdBy: zod.string().optional(),
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+  reviewedAt: zod.string().optional(),
+});
+export const ListTechnicianMissionsResponse = zod.array(
+  ListTechnicianMissionsResponseItem,
+);
+
+/**
+ * @summary Technician follow-up on a mission
+ */
+export const TechnicianFollowUpParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const TechnicianFollowUpBody = zod.object({
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+});
+
+export const TechnicianFollowUpResponse = zod.object({
+  id: zod.number(),
+  missionId: zod.string(),
+  siteName: zod.string(),
+  generator: zod.string().optional(),
+  project: zod.string().optional(),
+  driverName: zod.string().optional(),
+  assignedDriver: zod.string().optional(),
+  createdDate: zod.string().optional(),
+  filledLiters: zod.number().optional(),
+  virtualCalculated: zod.number().optional(),
+  actualInTank: zod.number().optional(),
+  quantityAddedLastTask: zod.number().optional(),
+  city: zod.string().optional(),
+  notes: zod.string().optional(),
+  missionStatus: zod.string(),
+  createdBy: zod.string().optional(),
+  technicianRemark: zod.string().optional(),
+  technicianStatus: zod.string().optional(),
+  reviewedBy: zod.string().optional(),
+  reviewedAt: zod.string().optional(),
+});
+
+/**
  * @summary Update a technician
  */
 export const UpdateTechnicianParams = zod.object({
@@ -646,6 +747,7 @@ export const UpdateTechnicianBody = zod.object({
   email: zod.string().optional(),
   zone: zod.string().optional(),
   active: zod.boolean().optional(),
+  password: zod.string().optional(),
 });
 
 export const UpdateTechnicianResponse = zod.object({
@@ -662,4 +764,26 @@ export const UpdateTechnicianResponse = zod.object({
  */
 export const DeleteTechnicianParams = zod.object({
   id: zod.coerce.number(),
+});
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+
+export const RequestUploadUrlBody = zod.object({
+  name: zod.string().min(1),
+  size: zod.number().min(1),
+  contentType: zod.string().min(1),
+});
+
+export const RequestUploadUrlResponse = zod.object({
+  uploadURL: zod.string(),
+  objectPath: zod.string(),
+});
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+export const GetStorageObjectParams = zod.object({
+  objectPath: zod.coerce.string(),
 });
