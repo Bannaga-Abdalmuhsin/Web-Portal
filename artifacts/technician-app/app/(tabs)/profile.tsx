@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Image, ActivityIndicator,
+  View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Image, ActivityIndicator, ScrollView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
@@ -114,7 +114,7 @@ export default function ProfileScreen() {
     : null;
 
   return (
-    <View style={[styles.root, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+    <ScrollView style={styles.rootScroll} contentContainerStyle={[styles.root, { paddingTop: topPad, paddingBottom: bottomPad + 16 }]} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
@@ -172,13 +172,17 @@ export default function ProfileScreen() {
         <Feather name="log-out" size={17} color={COLORS.rose} />
         <Text style={styles.logoutText}>Sign Out</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
+  rootScroll: {
     flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  root: {
+    flexGrow: 1,
     backgroundColor: COLORS.bg,
     paddingHorizontal: 20,
   },
