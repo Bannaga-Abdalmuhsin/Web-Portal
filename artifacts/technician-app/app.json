@@ -18,24 +18,28 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.acessa.technician",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSCameraUsageDescription": "Used to photograph ODO meter and tank readings for mission documentation.",
         "NSPhotoLibraryUsageDescription": "Used to attach photos of fuel tank and ODO meter readings.",
         "NSLocationWhenInUseUsageDescription": "Used to record the location of fuel delivery activities.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Used to record the location of fuel delivery activities."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Used to record the location of fuel delivery activities.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.acessa.technician",
       "googleServicesFile": "./google-services.json",
       "permissions": [
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {

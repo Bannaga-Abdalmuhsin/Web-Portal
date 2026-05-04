@@ -1,0 +1,98 @@
+~/.../artifacts/technician-app$ EXPO_TOKEN=84QSI0lL11MpSulo3AjTFKRy6ekE2eG-l-JvbFmC pnpm exec eas build --platform ios --profile production
+★ eas-cli@18.10.0 is now available.
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+
+Found eas-cli in your project dependencies.
+It's recommended to use the "cli.version" field in eas.json to enforce the eas-cli version for your project.
+Learn more: https://github.com/expo/eas-cli#enforcing-eas-cli-version-for-your-project
+
+
+⚠️ Detected that your app uses Expo Go for development, this is not recommended when building production apps.
+Learn more: https://expo.fyi/why-not-build-expo-go-for-production
+To suppress this warning, set EAS_BUILD_NO_EXPO_GO_WARNING=true.
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+Resolved "production" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
+No environment variables with visibility "Plain text" and "Sensitive" found for the "production" environment on EAS.
+
+✔ iOS app only uses standard/exempt encryption? Learn more: https://developer.apple.com/documentation/Security/complying-with-encryption-export-regulations … yes
+
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+✔ Using remote iOS credentials (Expo server)
+
+If you provide your Apple account credentials we will be able to generate all necessary build credentials and fully validate them.
+This is optional, but without Apple account access you will need to provide all the missing values manually and we can only run minimal validation on them.
+✔ Do you want to log in to your Apple account? … yes
+
+› Log in to your Apple Developer account to continue
+✔ Apple ID: … bannaga.altieb@aces-co.com
+› The password is only used to authenticate with Apple and never stored on EAS servers
+  Learn more: https://bit.ly/2VtGWhU
+✔ Password (for bannaga.altieb@aces-co.com): … *********
+› Saving Apple ID password to the local Keychain
+  Learn more: https://docs.expo.dev/distribution/security#keychain
+✔ Logged in, verify your Apple account to continue
+Two-factor Authentication (6 digit code) is enabled for bannaga.altieb@aces-co.com. Learn more: https://support.apple.com/en-us/HT204915
+
+✔ How do you want to validate your account? … device / sms
+✔ Please enter the 6 digit code … 259073
+✔ Valid code
+✔ Logged in and verified
+✔ Select a Team › ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY - Company/Organization (7V975V396R)
+✔ Select a Provider › ADVANCED COMMUNICATIONS AND ELECTRONICS SYSTEMS COMPANY (128591691)
+✔ Switched to provider: ADVANCED COMMUNICATIONS AND ELECTRONICS SYSTEMS COMPANY (128591691)
+✔ Bundle identifier registered com.acessa.technician
+✔ Synced capabilities: Enabled: Push Notifications
+✔ Synced capability identifiers: No updates
+✔ Fetched Apple distribution certificates
+✔ Generate a new Apple Distribution Certificate? … yes
+✔ Created Apple distribution certificate
+✔ Created distribution certificate
+✔ Generate a new Apple Provisioning Profile? … yes
+✔ Created Apple provisioning profile
+✔ Created provisioning profile
+
+Project Credentials Configuration
+
+Project                   @advanced-communications-and-electronics-systems-company/aces-technician-app
+Bundle Identifier         com.acessa.technician
+                          
+App Store Configuration   
+                          
+Distribution Certificate  
+Serial Number             981DCEB6D97EE40F74BE500C56541AC
+Expiration Date           Tue, 04 May 2027 11:29:39 UTC
+Apple Team                7V975V396R (ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY (Company/Organization))
+Updated                   13 seconds ago
+                          
+Provisioning Profile      
+Developer Portal ID       FNBYG6UP48
+Status                    active
+Expiration                Tue, 04 May 2027 11:29:39 UTC
+Apple Team                7V975V396R (ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY (Company/Organization))
+Updated                   0 second ago
+                          
+All credentials are ready to build @advanced-communications-and-electronics-systems-company/aces-technician-app (com.acessa.technician)
+
+✔ Would you like to set up Push Notifications for your project? › Yes
+✔ Generate a new Apple Push Notifications service key? … yes
+✔ Created Apple push key
+✔ Created push key
+✔ Push Key assigned to aces-technician-app: com.acessa.technician
+
+Compressing project files and uploading to EAS Build. Learn more: https://expo.fyi/eas-build-archive
+✔ Compressed project files 4s (23.3 MB)
+✔ Uploaded to EAS 4s
+✔ Computed project fingerprint
+
+See logs: https://expo.dev/accounts/advanced-communications-and-electronics-systems-company/projects/aces-technician-app/builds/8450d086-3272-473b-8456-a5763fb5c64d
+
+Waiting for build to complete. You can press Ctrl+C to exit.
+✖ Build failed
+
+🍏 iOS build failed:
+Unknown error. See logs of the Prebuild build phase for more information.
+~/.../artifacts/technician-app$ 
