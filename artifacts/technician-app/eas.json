@@ -22,6 +22,9 @@
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_DOMAIN": "c026d872-077a-4024-937b-db2d88d85727-00-l2e8c3t7tt6o.spock.replit.dev"
       }
     }
   },
