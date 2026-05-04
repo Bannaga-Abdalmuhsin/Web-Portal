@@ -12,7 +12,7 @@ export function DriverLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex justify-center">
       {/* Mobile container constraint for driver app */}
-      <div className="w-full max-w-md bg-slate-950 min-h-screen flex flex-col relative shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md bg-slate-950 h-screen flex flex-col relative shadow-2xl overflow-hidden">
         
         {/* Background Effects */}
         <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none" />
