@@ -19,27 +19,38 @@
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification"],
         "NSCameraUsageDescription": "Used to photograph ODO meter and tank readings for mission documentation.",
-        "NSPhotoLibraryUsageDescription": "Used to attach photos of fuel tank and ODO meter readings."
+        "NSPhotoLibraryUsageDescription": "Used to attach photos of fuel tank and ODO meter readings.",
+        "NSLocationWhenInUseUsageDescription": "Used to record the location of fuel delivery activities.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Used to record the location of fuel delivery activities."
       }
     },
     "android": {
       "package": "com.acessa.technician",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://replit.com/"
-        }
-      ],
+      "expo-router",
       "expo-font",
       "expo-web-browser",
       "expo-image-picker",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Used to record the location of fuel delivery activities."
+        }
+      ],
       [
         "expo-notifications",
         {
