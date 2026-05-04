@@ -1,0 +1,47 @@
+~/.../artifacts/technician-app$ EXPO_TOKEN=84QSI0lL11MpSulo3AjTFKRy6ekE2eG-l-JvbFmC pnpm exec eas submit --platform ios
+★ eas-cli@18.10.0 is now available.
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+
+Found eas-cli in your project dependencies.
+It's recommended to use the "cli.version" field in eas.json to enforce the eas-cli version for your project.
+Learn more: https://github.com/expo/eas-cli#enforcing-eas-cli-version-for-your-project
+
+
+✔ What would you like to submit? › Select a build from EAS
+✔ Which build would you like to submit? › - ID: 7a77f162-6beb-42cf-81df-debbac282bf3 (2 minutes ago)
+Ensuring your app exists on App Store Connect. This step can be skipped by providing ascAppId in the submit profile. Learn more: https://expo.fyi/asc-app-id
+
+› Log in to your Apple Developer account to continue
+✔ Apple ID: … bannaga.altieb@aces-co.com
+› Restoring session /home/runner/.app-store/auth/bannaga.altieb@aces-co.com/cookie
+✔ Select a Team › ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY - Company/Organization (7V975V396R)
+› Provider ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY (128857273)
+✔ Logged in Local session
+
+✔ Bundle identifier registered com.acessa.technician
+✔ Prepared App Store Connect for ACES-MSD Fueling com.acessa.technician
+Looking up credentials configuration for com.acessa.technician...
+✔ App Store Connect API Key already set up.
+Using Api Key ID: HX4ZPBLLL7 ([Expo] EAS Submit myfd_WjjAq)
+
+ASC App ID:                 6766032734
+Project ID:                 860a0677-c225-4ed3-8e6b-f722b1be6a0d
+App Store Connect API Key:  
+    Key Name  :  [Expo] EAS Submit myfd_WjjAq
+    Key ID    :  HX4ZPBLLL7
+    Key Source:  EAS servers
+Build:                      
+    Build ID    :  7a77f162-6beb-42cf-81df-debbac282bf3
+    Build Date  :  5/4/2026, 12:48:38 PM
+    App Version :  1.0.0
+    Build number:  1
+
+✔ Scheduled iOS submission
+
+Submission details: https://expo.dev/accounts/advanced-communications-and-electronics-systems-company/projects/aces-technician-app/submissions/ad980d1b-a175-4204-ae2a-9f1b710e675a
+
+Waiting for submission to complete. You can press Ctrl+C to exit.
+✖ Something went wrong when submitting your app to Apple App Store Connect.
+~/.../artifacts/technician-app$ 
