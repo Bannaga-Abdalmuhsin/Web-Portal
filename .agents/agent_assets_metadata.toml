@@ -11,3 +11,21 @@ id = "6lIsCzyA86GpA5SztPF3i"
 uri = "file://attached_assets/generated_images/aces_feature_graphic.png"
 type = "image"
 title = "ACES-MSD Fueling — Play Store Feature Graphic"
+
+[[outputs]]
+id = "pjNihtQn4xlKN6yJz8HYG"
+uri = "file://attached_assets/image_1778160062330.png"
+type = "image"
+title = "Screenshot 1 — Login Screen"
+
+[[outputs]]
+id = "Kb4ElbU-HbIbi8x7jU_H2"
+uri = "file://attached_assets/image_1778160003121.png"
+type = "image"
+title = "Screenshot 2 — My Missions"
+
+[[outputs]]
+id = "KFPq-D7cX1Dme6m4UmFG0"
+uri = "file://attached_assets/image_1778160041957.png"
+type = "image"
+title = "Screenshot 3 — Alerts"
