@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { DriverLayout } from "@/components/layout/DriverLayout";
 import NotFound from "@/pages/not-found";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/Login";
@@ -51,6 +52,9 @@ function AuthGuard({ children, type }: { children: React.ReactNode, type: "admin
 function Router() {
   return (
     <Switch>
+      {/* Public */}
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+
       {/* Admin Public */}
       <Route path="/login" component={AdminLogin} />
 
