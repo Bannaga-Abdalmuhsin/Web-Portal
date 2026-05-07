@@ -1,3 +1,22 @@
 {
-  "expo": {}
+  "expo": {
+    "name": "ACES-MSD Fuelling",
+    "slug": "workspace",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.aces.msdfuelling"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "80041872-a4e7-48a5-b988-faf3da3b9052"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/80041872-a4e7-48a5-b988-faf3da3b9052"
+    },
+    "ios": {}
+  }
 }
