@@ -1,0 +1,13 @@
+uploads = []
+
+[[generated]]
+id = "7cYNflA-gg8JQn2cq0SBV"
+uri = "file://attached_assets/generated_images/aces_feature_graphic.png"
+type = "image"
+title = "generated_image"
+
+[[outputs]]
+id = "6lIsCzyA86GpA5SztPF3i"
+uri = "file://attached_assets/generated_images/aces_feature_graphic.png"
+type = "image"
+title = "ACES-MSD Fueling — Play Store Feature Graphic"
