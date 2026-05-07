@@ -1,0 +1,35 @@
+~/workspace$ cd artifacts/technician-app && EXPO_TOKEN=FN1db0AXeuLW0GqBZtAqhyITSZyjjmqSbhbU926c eas build --platform android --profile production
+★ eas-cli@18.11.0 is now available.
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+
+Found eas-cli in your project dependencies.
+It's recommended to use the "cli.version" field in eas.json to enforce the eas-cli version for your project.
+Learn more: https://github.com/expo/eas-cli#enforcing-eas-cli-version-for-your-project
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+Resolved "production" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
+No environment variables with visibility "Plain text" and "Sensitive" found for the "production" environment on EAS.
+Environment variables loaded from the "production" build profile "env" configuration: EXPO_PUBLIC_DOMAIN.
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+✔ Using remote Android credentials (Expo server)
+✔ Generate a new Android Keystore? … yes
+Detected that you do not have keytool installed locally.
+✔ Generating keystore in the cloud...
+✔ Created keystore
+
+Compressing project files and uploading to EAS Build. Learn more: https://expo.fyi/eas-build-archive
+✔ Compressed project files 1s (15.2 MB)
+✔ Uploaded to EAS 2s
+✔ Computed project fingerprint
+
+Build details: https://expo.dev/accounts/advanced-communications-and-electronics-systems-company/projects/aces-technician-app/builds/8b496bbd-83de-4401-8b22-3e07bc7ca63c
+
+Waiting for build to complete. You can press Ctrl+C to exit.
+✖ Build failed
+
+🤖 Android build failed:
+Gradle build failed with unknown error. See logs for the "Run gradlew" (https://expo.dev/accounts/advanced-communications-and-electronics-systems-company/projects/aces-technician-app/builds/8b496bbd-83de-4401-8b22-3e07bc7ca63c#run-gradlew) phase for more information.
+~/.../artifacts/technician-app$ 
