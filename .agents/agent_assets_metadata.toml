@@ -18,6 +18,150 @@ uri = "file://attached_assets/generated_images/android_alerts.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "In5eBeYbSH1d-gELaR5k4"
+uri = "file://attached_assets/generated_images/phone_login.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "HgIu9l_GfT7NZtTgyXDSX"
+uri = "file://attached_assets/generated_images/phone_missions.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "XLwzdgQ_hqKQYnp5F640U"
+uri = "file://attached_assets/generated_images/phone_mission_detail.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "8W5xZkAfGWplWFFIcfC-o"
+uri = "file://attached_assets/generated_images/phone_followup.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "R0-dt5fpuP4RtRiQOxVx1"
+uri = "file://attached_assets/generated_images/phone_alerts.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "FadAlcvZSr5sZ3drmuWEZ"
+uri = "file://attached_assets/generated_images/phone_profile.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "TEKBQQYC71VDoIEEf3uYK"
+uri = "file://attached_assets/generated_images/phone_missions_new.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "xW98CuCU0E3w1c84recg9"
+uri = "file://attached_assets/generated_images/phone_mission_map.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "isaP-VLKa9fP_V7dgqvwZ"
+uri = "file://attached_assets/generated_images/tablet7_login.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "nBm73Aticae1oJUSbFzeC"
+uri = "file://attached_assets/generated_images/tablet7_missions.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "MsDPJctTmmOx7aM8O682A"
+uri = "file://attached_assets/generated_images/tablet7_mission_detail.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "_g3RuOI2zPOO-DkNQyEVK"
+uri = "file://attached_assets/generated_images/tablet7_followup.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "hd_oQFvYfDE1ZaMen7_bR"
+uri = "file://attached_assets/generated_images/tablet7_alerts.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Kl2eOMgluyz8cIT6k4Hgl"
+uri = "file://attached_assets/generated_images/tablet7_profile.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ha026T_15-CgkOsSZk4zc"
+uri = "file://attached_assets/generated_images/tablet7_missions_new.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "pC7z-tjp1t828oYjlcGfF"
+uri = "file://attached_assets/generated_images/tablet7_mission_map.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "uKBKHey3pjTWnDsv1469g"
+uri = "file://attached_assets/generated_images/tablet10_login.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "83vdfWRIFGuAxD1IIskMr"
+uri = "file://attached_assets/generated_images/tablet10_missions.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "__lJ6vX4NMcb2l7ajADXA"
+uri = "file://attached_assets/generated_images/tablet10_mission_detail.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "OoGp2MpMtdl56QByv52eh"
+uri = "file://attached_assets/generated_images/tablet10_followup.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "a58ul3W1hrZMvOPLtwmIB"
+uri = "file://attached_assets/generated_images/tablet10_alerts.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "vQ4OZ71KolPL08nLS8jAO"
+uri = "file://attached_assets/generated_images/tablet10_profile.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "XwkJLS3CETOia_rxleUTG"
+uri = "file://attached_assets/generated_images/tablet10_missions_new.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "fTJdj--W3f29R7sqMIIb4"
+uri = "file://attached_assets/generated_images/tablet10_mission_map.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "rSQOS8SU3BGB9HHr8O3Q6"
 uri = "file://attached_assets/generated_images/android_login.png"
@@ -35,3 +179,159 @@ id = "JmH0vrz2R3pBUB8OwC3FC"
 uri = "file://attached_assets/generated_images/android_alerts.png"
 type = "image"
 title = "Android Screenshot 3 — Alerts"
+
+[[outputs]]
+id = "RCNUyWDekczLWm1Dspz4n"
+uri = "file://attached_assets/generated_images/app_icon_512.png"
+type = "image"
+title = "App Icon — 512x512 px"
+
+[[outputs]]
+id = "bE2vkQMYgxEoZ9JFdz7nM"
+uri = "file://attached_assets/generated_images/aces_feature_graphic.png"
+type = "image"
+title = "Feature Graphic — 1024x500 px"
+
+[[outputs]]
+id = "Fl5D3tWFYPM_ICuSDzP4K"
+uri = "file://attached_assets/generated_images/phone_login.png"
+type = "image"
+title = "Phone 1 — Login"
+
+[[outputs]]
+id = "7wgFmUOl9rgWQJLflONcs"
+uri = "file://attached_assets/generated_images/phone_missions.png"
+type = "image"
+title = "Phone 2 — My Missions"
+
+[[outputs]]
+id = "9z69nyrgpC6DtEOte6pq6"
+uri = "file://attached_assets/generated_images/phone_mission_detail.png"
+type = "image"
+title = "Phone 3 — Mission Detail"
+
+[[outputs]]
+id = "iyc1NCmo6yoj5mEgf2FXF"
+uri = "file://attached_assets/generated_images/phone_followup.png"
+type = "image"
+title = "Phone 4 — Follow-up Form"
+
+[[outputs]]
+id = "6vgeEddc1BzpgzR4f6CoN"
+uri = "file://attached_assets/generated_images/phone_alerts.png"
+type = "image"
+title = "Phone 5 — Alerts"
+
+[[outputs]]
+id = "jrekZe_W3iZZtR9Ievkr5"
+uri = "file://attached_assets/generated_images/phone_profile.png"
+type = "image"
+title = "Phone 6 — Profile"
+
+[[outputs]]
+id = "KAGUOlA0LBkGceT6jr12D"
+uri = "file://attached_assets/generated_images/phone_missions_new.png"
+type = "image"
+title = "Phone 7 — New Missions"
+
+[[outputs]]
+id = "I8uYisyRqa8GyIk5F-nHe"
+uri = "file://attached_assets/generated_images/phone_mission_map.png"
+type = "image"
+title = "Phone 8 — Mission Location"
+
+[[outputs]]
+id = "0H9NCvNr8p-5fzZdPkt-_"
+uri = "file://attached_assets/generated_images/tablet7_login.png"
+type = "image"
+title = "7-inch Tablet 1 — Login"
+
+[[outputs]]
+id = "XcfWgrtifUlrsBXdCNCQN"
+uri = "file://attached_assets/generated_images/tablet7_missions.png"
+type = "image"
+title = "7-inch Tablet 2 — My Missions"
+
+[[outputs]]
+id = "Jw7JCN9KOATEX2Sl-kpKW"
+uri = "file://attached_assets/generated_images/tablet7_mission_detail.png"
+type = "image"
+title = "7-inch Tablet 3 — Mission Detail"
+
+[[outputs]]
+id = "_agyzoL6eFxdddlB2OPVy"
+uri = "file://attached_assets/generated_images/tablet7_followup.png"
+type = "image"
+title = "7-inch Tablet 4 — Follow-up Form"
+
+[[outputs]]
+id = "zu-5KKacLzEbOXlQ2qJA0"
+uri = "file://attached_assets/generated_images/tablet7_alerts.png"
+type = "image"
+title = "7-inch Tablet 5 — Alerts"
+
+[[outputs]]
+id = "VAcokQ9Pbocb-830cqOpE"
+uri = "file://attached_assets/generated_images/tablet7_profile.png"
+type = "image"
+title = "7-inch Tablet 6 — Profile"
+
+[[outputs]]
+id = "Kbeyd5EKF2gu7P9_he1zw"
+uri = "file://attached_assets/generated_images/tablet7_missions_new.png"
+type = "image"
+title = "7-inch Tablet 7 — New Missions"
+
+[[outputs]]
+id = "fTEgbWBSvnZJ_BNuLtqYV"
+uri = "file://attached_assets/generated_images/tablet7_mission_map.png"
+type = "image"
+title = "7-inch Tablet 8 — Mission Location"
+
+[[outputs]]
+id = "CmvTK4_UtvTP0IY_JBaD7"
+uri = "file://attached_assets/generated_images/tablet10_login.png"
+type = "image"
+title = "10-inch Tablet 1 — Login"
+
+[[outputs]]
+id = "7saYIRT1PiU5R3_oWtAen"
+uri = "file://attached_assets/generated_images/tablet10_missions.png"
+type = "image"
+title = "10-inch Tablet 2 — My Missions"
+
+[[outputs]]
+id = "kRT0HaPUtBRyOW_SRUoTF"
+uri = "file://attached_assets/generated_images/tablet10_mission_detail.png"
+type = "image"
+title = "10-inch Tablet 3 — Mission Detail"
+
+[[outputs]]
+id = "GE_3NVfcjaCXFGH2x5tR5"
+uri = "file://attached_assets/generated_images/tablet10_followup.png"
+type = "image"
+title = "10-inch Tablet 4 — Follow-up Form"
+
+[[outputs]]
+id = "upCZwfyaf8OMxqxJ56gBf"
+uri = "file://attached_assets/generated_images/tablet10_alerts.png"
+type = "image"
+title = "10-inch Tablet 5 — Alerts"
+
+[[outputs]]
+id = "Ut_aAT7MRGaJJOsyA2P3p"
+uri = "file://attached_assets/generated_images/tablet10_profile.png"
+type = "image"
+title = "10-inch Tablet 6 — Profile"
+
+[[outputs]]
+id = "CCeksWfoY1A0-q0MRqyGL"
+uri = "file://attached_assets/generated_images/tablet10_missions_new.png"
+type = "image"
+title = "10-inch Tablet 7 — New Missions"
+
+[[outputs]]
+id = "SRZdqPgPm1BXX-AXZrmA6"
+uri = "file://attached_assets/generated_images/tablet10_mission_map.png"
+type = "image"
+title = "10-inch Tablet 8 — Mission Location"
