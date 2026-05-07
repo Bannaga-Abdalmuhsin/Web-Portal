@@ -163,24 +163,6 @@ type = "image"
 title = "generated_image"
 
 [[outputs]]
-id = "rSQOS8SU3BGB9HHr8O3Q6"
-uri = "file://attached_assets/generated_images/android_login.png"
-type = "image"
-title = "Android Screenshot 1 — Login"
-
-[[outputs]]
-id = "VpUs1JxuNTlymdVl9BJ23"
-uri = "file://attached_assets/generated_images/android_missions.png"
-type = "image"
-title = "Android Screenshot 2 — My Missions"
-
-[[outputs]]
-id = "JmH0vrz2R3pBUB8OwC3FC"
-uri = "file://attached_assets/generated_images/android_alerts.png"
-type = "image"
-title = "Android Screenshot 3 — Alerts"
-
-[[outputs]]
 id = "RCNUyWDekczLWm1Dspz4n"
 uri = "file://attached_assets/generated_images/app_icon_512.png"
 type = "image"
@@ -335,3 +317,9 @@ id = "SRZdqPgPm1BXX-AXZrmA6"
 uri = "file://attached_assets/generated_images/tablet10_mission_map.png"
 type = "image"
 title = "10-inch Tablet 8 — Mission Location"
+
+[[outputs]]
+id = "G8io3AmxOtadYmqlAx8lA"
+uri = "file://attached_assets/data_safety_aces_technician_app.csv"
+type = "table"
+title = "Data Safety — ACES Technician App (completed)"
