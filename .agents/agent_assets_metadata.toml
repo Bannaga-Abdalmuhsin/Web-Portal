@@ -163,12 +163,6 @@ type = "image"
 title = "generated_image"
 
 [[outputs]]
-id = "6vgeEddc1BzpgzR4f6CoN"
-uri = "file://attached_assets/generated_images/phone_alerts.png"
-type = "image"
-title = "Phone 5 — Alerts"
-
-[[outputs]]
 id = "jrekZe_W3iZZtR9Ievkr5"
 uri = "file://attached_assets/generated_images/phone_profile.png"
 type = "image"
