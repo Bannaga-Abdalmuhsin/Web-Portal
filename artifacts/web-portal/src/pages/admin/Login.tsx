@@ -419,8 +419,8 @@ function RiyadhBackground() {
 export default function Login() {
   const { loginAdmin } = useAuth();
   const [, setLocation] = useLocation();
-  const [username, setUsername] = useState("Bannaga");
-  const [password, setPassword] = useState("Aces@6343");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const loginMutation = useAdminLogin();
@@ -469,7 +469,7 @@ export default function Login() {
             <h1 className="text-3xl font-display font-bold text-slate-800 mb-2">Welcome Back</h1>
             <p className="text-slate-500 mb-8">Sign in to the ACES-MSD Fueling Web Portal.</p>
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
               {error && (
                 <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-medium border border-red-200">
                   {error}
@@ -483,6 +483,7 @@ export default function Login() {
                   <Input
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="off"
                     className="pl-12 h-14 rounded-xl bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-red-400/40 focus-visible:bg-white transition-all text-base"
                     placeholder="Enter username"
                   />
@@ -497,6 +498,7 @@ export default function Login() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
                     className="pl-12 h-14 rounded-xl bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-red-400/40 focus-visible:bg-white transition-all text-base"
                     placeholder="••••••••"
                   />
