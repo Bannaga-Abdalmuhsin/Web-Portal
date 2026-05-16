@@ -17,6 +17,11 @@
     "updates": {
       "url": "https://u.expo.dev/80041872-a4e7-48a5-b988-faf3da3b9052"
     },
-    "ios": {}
+    "ios": {
+      "bundleIdentifier": "com.aces.msdfuelling",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
   }
 }
