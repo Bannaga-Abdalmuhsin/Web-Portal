@@ -16,7 +16,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.acessa.technician",
+      "bundleIdentifier": "com.aces.msdfuelling",
       "buildNumber": "3",
       "infoPlist": {
         "UIBackgroundModes": [
