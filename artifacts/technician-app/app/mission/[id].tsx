@@ -42,13 +42,6 @@ interface Mission {
   tankAfterPhoto: string | null;
 }
 
-const STATUS_OPTIONS = ["Finished by Driver", "Reported by driver"] as const;
-type MissionAction = typeof STATUS_OPTIONS[number];
-
-const STATUS_COLORS: Record<MissionAction, { bg: string; text: string; border: string; activeBg: string }> = {
-  "Finished by Driver":  { bg: COLORS.skyMuted,  text: COLORS.sky,  border: `${COLORS.sky}60`, activeBg: COLORS.sky },
-  "Reported by driver":  { bg: COLORS.roseMuted, text: COLORS.rose, border: `${COLORS.rose}60`, activeBg: COLORS.rose },
-};
 
 const MISSION_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   "Creation":           { bg: COLORS.amberMuted, text: COLORS.amber },
@@ -119,7 +112,6 @@ export default function MissionDetailScreen() {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
 
-  const [selectedAction, setSelectedAction] = useState<MissionAction>("Finished by Driver");
   const [notes, setNotes] = useState("");
   const [litersBefore, setLitersBefore] = useState("");
   const [litersAdded, setLitersAdded] = useState("");
@@ -212,7 +204,7 @@ export default function MissionDetailScreen() {
       const res = await apiFetch(`/api/driver/missions/${id}`, {
         method: "PUT",
         body: JSON.stringify({
-          missionStatus: selectedAction,
+          missionStatus: "Finished by Driver",
           notes,
           driverName: user?.name ?? "",
           litersBefore: litersBefore ? parseFloat(litersBefore) : null,
@@ -479,35 +471,6 @@ export default function MissionDetailScreen() {
                 <Text style={styles.cardTitle}>Update Mission</Text>
               </View>
 
-              <Text style={styles.fieldLabel}>Select Action</Text>
-              <View style={styles.statusRow}>
-                {STATUS_OPTIONS.map((s) => {
-                  const sc = STATUS_COLORS[s];
-                  const isSelected = selectedAction === s;
-                  return (
-                    <TouchableOpacity
-                      key={s}
-                      style={[
-                        styles.statusOption,
-                        { borderColor: sc.border },
-                        isSelected && { backgroundColor: sc.activeBg, borderColor: sc.activeBg },
-                      ]}
-                      onPress={() => { setSelectedAction(s); Haptics.selectionAsync(); }}
-                      activeOpacity={0.75}
-                    >
-                      <Feather
-                        name={s === "Finished by Driver" ? "check-circle" : "alert-triangle"}
-                        size={16}
-                        color={isSelected ? COLORS.white : sc.text}
-                      />
-                      <Text style={[styles.statusOptionText, { color: isSelected ? COLORS.white : sc.text }]}>
-                        {s === "Finished by Driver" ? "Mark Finished" : "Report Issue"}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
               <Text style={styles.fieldLabel}>Notes / Remarks</Text>
               <TextInput
                 style={styles.textarea}
@@ -537,7 +500,7 @@ export default function MissionDetailScreen() {
                   </>
                 ) : (
                   <>
-                    <Text style={styles.submitBtnText}>Submit Update</Text>
+                    <Text style={styles.submitBtnText}>Submit Task</Text>
                     <Feather name="send" size={16} color={COLORS.white} />
                   </>
                 )}
