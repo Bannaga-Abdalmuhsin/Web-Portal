@@ -1,0 +1,44 @@
+~/workspace$ npx eas-cli submit --platform ios --profile production --latest
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm.
+★ eas-cli@18.13.0 is now available.
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+
+
+Ensuring your app exists on App Store Connect. This step can be skipped by providing ascAppId in the submit profile. Learn more:
+https://expo.fyi/asc-app-id
+
+› Log in to your Apple Developer account to continue
+✔ Apple ID: … bannaga.altieb@aces-co.com
+› Restoring session /home/runner/.app-store/auth/bannaga.altieb@aces-co.com/cookie
+✔ Select a Team › ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY - Company/Organization (7V975V396R)
+› Provider ADVANCED COMMUNICATIONS AND ELECTRONIC SYSTEMS COMPANY (128857273)
+✔ Logged in Local session
+
+✔ Bundle identifier registered com.aces.msdfuelling
+✔ Prepared App Store Connect for ACES-MSD Fuelling com.aces.msdfuelling
+Looking up credentials configuration for com.aces.msdfuelling...
+✔ App Store Connect API Key already set up.
+Using Api Key ID: 7T83R4G337 ([Expo] EAS Submit qgSiTue7vn)
+
+ASC App ID:                 6770050434
+Project ID:                 80041872-a4e7-48a5-b988-faf3da3b9052
+App Store Connect API Key:  
+    Key Name  :  [Expo] EAS Submit qgSiTue7vn
+    Key ID    :  7T83R4G337
+    Key Source:  EAS servers
+Build:                      
+    Build ID    :  eb623e11-c755-4baf-a6d5-21f940a5b484
+    Build Date  :  5/16/2026, 12:45:23 PM
+    App Version :  1.0.0
+    Build number:  5
+
+✔ Scheduled iOS submission
+
+Submission details: https://expo.dev/accounts/bannaga/projects/workspace/submissions/bef526a3-2119-4ccb-9cc5-40a50b420c9e
+
+Waiting for submission to complete. You can press Ctrl+C to exit.
+✖ Something went wrong when submitting your app to Apple App Store Connect.
+~/workspace$ 
