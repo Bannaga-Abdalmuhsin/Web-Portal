@@ -269,3 +269,10 @@ id = "SRZdqPgPm1BXX-AXZrmA6"
 uri = "file://attached_assets/generated_images/tablet10_mission_map.png"
 type = "image"
 title = "10-inch Tablet 8 — Mission Location"
+
+[[outputs]]
+id = "_D1rSBT-LkXX_POO6wtT7"
+uri = "file://ACES_full_source_code.pdf"
+type = "pdf"
+title = "ACES Complete Source Code"
+description = "Full editable source export covering the Expo mobile app, React web portal, Express backend, shared API contracts, generated clients, and database schema. Private keys, credentials, dependencies, build output, and binary assets are excluded."
